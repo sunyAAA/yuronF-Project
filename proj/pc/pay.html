@@ -1,0 +1,151 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>支付订单</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .box {padding: 25px 19px; border-radius: 8px}
+        td.border {border-right: 1px solid #D9D9D9; border-bottom: 1px solid #D9D9D9}
+        .paytb {width: 100%; border-top-right-radius: 8px; border-top-left-radius: 8px; overflow: hidden; margin-top: 25px}
+
+        .paybox {width: 50%; float: left}
+        .paybox>span>img {width: 100px; height: 100px}
+        .paybox>span:hover >span {color: #F7775F}
+    </style>
+</head>
+<body>
+<script type="text/javascript">
+    setNav();
+</script>
+    <div class="bg">
+        <div class="content oh">
+            <div class="box bcw">
+                <span class="c73 fpx16">确认订单信息</span>
+                <div style="padding: 0px 25px">
+                    <table cellspacing="0" class="paytb">
+                        <tr class="bcf7" style="line-height: 50px">
+                            <th class="cw">商品名称</th>
+                            <!--<th class="cw">套餐</th>-->
+                            <th class="cw">单价</th>
+                            <th class="cw">数量</th>
+                            <th class="cw">到期时间预计</th>
+                            <th class="cw">小计</th>
+                        </tr>
+                        <tr class="tc" style="line-height: 93px">
+                            <td id="name" style="border-left: 1px solid #D9D9D9; border-bottom-left-radius: 8px" class="border"></td>
+                            <!--<td class="border">一年</td>-->
+                            <td id="price" class="border"></td>
+                            <td class="border">1</td>
+                            <td id="endtime" class="border"></td>
+                            <td id="total" style="border-bottom-right-radius: 8px" class="border"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div id="btmbox" class="box bcw oh" style="margin-top: 62px">
+                <span class="c73 fpx16">选择支付方式</span>
+                <div style="margin-top: 25px">
+                    <div class="paybox tc">
+                        <span onclick="payorder(0)" class="poif7">
+                            <img style="margin-bottom: 10px" src="img/alipay.png" alt=""/><br/>
+                            <span class="fpx16">支付宝支付</span>
+                        </span>
+                    </div>
+                    <div class="paybox tc">
+                        <span onclick="payorder(1)" class="poif7">
+                            <img style="width: 120px; margin-bottom: 10px" src="img/wxpay.png" alt=""/><br/>
+                            <span class="fpx16">微信支付</span>
+                        </span>
+                    </div>
+                    <div style="clear: both"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript">
+
+        var pid = Unit.query("pid");
+        var name = Unit.query("name");
+        var day = Unit.query("day");
+        var money = Unit.query("money");
+
+        var namebox = document.getElementById("name");
+        var price = document.getElementById("price");
+        var endtime = document.getElementById("endtime");
+        var total = document.getElementById("total");
+
+        var u = Local.user();
+        var time = new Date().getTime();
+        if(u.vipterm) {
+            if(u.vipterm > time)
+                time = u.vipterm;
+        }
+        namebox.innerHTML = name;
+        price.innerHTML = total.innerHTML = "¥" + toMoney(money);
+        endtime.innerHTML = Unit.time((parseInt(time)+parseInt(day)*3600*24*1000), 'yyyy-MM-dd');
+
+        //活动情况
+
+        if(parseFloat(money)<=0) {
+            var btmbox = document.getElementById("btmbox");
+            btmbox.innerHTML = "<div style='width: 100px; height: 40px; line-height: 40px; border-radius: 8px; margin-right: 25px' class='bcf7 cw tc poi fright' onclick='payorder()'>确认购买</div>";
+        }
+
+
+        var u = Local.user();
+        var wxpaytimer = null;
+        function payorder(t) {
+            LoadingBox.show();
+            Http.post("api/pay/save", {pid:pid}, function (r) {
+                LoadingBox.hide();
+                if(parseFloat(money)<=0) {
+                    LoadingBox.show();
+                    Prompt.alert({text:"购买成功！"}, function () {
+                        Http.get("api/customer/info",{},function (u) {
+                            LoadingBox.hide();
+                            if(u)
+                                Local.user(u);
+                            top.location.href = "personal.html?idx=1";
+
+                        });
+                    })
+                } else {
+                    //支付流程
+                    if(t===0) {
+                        LoadingBox.show();
+                        Http.get("api/pay/getPayInfo", {ordersids:r, type:2}, function (r1) {
+                           LoadingBox.hide();
+                           document.write(r1);
+                        });
+                    } else {
+                        LoadingBox.show();
+                        Http.get("api/pay/getPayInfo", {ordersids:r, type:5}, function (r1) {
+                            LoadingBox.hide();
+                            if(r1.code_url) {
+                                Local.save("wxpay", encodeURIComponent(r1.code_url));
+                                Prompt.openIfr('casesharecode.html?wxpay='+r1, {w:400,h:352,sc:true,sd:.3});
+                                clearInterval(wxpaytimer);
+                                wxpaytimer = setInterval(function () {
+                                    Http.get("api/pay/show", {oid:r}, function (r2) {
+                                        if(r2 && r2.state==1) {
+                                            top.location.href = "personal.html?idx=1";
+                                        }
+                                    }, null, false);
+                                }, 2000);
+                            }
+                        });
+                    }
+                }
+            })
+        }
+
+    </script>
+</body>
+</html>

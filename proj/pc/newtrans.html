@@ -1,0 +1,163 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>新建交易结构</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        body {padding: 25px}
+        .box {height: 350px; overflow-x: hidden; overflow-y: scroll; padding-right: 20px}
+        .row {height: 34px; line-height: 34px; font-size: 16px; margin-bottom: 19px}
+        .row .ct {margin-left: 60px; margin-right: 40px; border:1px solid #D9D9D9; box-sizing: border-box; height: 100%; padding:7px}
+        .row .ct>input {width: 100%; height: 18px; line-height: 18px}
+        .row .addbtn {display: inline-block; width: 22px; height: 22px; border-radius: 11px; line-height: 24px; overflow: hidden; color: white; background-color: #009AD0; text-align: center; margin-top: 5.5px}
+        .btmbox {margin-top: 20px}
+        .btmbox .btn {padding: 10px 40px; border:1px solid #D9D9D9; border-radius: 10px}
+        .btmbox .btn.bcf7 {border-color: #F7775F; margin-left: 50px; color: white}
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div tag="chen" class="row">
+            <span class="fleft">融资方</span>
+            <span  onclick="addrow(this)" class="fright addbtn poi">＋</span>
+            <div class="ct">
+                <input maxlength="20" type="text" placeholder="请输入融资方" />
+            </div>
+        </div>
+        <div tag="chu" class="row">
+            <span class="fleft">出资方</span>
+            <span onclick="addrow(this)" class="fright addbtn poi">＋</span>
+            <div class="ct">
+                <input maxlength="20" type="text" placeholder="请输入出资方" />
+            </div>
+        </div>
+        <div tag="dan" class="row">
+            <span class="fleft">担保人</span>
+            <span onclick="addrow(this)" class="fright addbtn poi">＋</span>
+            <div class="ct">
+                <input maxlength="20" type="text" placeholder="请输入担保人" />
+            </div>
+        </div>
+        <div class="row">
+            <span class="fleft">物件</span>
+            <div class="ct">
+                <input maxlength="20" name="Things" type="text" placeholder="请输入物件" />
+            </div>
+        </div>
+        <div class="row">
+            <span class="fleft">增信措施</span>
+            <div class="ct">
+                <input maxlength="20" name="Credit" type="text" placeholder="请输入增信措施" />
+            </div>
+        </div>
+        <div class="row">
+            <span class="fleft">备注</span>
+            <div class="ct">
+                <input name="Remark" type="text" placeholder="请输入备注" />
+            </div>
+        </div>
+    </div>
+    <div class="btmbox tc">
+        <span class="btn poi" onclick="cancel()">取消</span>
+        <span class="btn bcf7 poi" onclick="sure()">确认</span>
+    </div>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript">
+
+        var tagDict = {"chen":{n:"融资方", k:"RentName"},"chu":{n:"出资方", k:"LeaseName"},"dan":{n:"担保人", k:"Guarantor"}}
+        var pid = Unit.query("pid");
+        var tid = Unit.query("tid");
+        
+        function addrow(e) {
+            var row = e.parentNode;
+            var tag = row.getAttribute("tag");
+            var cs = document.querySelectorAll('[tag="'+tag+'"]');
+            if(cs.length<5) {
+                var nr = row.cloneNode(true);
+                nr.querySelector("input").value="";
+                row.parentNode.insertBefore(nr, getNextElement(cs[cs.length-1]));
+                nr.querySelector(".addbtn").innerHTML = "✕";
+                nr.querySelector(".fleft").innerHTML = tagDict[tag].n + (cs.length+1);
+                var btn = nr.querySelector(".addbtn");
+                btn.onclick=function(){
+                    delRow(this);
+                }
+            }
+        }
+
+        function delRow(e) {
+            e.parentNode.parentNode.removeChild(e.parentNode);
+        }
+
+        function cancel(d) {
+            Prompt.closeIfr(d);
+        }
+
+        function sure() {
+            var obj = {};
+            for(var i in tagDict) {
+                if(tagDict.hasOwnProperty(i)) {
+                    var cs = document.querySelectorAll('[tag="'+i+'"]');
+                    var strs = [];
+                    for(var j=0;j<cs.length;j++) {
+                        var v = cs[j].querySelector("input").value;
+                        if(v.toString().length>0) {
+                            strs.push(encodeURIComponent(v));
+                        }
+                    }
+                    obj[tagDict[i].k] = strs.join(";");
+                }
+            }
+            var ncs = document.querySelectorAll("[name]");
+            for(var i=0;i<ncs.length;i++) {
+                obj[ncs[i].getAttribute("name")] = ncs[i].value;
+            }
+            obj.ProjectID = pid?pid:'';
+            LoadingBox.show();
+            if(tid) obj.tsid = tid;
+            Http.post(tid?"api/struct/modify":"api/struct/save", obj, function() {
+                LoadingBox.hide();
+                cancel(1);
+            })
+        }
+
+
+        if(tid) {
+            LoadingBox.show();
+            Http.get("api/struct/show", {tsid:tid}, function(r) {
+                LoadingBox.hide();
+                if(r) {
+                    var rs = r.rentname.split(";");
+                    var ls = r.leasename.split(";");
+                    var gs = r.guarantor.split(";");
+                    var btns = document.querySelectorAll(".addbtn.poi");
+                    for(var i=0;i<rs.length;i++) {
+                        if(i>0) btns[0].onclick(btns[0]);
+                        var inps = document.querySelectorAll('[tag="chen"] input');
+                        inps[inps.length-1].value = decodeURIComponent(rs[i]);
+                    }
+                    for(var i=0;i<ls.length;i++) {
+                        if(i>0) btns[1].onclick(btns[1]);
+                        var inps = document.querySelectorAll('[tag="chu"] input');
+                        inps[inps.length-1].value = decodeURIComponent(ls[i]);
+                    }
+                    for(var i=0;i<gs.length;i++) {
+                        if(i>0) btns[2].onclick(btns[2]);
+                        var inps = document.querySelectorAll('[tag="dan"] input');
+                        inps[inps.length-1].value = decodeURIComponent(gs[i]);
+                    }
+                    var ncs = document.querySelectorAll("[name]");
+                    for(var i=0;i<ncs.length;i++) {
+                        ncs[i].value = r[ncs[i].getAttribute("name").toLowerCase()];
+                    }
+                }
+            })
+        }
+    </script>
+</body>
+</html>

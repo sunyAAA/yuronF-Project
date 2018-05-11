@@ -1,0 +1,343 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>语融服</title>
+    <link href="css/style.css" rel="stylesheet" />
+    <script src="inc/jquery-1.9.1.min.js"></script>
+    <script src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .box2 .tab {width: 300px; float: left; height: 40px; line-height: 40px; text-align: center; border: 1px solid #D9D9D9}
+        .box2 .tab .item:first-child {border-right: 1px solid #D9D9D9; box-sizing: border-box}
+        .box2 .tab .item {width: 150px; float: left; font-size: 14px}
+        .box2 .tab .item.ok {color: white; background-color: #F7775F}
+        .box2 .btn {width: 110px; height: 32px; line-height: 32px; border-radius: 5px; border: 1px solid #F7775F; display: inline-block; text-align: center; color: #F7775F; margin-left: 20px; margin-top: 20px}
+        .box2 .btn:hover {background-color: #F7775F; color: white; cursor: pointer}
+        .box2 {border-radius: 8px; margin-bottom: 12.5px; overflow: hidden}
+        .box2 .title {line-height: 25px; margin-bottom: 19px}
+        .box2 .title .fright>img {width: 13px; height: 13px; margin-right: 5px; vertical-align: -10%}
+        .box2 table {width: 100%;border-collapse: collapse; margin-bottom: 15px}
+        .box2 table td {width: 25%; height: 45px}
+        .box2 table td:not(.tc) {padding-left: 50px}
+        .box3 {padding: 20px 56px; border-radius: 8px}
+        .c009 {color: #009AD0}
+        .del {display: inline-block; width: 22px; height: 22px; border-radius: 11px; line-height: 24px; overflow: hidden; color: white!important; background-color: #009AD0; margin-right: 10px}
+        .del:hover {cursor: pointer}
+        th .del {margin-top: -20px; float: none; margin-left: auto; margin-right: auto}
+        .delbox {background-color: #cecece!important}
+        td select {width: 100px;  height: 30px;  line-height: 30px;}
+    </style>
+</head>
+<body>
+<script type="text/javascript">
+    setNav();
+</script>
+    <div class="bg">
+        <div class="content oh">
+            <div class="box2 bcw">
+                <div style="padding-bottom:30px" class="oh">
+                    <div class="tab">
+                        <div idx="0" class="item ok poi">标准方案模版</div>
+                        <div idx="1" class="item poi">简单方案模版</div>
+                    </div>
+                    <span onclick="cancel()" style="margin-right:55px" class="btn fright">取消</span>
+                    <span onclick="save()" class="btn fright">保存</span>
+                </div>
+                <div style="padding-left:55px; padding-right:55px">
+                    <div class="title">
+                        <span class="fpx20">资金方案</span>
+                        <span style="margin-left:100px" class="fright"><img src="img/danwei.png" />单位：元（人民币）</span>
+                        <!--<span class="fright"><img src="img/shijian.png" />制表时间：2017-08-12 09:00</span>-->
+                    </div>
+                    <div>
+                        <table id="tb1" border="1" cellspacing="0"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="box3 bcw">
+                <span class="fpx20">具体还款方案</span>
+                <div>
+                    <table id="tb2" class="base"></table>
+                </div>
+                <div style="margin-top: 20px">
+                    <span style="max-width: 56%; display: inline-block" class="c9">（以上条款和条件为参考性条款，所有内容需经公司信用评估程序最终批准后，并签署合同后正式生效）</span>
+                    <span class="fright c9">请在右侧盖章以示接受上述方案， 盖章确认_______________________</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/comm.js"></script>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <style>
+        .layui-layer-page {background-color: white!important}
+    </style>
+    <script src="inc/layer/layer.js"></script>
+    <script>
+
+
+
+        var tid = parseInt(Unit.query("tid"));
+        var tabs = document.querySelectorAll(".tab .item");
+        var tabIdx = 0;
+
+
+        var calc = Unit.query("calc");
+        var detail = null;
+
+        var back = parseInt(Unit.query("back"));
+        function cancel(ntid) {
+            if(calc) {
+                top.location.href = "casedetail.html?calc=1&tid="+(ntid?ntid:tid);
+            } else {
+                if(back===0 || !tid) {
+                    top.location.href = "famb.html";
+                } else
+                    top.location.href = "modelpreview.html?tid="+(ntid?ntid:tid);
+            }
+        }
+
+        var tb1 = document.getElementById("tb1");
+        var tb2 = document.getElementById("tb2");
+        function configData() {
+            var tes = [];
+            var tidx = 0;
+            for(var i=0;i<caseModel.base.length;i++) {
+                if(caseModel.base[i].t) {
+                    if(caseModel.base[i].t===1) {
+                        tes.push('<tr '+(caseModel.base[i].s?'notsimple':'')+' >\
+                                <td>'+caseModel.base[i].n+'</td>\
+                                <td class="tc" colspan="3">'+caseModel.base[i].c+'<span class="fright del">✕</span>\
+                                </td>\
+                            </tr>');
+                    } else if(caseModel.base[i].t===2) {
+                        if(tidx===0) {
+                            tes.push('<tr><td>'+caseModel.base[i].n+'</td>\
+                            <td class="tc">'+caseModel.base[i].c+(caseModel.base[i].c?'<span class="fright del">✕</span>':'')+'\
+                                </td>');
+                            tidx++;
+                        } else if(tidx===1) {
+                            tes.push('<td>'+caseModel.base[i].n+'</td>\
+                            <td class="tc">'+caseModel.base[i].c+(caseModel.base[i].c?'<span class="fright del">✕</span>':'')+'\
+                            </td></tr>');
+                            tidx=0;
+                        }
+                    }
+                } else if (caseModel.base[i].length>0) {
+                    for(var j=0;j<caseModel.base[i].length;j++) {
+                        tes.push('<tr '+(caseModel.base[i][j].s?'notsimple':'')+' >\
+                                <td>'+caseModel.base[i][j].n+'</td>\
+                                <td class="tc" colspan="3">'+caseModel.base[i][j].c+'<span class="fright del">✕</span>\
+                                </td>\
+                            </tr>');
+                    }
+                }
+            }
+            var pn = tb1.parentNode;
+            pn.innerHTML = '<table id="tb1" border="1" cellspacing="0">'+tes.join("")+'</table>';
+            tb1 = pn.querySelector("table");
+
+            var bes = ['<tr style="height: 32px;background-color: #FFEDE7;">'];
+            for(var i=0;i<caseModel.detail.length;i++) {
+                bes.push('<th '+(caseModel.detail[i].s?'notsimple':'')+' idx="'+i+'"><div><span class="fright del">✕</span></div>'+caseModel.detail[i].n+'</th>');
+            }
+            bes.push('</tr>');
+            var nt = new Date().getTime();
+            for(var i=0;i<10;i++) {
+                bes.push('<tr><td>'+(i+1)+'</td><td>'+Unit.time(nt+i*30*24*60*60*1000, 'yyyy-MM-dd')+'</td><td  class="c009 moneyc">12,256,002.55</td><td notsimple class="c009 moneyc" >32,000.85</td><td class="c009 moneyc" notsimple >12,224,001.70</td></tr>')
+            }
+            var pn2 = tb2.parentNode;
+            pn2.innerHTML = '<table id="tb2" class="base">'+bes.join("")+'</table>';
+            tb2 = pn2.querySelector("table");
+            
+
+
+            //设置可替换项
+            var tds = tb1.querySelectorAll("td");
+            for(var i=0;i<tds.length;i++) {
+                var mutis = mutiDict[tds[i].innerHTML];
+                if(mutis) {
+                    var opes = ['<select onchange="changeSel(this)">'];
+                    for(var j=0;j<mutis.length;j++) {
+                        opes.push('<option>'+mutis[j]+'</option>')
+                    }
+                    opes.push('</select>');
+                    tds[i].innerHTML = opes.join("");
+                }
+            }
+        }
+
+        function changeSel(e) {
+            if(e.selectedIndex>0) {
+                e.setAttribute("sok","1");
+            } else e.removeAttribute("sok");
+        }
+
+
+
+
+        function save() {
+            if(tid>=0) {
+                saveModel(detail.templatename);
+            } else {
+                var d = document.querySelector("[disable],select[sok]");
+                if(!d) {
+                    top.layer.msg("请修改模版内容");
+                    return;
+                }
+                Prompt.openIfr('popinput.html?title=提示&placeholder=请输入模版名称', {w:350,h:250}, function (a) {
+                    if(!(a===undefined || a===null)) saveModel(a);
+                });
+            }
+        }
+
+        function saveModel(d) {
+            var dels = document.querySelectorAll(".del");
+            var iddict = {};
+            for(var i=0;i<dels.length+1;i++) {
+                if(i==19) continue;
+                var idx = i>19?i-1:i;
+                if(!dels[idx].hasAttribute("disable")) {
+                    iddict[i]=1;
+                }
+            }
+            var obj = {TemplateName:d,TemplateBase:0};
+            if(tabIdx===1) {
+                delete iddict[0];
+                delete iddict[1];
+                delete iddict[2];
+                delete iddict[3];
+                delete iddict[4];
+                delete iddict[24];
+                delete iddict[25];
+                obj.TemplateBase=1;
+            }
+            var saveIds = [];
+            for(var i in iddict) {
+                if(iddict.hasOwnProperty(i)) {
+                    saveIds.push(i);
+                }
+            }
+            obj.HideFields = saveIds.join(",");
+            var soks = document.querySelectorAll("select[sok]");
+            obj.config={};
+            if(soks.length>0) {
+                for(var i=0;i<soks.length;i++) {
+                    obj.config[soks[i].options[0].innerHTML] = soks[i].value;
+                }
+            }
+            obj.config = JSON.stringify(obj.config);
+            var url = "api/template/save";
+            if(tid>=0) {
+                obj.templateID = tid;
+                url = "api/template/modify";
+            }
+            LoadingBox.show();
+            Http.post(url,obj, function(r) {
+                LoadingBox.hide();
+                cancel(r);
+            })
+        }
+
+
+        //配置模版数据
+        userPrivilege(function () {
+            if(!privilege) {
+                tabs[0].parentNode.style.display="none";
+                if(!tid)
+                    tid=-2;
+            }
+            for(var i=0;i<tabs.length;i++) {
+                tabs[i].onclick = function() {
+                    if(this.className.indexOf("ok")<0) {
+                        var idx = parseInt(this.getAttribute("idx"));
+                        tabs[idx===0?1:0].className = "item poi";
+                        this.className = "item ok poi";
+                        tabIdx = idx;
+                        var es = document.querySelectorAll("[notsimple]");
+                        for(var i=0;i<es.length;i++) {
+                            es[i].style.display=idx===0?"":"none";
+                        }
+                    }
+                }
+            }
+            configData();
+            if (tid==-2 || !privilege) {
+                tabs[1].onclick();
+            }
+
+            var dels = document.querySelectorAll(".del");
+            var btb = document.querySelector("table.base");
+            for(var i=0;i<dels.length;i++) {
+                dels[i].onclick = function() {
+                    var p = this.parentNode;
+                    var t = 0;
+                    if(p.tagName==="DIV") {
+                        p = p.parentNode;
+                        t = 1;
+                    }
+                    if(this.innerHTML === "✕") {
+                        this.innerHTML = "✓";
+                        this.setAttribute("disable", "1");
+                    } else {
+                        this.innerHTML = "✕";
+                        this.removeAttribute("disable");
+                    }
+                    if(t===0) {
+                        p.className=(p.className.indexOf("delbox")>-1?p.className.replace(" delbox",""):p.className+" delbox");
+                        getPreviousElement(p).className=getPreviousElement(p).className.indexOf("delbox")>-1?getPreviousElement(p).className.replace(" delbox",""):getPreviousElement(p).className+" delbox";
+                    } else {
+                        var idx = parseInt(p.getAttribute("idx"));
+                        for(var i=0;i<btb.rows.length;i++) {
+                            for(var j=0;j<btb.rows[i].cells.length;j++) {
+                                if(j===idx) {
+                                    var cell = btb.rows[i].cells[j];
+                                    cell.className=cell.className.indexOf("delbox")>-1?cell.className.replace(" delbox",""):cell.className+" delbox";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(tid>=0) {
+                LoadingBox.show();
+                Http.get("api/template/show", {tid: tid}, function (r) {
+                    LoadingBox.hide();
+                    detail = r;
+                    if (r) {
+                        var sIds = r.hidefields.split(",");
+                        var sDict = {};
+                        for (var i = 0; i < sIds.length; i++) {
+                            sDict[sIds[i]] = 1;
+                        }
+                        for (var i = 0; i < dels.length+1; i++) {
+                            if(i==19) continue;
+                            var idx = i>19?i-1:i;
+                            if (!sDict[i]) {
+                                dels[idx].onclick();
+                            }
+                        }
+
+                        //设置已选择的自定义项
+                        if(r && r.config) {
+                            var dict = JSON.parse(r.config);
+                            var tds = tb1.querySelectorAll("td select");
+                            for(var i=0;i<tds.length;i++) {
+                                var seltext = dict[tds[i].value];
+                                if(seltext) {
+                                    tds[i].value = seltext;
+                                    tds[i].setAttribute("sok","1");
+                                }
+                            }
+                        }
+                    }
+                })
+            }
+        });
+
+
+
+    </script>
+</body>
+</html>

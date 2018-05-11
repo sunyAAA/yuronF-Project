@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>项目详情</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .tnav {height: 40px; line-height: 40px}
+        .info {border-radius: 8px; padding: 15px 40px; margin-bottom: 12px}
+        table.tbinfo {width: 80%}
+        table.tbinfo td {line-height: 30px; font-size: 13px}
+        table.tbinfo .c73 {width: 90px}
+        .editbtn {padding: 3px 18px; border-radius: 5px; margin-top: 5px}
+        .editbtn:hover {cursor: pointer; background-color: #b85947 }
+
+
+
+        .tbox {border-top-left-radius: 8px; border-top-right-radius: 8px; margin-bottom: 17.5px; overflow: hidden}
+        .tbox select {height: 34px; line-height: 34px; margin-top: 1px; width: 8%; margin-left: 20px; border:1px solid #D9D9D9; background-color: white}
+        .tbox .btn {height: 32px; line-height: 35px; width: 9%; border:1px solid #009AD0; color: #009AD0; border-radius: 5px; margin-top: 1px; position: relative; margin-left: 20px; float: left; text-align: center}
+        .tbox .btn.right {float: right}
+        .tbox .btn:hover{cursor: pointer; background-color: #009AD0; color: white}
+        .tbox .date>input {display: block; width: 100%;  margin-top: 9px;}
+        .bbox {border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; padding: 25px 50px}
+
+        .tbox .btns>span {display: inline-block; width: 107px; height: 38px; text-align: center; line-height: 38px; border:1px solid #D9D9D9; border-left:none ; box-sizing: border-box; float: left}
+        .tbox .btns>span.ok {font-weight: 600; color: white; background-color: #F7775F; border-color: #F7775F; border-right-color: #D9D9D9}
+
+        .newproj {width: 375px; height: 147px; border-radius: 8px; margin: auto; padding-top: 40px}
+        .newproj>.ninp {display: inline-block; width: 180px; height: 17px; border:1px solid #D9D9D9; padding: 8px 3px; overflow: hidden; margin-left: 10px; vertical-align: -65%;}
+        .newproj>.ninp>input {width: 100%; height: 100%}
+        .mbtn {padding: 10px 35px; border-radius: 8px}
+
+    </style>
+</head>
+<body>
+<script type="text/javascript">
+    setNav();
+</script>
+    <div class="tnav bcw">
+        <div class="content">
+            您现在的位置：<span class="cbf">项目管理</span> > <span id="projname"></span> <span onclick="top.location.href='xmgl.html'" class="cbf poi">返回项目列表</span>
+        </div>
+    </div>
+    <div class="bg">
+        <div class="content oh">
+            <div class="info bcw">
+                <span onclick="editProj();" class="fright bcf7 cw tc editbtn">编辑</span>
+                <table class="tbinfo">
+                    <tr>
+                        <td class="c73">项目名称</td>
+                        <td id="pname"></td>
+                        <td class="c73">项目地址</td>
+                        <td id="paddr"></td>
+                        <td class="c73">项目阶段</td>
+                        <td id="pstage"></td>
+                    </tr>
+                    <tr>
+                        <td class="c73">项目金额(万元)</td>
+                        <td id="pmoney"></td>
+                        <td class="c73">立项时间</td>
+                        <td id="pdate"></td>
+                        <td class="c73">项目类型</td>
+                        <td id="ptype"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="tbox">
+                <div class="manage oh btns bcw">
+                    <span idx="0" class="poi">方案列表</span>
+                    <span idx="1" class="poi">方案数据</span>
+                    <span idx="2" class="poi">交易结构</span>
+                    <span idx="3" class="poi">方案记录</span>
+                    <span idx="4" class="poi">项目记录</span>
+                </div>
+                <iframe frameborder="0" style="height: 700px;" id="miframe"></iframe>
+            </div>
+        </div>
+    </div>
+    <div class="newproj bcw tc hide">
+        <span class="fpx16">请输入方案名称</span>
+        <span class="ninp">
+            <input class="fpx14" type="text"/>
+        </span>
+        <div style="margin-top: 40px">
+            <span onclick="layer.close(nProjTag)" style="border:1px solid #999999; padding: 9px 35px" class="mbtn c73 poi">取消</span>
+            <span onclick="location.href='addcase.html?type=1'" style="margin-left: 85px" class="bcf7 cw mbtn poi">保存</span>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript" src="inc/layer/laydate/laydate.js" charset="utf-8"></script>
+    <script type="text/javascript" src="inc/area.js"></script>
+    <script type="text/javascript">
+
+        var pid = Unit.query("pid");
+        var pname = document.getElementById("pname");
+        var paddr = document.getElementById("paddr");
+        var pstage = document.getElementById("pstage");
+        var pmoney = document.getElementById("pmoney");
+        var pdate = document.getElementById("pdate");
+        var ptype = document.getElementById("ptype");
+        var projname = document.getElementById("projname");
+        var detail = null;
+        var id = Unit.query('id')
+ 
+        Http.get("api/project/show", {gid:pid}, function(r) {
+            detail = r;
+            if(r) {
+                var t = projtypes[r.projecttype]?projtypes[r.projecttype].t:"未知";
+                var s = projstages[r.projectstage]?projstages[r.projectstage].t:"未知";
+                pname.innerHTML = r.projectname;
+                projname.innerHTML = r.projectname;
+                pstage.innerHTML = s;
+                pmoney.innerHTML = toMoney(r.projectmoney);
+                pdate.innerHTML = Unit.time(r.subdate);
+                ptype.innerHTML = t;
+                Area.init(function() {
+                    var addr = Area.getFullName(r.projectaddress);
+                    paddr.innerHTML = addr;
+                })
+            }
+        });
+
+        var pois = document.querySelectorAll(".manage .poi");
+        var miframe = document.getElementById("miframe");
+        var frames = ['caselist.html', 'casedata.html', 'transstructure.html', 'caserecord.html', 'projrecord.html'];
+        for(var i=0;i<pois.length;i++) {
+            pois[i].onclick = function(p) {
+                var sok = document.querySelector(".manage .poi.ok");
+                if(sok)
+                    sok.className = "poi";
+                this.className = "ok poi";
+                var params=''
+                console.log(p)
+                if(p){
+                    params='&id='+p
+                }else{
+                    params='&id='+id
+                }
+                console.log(params)
+                miframe.src = frames[parseInt(this.getAttribute("idx"))]+"?pid="+pid+params;
+            }
+        }
+
+        var idx = parseInt(Unit.query("idx"));
+        isNaN(idx)&&(idx=0);
+        pois[idx].onclick();
+
+        if(id){
+            pois[1].click()
+        }
+        var caseTag = null;
+        function newCase() {
+            caseTag = Prompt.open($('.newproj'))
+        }
+        
+        
+        function editProj() {
+            Prompt.openIfr('newproj.html?pid='+pid, {w:540,h:415}, function(a) {
+                if(parseInt(a)) {
+                    setTimeout(function(){
+                        location.reload()
+                    },1000);
+                }
+            })
+        }
+
+    </script>
+</body>
+</html>

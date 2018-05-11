@@ -1,0 +1,278 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>选择交易结构</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .tbox {height: 51.5px; border-top-left-radius: 8px; border-top-right-radius: 8px; margin-bottom: 17.5px; padding-top: 16px; padding-left: 3%; padding-right: 3%; line-height: 35px; font-size: 16px; font-weight: 600}
+        .tbox .ticon {width: 20px; height: 20px; vertical-align: -8%; margin-right: 6px}
+        .bbox {border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; padding: 25px 3%}
+        select {height: 34px; line-height: 34px; margin-top: 1px; width: 12%; border:1px solid #D9D9D9; background-color: white}
+        .oh .btn {height: 32px; line-height: 35px; width: 10%; border:1px solid #009AD0; color: #009AD0; border-radius: 5px; margin-top: 1px; position: relative; margin-left: 20px; float: left; text-align: center}
+        .oh .btn.right {float: right}
+        .oh .btn:hover{cursor: pointer; background-color: #009AD0; color: white}
+        .ignoreText {  position: absolute;  background-color: white;  padding: 5px;  line-height: 1.2;  border-radius: 8px;  overflow: hidden;  border: 1px solid #d9d9d9;  top: 100%;  left: -120px; min-width: 200px;  z-index: 2;}
+        .ignore {position: relative; padding: 11px 0px}
+        
+    </style>
+</head>
+<body>
+<script type="text/javascript">
+    setNav();
+</script>
+    <div class="bg">
+        <div class="content oh">
+            <div class="tbox bcw">
+                <img class="ticon" src="img/fasj.png">请选择交易结构
+                <span style="font-size: 16px" class="fright">2/2</span>
+            </div>
+            <div class="bbox bcw">
+                <div style="padding:18px 0px" class="oh">
+                    <select class="fleft c73" title="">
+                        <option value="">本项目</option>
+                        <option value="-1">临时区</option>
+                    </select>
+                    <div onclick="newtrans()" class="btn">新建</div>
+                    <div onclick="next()" class="btn">下一步</div>
+                    <div onclick="cancelEvent()" class="btn right">取消</div>
+                </div>
+                <table class="base" id="tb" border="0" cellspacing="0">
+                    <tr style="height: 32px; background-color: #FFEDE7">
+                        <th>&nbsp;&nbsp;</th>
+                        <th>编号</th>
+                        <th>融资方</th>
+                        <th>出资方</th>
+                        <th>担保人</th>
+                        <th>物件</th>
+                        <th>增信措施</th>
+                        <th>备注</th>
+                    </tr>
+                </table>
+                <div class="pager"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript" src="inc/layer/laydate/laydate.js" charset="utf-8"></script>
+    <script type="text/javascript" src="inc/area.js"></script>
+    <script type="text/javascript">
+
+        var tb = document.getElementById("tb");
+        var tbd = tb.getElementsByTagName('tbody')[0];
+        var pid = Unit.query("pid");
+        var cpid = Unit.query("cpid");
+        var money = Unit.query("money");
+        var sel = document.querySelector(".bbox select");
+        var dataDict={}
+        var id = Unit.query('id')
+        var from = Unit.query('from')
+            if(from == 'lswj'){
+                document.querySelectorAll('div.fleft')[3].className='fleft item tc ok'
+            }
+        sel.onchange = function() {
+            p.refresh();
+        };
+        if(pid==-1)
+            sel.style.display="none";
+
+        var p = new Pager(document.querySelector(".pager"));
+        var listDict = {};
+        p.change = function (pageno, cb) {
+            //执行操作／首次也会响应方法
+            for(var i=tb.rows.length-1;i>0;i--)
+                tb.deleteRow(i);
+            Http.get("api/struct/list", {pageno:pageno,hide:0,pid:sel.selectedIndex===1?-1:(pid?pid:'')}, function(r) {
+                var trs = [];
+                var t = pageno == 0?1:(pageno-1)*10
+                r.list=r.list.sort(function(a,b){
+                    return a.calcresultid - b.calcresultid
+                })
+                for(var i=0;i<r.list.length;i++) {
+                    var d = r.list[i];
+                    var rn = decodeURIComponent(d.rentname);
+                    var ln = decodeURIComponent(d.leasename);
+                    var gt = decodeURIComponent(d.guarantor);
+                    listDict[d.transtructid] = d;
+                    dataDict[d.transtructid] = d;
+                    dataDict[d.transtructid].remark = decodeURIComponent(d.remark)
+                    trs.push('<tr><td style="width:50px">\
+                                    <span tid='+d.transtructid+' class="checkbox"><img src="img/crno.png"></span>\
+                                </td>\
+                                <td style="white-space: nowrap">'+(i+t+1)+'</td>\
+                                <td style="max-width:20%"><div tid='+d.transtructid+' p="rentname" class="poi ignore">'+(rn.length>15?rn.slice(0,15)+"...":rn)+'</div></td>\
+                                <td style="max-width:20%"><div tid='+d.transtructid+' p="leasename" class="poi ignore">'+(ln.length>15?ln.slice(0,15)+"...":ln)+'</div></td>\
+                                <td style="max-width:20%"><div tid='+d.transtructid+' p="guarantor" class="poi ignore">'+(gt.length>15?gt.slice(0,15)+"...":gt)+'</div></td>\
+                                <td>'+d.things+'</td>\
+                                <td >'+d.credit+'</td>\
+                                <td class="poi ignore" tid='+d.transtructid+' p="remark" style="max-width:80px">'+(d.remark.length>10?d.remark.slice(0,10)+"...":d.remark)+'</td></tr>' );
+                }
+                tbd = setTBodyInnerHTML(tbd, trs.join(""));
+                radioInit();
+                showIgnore()
+                if(id){
+                    var spans = document.querySelectorAll('span.checkbox')
+                    for(var i =0 ;i<spans.length;i++){
+                        var attr = spans[i].getAttribute('tid')
+                        if(attr == id){
+                            spans[i].className='checkbox ok'
+                            spans[i].querySelector('img').src='img/crok.png'
+                        }
+                    }
+                }
+                cb&&cb(pageno, r.pages);
+            },null,null,true)
+        };
+        p.pageok();
+
+        function showIgnore() {
+            var igs = tb.querySelectorAll(".ignore");
+            for(var i=0;i<igs.length;i++) {
+                igs[i].onmouseover = function () {
+                    if(!this.querySelector("DIV")) {
+                        var d = document.createElement("DIV");
+                        d.className = "ignoreText";
+                        var tid = this.getAttribute("tid");
+                        var p = this.getAttribute("p");
+
+                        var t = dataDict[tid][p];
+                        
+                        t = t.replace(/;/g,"<br/>");
+                        
+                        d.innerHTML = decodeURIComponent(t) || '';
+                        console.log(d.innerHTML)
+                        d.style='overflow:auto;width:220PX;word-wrap:break-word;'
+                        if(d.innerHTML != ''){
+                            this.appendChild(d)
+                        }
+                    }
+                };
+                igs[i].onmouseout = function () {
+                    var d = this.querySelector("DIV");
+                    if(d) this.removeChild(d);
+                }
+            }
+        }
+
+        function radioInit() {
+            var cs = document.querySelectorAll(".checkbox");
+            for(var i=0;i<cs.length;i++) {
+                cs[i].onclick = function() {
+                    var cok = document.querySelector(".checkbox.ok");
+                    if(cok) {
+                        cok.className="checkbox radio";
+                        Check.setImg(cok);
+                    }
+                    this.className = "checkbox radio ok";
+                    Check.setImg(this);
+                }
+            }
+        }
+
+        function next() {
+            Prompt.openIfr('popinput.html?title=提示&placeholder=请输入方案名称&noclose=1', {w:350,h:250});
+        }
+        top.promptEndFunc = function (a, cb) {
+            if(!(a===undefined || a===null)) {
+                Http.get("api/case/exist", {cname:a, pid:pid?pid:-1}, function (aaa) {
+                    if(aaa) {
+                        top.layer.msg("当前方案名称已存在，请重新命名");
+                    } else {
+                        var cok = document.querySelector(".checkbox.ok");
+                        var tid = cok?cok.getAttribute("tid"):0;
+                        var cid = Local.get("csdata");
+                        if(!cid) {
+                            layer.msg("测算数据错误，请返回重新选择");
+                            return;
+                        }
+                        userPrivilege(function () {
+                            LoadingBox.show();
+                            saveData(cid, pid?pid:-1, function (ncid) {
+                                if(ncid) {
+                                    if(tid) {
+                                        saveTrans(tid, pid?pid:-1, function (ntid) {
+                                            saveCase(ncid, ntid, a);
+                                        })
+                                    } else
+                                        saveCase(ncid, 0, a);
+                                }
+                                cb&&cb();
+                            });
+                        })
+                    }
+                });
+            }
+        };
+
+        function saveData(cid, pid, cb) {
+            if(cpid==-1&&pid!=-1) {
+                Http.post("api/calc/saveas", {calcids:cid,projectid:pid}, function (r) {
+                    cb&&cb(r);
+                })
+            } else cb&&cb(cid);
+        }
+
+        function saveTrans(tid, pid, cb) {
+            var tpid = sel.value==-1?-1:pid;
+            if(tpid==-1&&pid!=-1) {
+                var o = listDict[tid];
+                if(o) {
+                    o.RentName = o.rentname;
+                    o.LeaseName = o.leasename;
+                    o.Guarantor = o.guarantor;
+                    o.Things = o.things;
+                    o.Credit = o.credit;
+                    o.Remark = o.remark;
+                    o.ProjectID = pid;
+                    Http.post("api/struct/save", o, function (r) {
+                        cb&&cb(r);
+                    })
+                } else
+                    cb&&cb(0);
+            } else cb&&cb(tid);
+        }
+
+        function saveCase(calcid, tid, name) {
+            Http.post("api/case/save", {projectid:pid?pid:-1, casename:name, transtructid:tid, clacresultid:calcid,templateid:privilege&&tid?-1:-2,casestate:'',casemoney:'',rentday:'',caseincome:'',caseotcome:'',casetype:''}, function(r) {
+                var u = Local.user();
+                var shobj = {json:[{filesharetarget:5, filesharetargetid:pid?pid:-1, customerid:u.customerid,fileshareitemid:r,filesharetype:1,templateid:privilege&&tid?-1:-2,filesharename:name,personname:u.realname,projectmoney:money,unitname:u.companyname?u.companyname:''}]};
+                shobj.json = JSON.stringify(shobj.json);
+                Http.post("api/case/sendn", shobj, function (b) {
+                    LoadingBox.hide();
+                    top.tempCaseObj = {pcaseid:r};
+                    Prompt.openIfr('editcase.html?cid='+r+'&editcase=1&noname=1', {w:450,h:480}, function(a) {
+                        setTimeout(function(){
+                            if(pid==-1) {
+                                location.href = "lswj.html";
+                            } else
+                                location.href = "projdetail.html?pid="+pid;
+                        }, 1000)
+                    });
+                    layer.msg("方案保存成功！");
+                })
+            })
+        }
+        
+
+        function newtrans() {
+            Prompt.openIfr('newtrans.html'+(sel.selectedIndex===0?'?pid='+pid:''), {w:500,h:450}, function(a) {
+                if(parseInt(a)) {
+                    p.change(1);
+                }
+            })
+        }
+
+        function cancelEvent() {
+            if(pid==-1 || from == 'lswj')
+                top.location.href = "lswj.html";
+            else
+                top.location.href = "projdetail.html?pid="+pid;
+        }
+    </script>
+</body>
+</html>

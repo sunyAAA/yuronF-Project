@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>缴费记录</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+
+        .box {height: 100%; border-radius: 8px; overflow: hidden}
+        .box .item {overflow: hidden; padding-left: 11px}
+        .box .item>img {width: 24px; height: 24px; margin: 16px}
+        .box .item>span {line-height: 56px}
+
+        .rbox {border-radius: 8px; padding: 25px; position: relative}
+    </style>
+</head>
+<body>
+<div class="rbox bcw oh">
+    <table class="base" id="tb" border="0" cellspacing="0">
+        <tr style="height: 32px; background-color: #FFEDE7">
+            <th>订单编号</th>
+            <th>商品名称</th>
+            <th>订单金额</th>
+            <th>下单时间</th>
+            <th>交易状态</th>
+            <th>支付方式</th>
+        </tr>
+    </table>
+    <div class="pager"></div>
+</div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript">
+
+        var tb = document.getElementById("tb");
+        var tbd = tb.getElementsByTagName('tbody')[0];
+        var p = new Pager(document.querySelector(".pager"));
+        p.change = function (pageno, cb) {
+            Http.get("api/pay/list", {pageno:pageno}, function (r) {
+                var trs = [];
+                for(var i=0;i<r.list.length;i++) {
+                    var d = r.list[i];
+                    console.log(d.paytype);
+                    trs.push('<tr><td>'+d.payorderssn+'</td>\
+                                <td>专业会员</td>\
+                                <td>¥'+toMoney(d.money)+'</td>\
+                                <td>'+Unit.time(d.createdate)+'</td>\
+                                <td>'+(d.state||d.money<=0?'已支付':'未支付')+'</td>\
+                                <td>'+(d.money<=0?'免费':(d.paytype==5?'微信':'支付宝'))+'</td></tr>');
+                }
+                tbd = setTBodyInnerHTML(tbd, trs.join(""));
+                cb&&cb(pageno, r.pages);
+            },null,null,true)
+
+        };
+        p.pageok();
+    </script>
+</body>
+</html>

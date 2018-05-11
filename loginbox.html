@@ -1,0 +1,255 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>语融服</title>
+    <link href="css/style.css" rel="stylesheet" />
+    <script src="inc/jquery-1.9.1.min.js"></script>
+    <script src="js/dom.js"></script>
+    <style type="text/css">
+        .popbox {
+            border-radius: 8px;
+            background-color: white;
+            overflow: hidden;
+            height: 350px;
+        }
+        .popbox .title {
+            height: 56px;
+            line-height: 56px;
+            font-weight: 600;
+        }
+        .popbox .title>div {
+            width: 50%;
+            float: left;
+        }
+        .popbox .title>div.ok {
+            color: #F7775F;
+        }
+
+        .ac {width: 240px; margin: auto; overflow: hidden}
+        .ictbox {margin-top: 45px}
+        .inp {height: 32px; border:1px solid #C5C5C5; overflow: hidden; position: relative}
+        .inp .icon {width: 32px; height: 32px; float: left; background-color: #C5C5C5}
+        .inp .icon .tbc {width: 32px; height: 32px; display: table-cell; text-align: center; vertical-align: middle}
+        .inp .icon .tbc img {width: 14px; height: auto;}
+        .inp .ict {margin-left: 42px; padding-top: 8px; overflow: hidden}
+        .inp .ict>input {width: 100%; height: 16px; line-height: 16px; border:none; outline: none}
+
+        .loginbtn {height: 35px; border-radius: 6px; line-height: 35px; margin-bottom: 37px; margin-top: 40px}
+
+        .wx .qr {width: 133px; height: 133px; margin: 0px auto 32px auto}
+        .scan {width: 140px; margin: 0px auto 37px auto; overflow: hidden; background: left center no-repeat url("img/scan.png"); background-size: 25px 25px}
+
+        .reg {width: 340px}
+        .reg>.regct {width: 275px; margin: 25px auto; overflow: hidden}
+        .reg .inp {height: 34px; margin-top: 18.5px}
+        .reg span.fleft {line-height: 34px; margin-left: 10px; letter-spacing: 5px}
+        .reg .inp .ict {margin-left: 90px; padding-top: 9px}
+        .reg .code {line-height: 32px; padding: 0px 5px; margin-top: 1px; margin-right: 1px; display: inline-block;  background-color: #e8e8e8;  }
+
+        .remind {padding-left: 15px; background: left center no-repeat url("img/gt.png"); background-size: 12px auto}
+        iframe {transform: scale(.4);margin-left: -135px;margin-top: -120px;width: 400px;height: 400px;}
+        .checkbox>img {vertical-align:-12%}
+    </style>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+</head>
+<body>
+<div class="popbox lg">
+    <div class="title tc bline">
+        <div i="0" class="ok poi fpx16" onclick="change(this)">账号登录</div>
+        <div i="1" class="poi fpx16" onclick="change(this)">扫码登录</div>
+    </div>
+    <div class="ictbox">
+        <div class="ac">
+            <div class="errmsg hide"></div>
+            <div class="inp">
+                <div class="icon">
+                    <div class="tbc">
+                        <img src="img/huser.png" alt=""/>
+                    </div>
+                </div>
+                <div class="ict">
+                    <input k="phone" emptext="请输入账号" reg="/^1[34578]\d{9}$/" regtext="账号必须为手机号码" placeholder="手机号" type="text" maxlength="11"/>
+                </div>
+            </div>
+            <div style="margin-top: 13px" class="inp">
+                <div class="icon">
+                    <div class="tbc">
+                        <img src="img/hpw.png" alt=""/>
+                    </div>
+                </div>
+                <div class="ict">
+                    <input k="password" emptext="请输入密码" reg="/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,18}$/" regtext="密码必须为6-18位数字和字母组合" placeholder="密码" type="password" maxlength="18"/>
+                </div>
+            </div>
+            <div style="margin-top: 21px" class="oh ">
+                <div class="checkbox fleft poi c73 autologin"><img src="img/cno.png" alt=""/>记住账号</div>
+                <div class="fright c73 poi">
+                    <span onclick="register(1)">忘记密码？</span>
+                    <span onclick="register()" class="poi c73">免费注册</span>
+                </div>
+            </div>
+            <div style="margin-bottom: 80px" onclick="loginEvent(this)" class="loginbtn fpx14 bcf7 cw tc poi">登录</div>
+        </div>
+        <div class="wx hide oh">
+            <div id="wechatCode" class="qr"></div>
+            <div class="scan ">
+                <div class="fright" style="margin-right: 20px">
+                    打开微信 <br/>
+                    <!-- | <span onclick="top.Prompt.openIfr('article.html?aid=8', {w:500,h:600,sc:true})" class="poi cf7">使用说明</span><br/> -->
+                    扫一扫登录
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/qrcode.min.js"></script>
+    <script type="text/javascript">
+
+        //勾选框配置
+        +function () {
+            var cs = document.querySelectorAll(".checkbox");
+            for(var i=0;i<cs.length;i++) {
+                cs[i].onclick = function () {
+                    if(this.className.indexOf("ok")>-1)
+                        this.className = this.className.replace(" ok","");
+                    else
+                        this.className = this.className + " ok";
+                    Check.setImg(this);
+                }
+            }
+            var fixIpt = document.getElementsByTagName('input')[0]
+            fixIpt.focus()
+        }();
+
+        var acbtns = document.querySelectorAll(".title>.poi");
+        var popbx = document.querySelectorAll(".ictbox>div");
+        function change(e) {
+            for(var i=0;i<acbtns.length;i++)
+                acbtns[i].className="poi";
+            e.className="ok poi";
+            var i = parseInt(e.getAttribute("i"));
+            if(i===0) {
+                clearInterval(wxtimer);
+            } else {
+                getQRCode();
+                setCode();
+                wxtimer = setInterval(checkWx, 2000);
+            }
+            popbx[i].style.display="block";
+            popbx[i===0?1:0].style.display="none";
+        }
+        var phone = Local.get("autologin");
+        var phonebox = document.querySelector('[k="phone"]');
+        if(phone)
+            phonebox.value = phone;
+
+
+
+
+        function register(t) {
+            Prompt.openIfr("registerbox.html"+(t?"?title=忘记密码":""), {w:400,h:t?330:430,sc:true,sd:.3}, function(a) {
+                if(parseInt(a)) {
+                    top.layer.msg(t?"找回密码成功！":"注册成功！");
+                }
+            });
+        }
+
+        var autobox = document.querySelector(".checkbox.autologin");
+        var autologin = Local.get("autologin");
+        if(autologin) {
+            autobox.className = autobox.className + " ok";
+            Check.setImg(autobox);
+        }
+        function loginEvent(e) {
+            var req = InputVal.test(e.parentNode.querySelectorAll("input"));
+            var errbox = e.parentNode.querySelector(".errmsg");
+            if(req.data) {
+                errbox.style.display='none';
+                req.data.devicetype=4;
+                LoadingBox.show();
+                Http.post("api/customer/login", req.data, function (r) {
+                    LoadingBox.hide();
+                    if(autobox.className.indexOf("ok")>-1) {
+                        //自动登录
+                        Local.save("autologin", phonebox.value);
+                    } else
+                        Local.del("autologin");
+                    Local.save("logintime", new Date().getTime());
+                    Local.user(r);
+                    top.location.href = "index.html";
+                })
+            } else {
+                errbox.innerHTML = req.msg;
+                errbox.style.display='block';
+            }
+        }
+
+
+
+        var ifrs = parent.document.querySelectorAll("iframe");
+        if(ifrs.length>0) {
+            var ifr = ifrs[ifrs.length-1];
+            ifr.style.background = "transparent";
+        }
+
+        var wxradom = Math.random();
+        var wxurl = "http://yuronfu.com/wx/guide.html?pclogin="+wxradom;
+
+
+        var wxtimer = null;
+        var exrefreshtimer = null;
+        var qrcode = null;
+        function setCode() {
+            clearTimeout(exrefreshtimer);
+            Http.post("api/temp/wx/set",{code:wxradom}, function (a) {
+                top.layer.msg("二维码将在1分钟后重新刷新");
+                exrefreshtimer = setTimeout(function () {
+                    wxradom = Math.random();
+                    wxurl = "http://yuronfu.com/wx/guide.html?pclogin="+wxradom;
+                    getQRCode();
+                    setCode();
+                },60000);
+            });
+        }
+        function getQRCode() {
+            var wxcode = document.getElementById("wechatCode");
+            wxcode.innerHTML = "";
+            qrcode = new QRCode(wxcode, {
+                text: wxurl,
+                width: 128,
+                height: 128,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+
+        function checkWx() {
+            Http.get("api/temp/wx/scanlogin", {code:wxradom}, function (r) {
+                clearInterval(wxtimer);
+                LoadingBox.show();
+                Http.post("api/customer/openLogin", {openID:r.openid,publicid:'',avatar:r.head,nickName:'',type:4,ispublic:1}, function (u) {
+                    if(u) {
+                        Local.user(u);
+                        top.location.href = "index.html";
+                    }
+                    LoadingBox.hide();
+                })
+            },null,false);
+        }
+
+
+        document.onkeydown=function(e){
+            var ev = window.event || e;
+            if(ev.key == "Enter" || ev.code == "Enter" || ev.keyCode == 13) {
+                loginEvent(document.querySelector(".loginbtn"));
+            }
+        }
+
+
+
+    </script>
+</body>
+</html>

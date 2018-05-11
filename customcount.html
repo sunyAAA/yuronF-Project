@@ -1,0 +1,586 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>语融服</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <style>
+        .tbox {
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            margin-bottom: 17.5px;
+            padding-top: 16px;
+            padding-left: 3%;
+            padding-right: 3%;
+            overflow: hidden;
+            padding-bottom: 16px
+        }
+
+        .hsearch {
+            height: 34px;
+            width: 20%
+        }
+
+        .hsearch .inpbox {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #D9D9D9
+        }
+
+        .hsearch .inpbox .fright {
+            width: 44px;
+            height: 32px;
+            display: inline-block;
+            line-height: 32px;
+            margin-top: 1px;
+            margin-right: 1px;
+            background-color: #D9D9D9
+        }
+
+        .hsearch .inpbox .inp {
+            margin-right: 46px;
+            margin-left: 5px;
+            padding-top: 10px
+        }
+
+        .tbox select {
+            height: 34px;
+            line-height: 34px;
+            margin-top: 1px;
+            width: 10%;
+            margin-left: 1.5%;
+            border: 1px solid #D9D9D9;
+            background-color: white
+        }
+
+        .tbox .date,
+        .tbox .btn {
+            height: 32px;
+            line-height: 35px;
+            width: 9%;
+            border: 1px solid #D9D9D9;
+            border-radius: 5px;
+            margin-top: 1px;
+            position: relative;
+            margin-left: 1.5%;
+            float: left
+        }
+
+        .tbox .btn {
+            width: 9%;
+            text-align: center;
+            border: 1px solid #009AD0;
+            color: #009AD0;
+            float: right;
+            margin-left: 1%
+        }
+
+        .tbox .btn:hover {
+            cursor: pointer;
+            background-color: #009AD0;
+            color: white
+        }
+
+        .tbox .date>input {
+            display: block;
+            width: 100%;
+            margin-top: 9px;
+        }
+
+        .bbox {
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            padding: 25px
+        }
+
+        .btnrows {
+            display: none
+        }
+    </style>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+</head>
+
+<body>
+    <div class="tbox bcw">
+        <div class="hsearch fleft">
+            <div class="inpbox fleft">
+                <span onclick="search(this)" class="fright tc fpx14 c73 poi">搜索</span>
+                <div class="inp">
+                    <input class="w100" type="text" placeholder="输入方案名称" />
+                </div>
+            </div>
+        </div>
+        <select class="fleft c73" title=""></select>
+        <select onchange="orgchange(this)" class="fleft c73" title="">
+            <option value="0">非组织</option>
+            <option value="1">组织</option>
+        </select>
+        <select class="fleft c73" title=""></select>
+        <div style="display: none; float: left;" id="orgbtn" onclick="selOrg()" class="btn">选择组织</div>
+        <div onclick="caseAll()" class="btn">方案汇总</div>
+        <div style="width: 10%" onclick="exportExcel()" class="btn">导出EXCEL</div>
+        <div style="float: right" class="date c73">
+            <input id="edate" class="c73 tc" title="" type="text" placeholder="截止日期" onkeydown="return false" />
+        </div>
+        <div style="float: right" class="date c73">
+            <input id="sdate" class="c73 tc" placeholder="开始日期" title="" type="text" onkeydown="return false" />
+        </div>
+    </div>
+    <div class="bbox bcw">
+        <table class="base" id="tb" border="0" cellspacing="0">
+            <tr style="height: 32px; background-color: #FFEDE7">
+                <th id="choose" style="min-width: 45px">
+                    <span class="checkbox">
+                        <img src="img/cno.png">全选</span>
+                </th>
+                <th>序号</th>
+                <th id="casename">方案名称</th>
+                <th>项目总额</th>
+                <th>年利率</th>
+                <th>期限（月）</th>
+                <th>保证金比例</th>
+                <th>服务费比例</th> 
+                <th>还款总额</th>
+                <th>XIRR</th>
+                <th>IRR（逐月贴现）</th>
+                <th id="remark">备注</th>
+            </tr>
+        </table>
+        <div class="pager"></div>
+    </div>
+    <iframe style="display: none" id="mframe"></iframe>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript" src="inc/layer/laydate/laydate.js" charset="utf-8"></script>
+    <script type="text/javascript" src="inc/area.js"></script>
+    <script>
+        top.ready = false
+        var filterselect = document.querySelectorAll(".tbox select");
+        var mframe = document.getElementById("mframe");
+        var level = Local.user().level;
+        var op = document.createElement("OPTION");
+        filterselect[0].appendChild(op);
+        op.value = "";
+        op.text = "全部类型";
+        for (var i = 0; i < casetypes.length; i++) {
+            var op = document.createElement("OPTION");
+            filterselect[0].appendChild(op);
+            op.value = casetypes[i].i;
+            op.text = casetypes[i].t;
+        }
+        filterselect[0].onchange = function () { searchObj.type = filterselect[0].value; p.refresh(); };
+
+        var gIds = null;
+        LoadingBox.show();
+        Http.get("api/group/list", { pageno: 1, pagesize: 9999999, type: 3 }, function (r) {
+            gIds = [];
+            for (var i = 0; i < r.length; i++)
+                gIds.push(r[i].groupfid);
+            LoadingBox.hide();
+        })
+        var orgbtn = document.getElementById("orgbtn");
+        function orgchange(e) {
+            if (e.value == 1) {
+                getNextElement(e).style.display = "none";
+                orgbtn.style.display = "block";
+                if (gIds === null) {
+                    return;
+                }
+                if (!searchObj.tempids) {
+                    searchObj.groupids = searchObj.tempids = gIds.join(",");
+                } else {
+                    searchObj.groupids = searchObj.tempids;
+                }
+                p.refresh();
+            } else {
+                getNextElement(e).style.display = "block";
+                orgbtn.style.display = "none";
+                searchObj.groupids = -1;
+                p.refresh();
+            }
+        }
+        function selOrg() {
+            Prompt.openIfr('orgs.html?gids=' + searchObj.tempids, { w: 300, h: 350, sc: true, sd: .3 }, function (a) {
+                if (a && a.length > 0) {
+                    searchObj.groupids = searchObj.tempids = a.join(",");
+                } else searchObj.groupids = searchObj.tempids = '';
+                p.refresh();
+            });
+        }
+
+        function search(e) {
+            var inp = getNextElement(e).querySelector("input");
+            searchObj.key = inp.value;
+            p.refresh();
+        }
+        var sdate = document.getElementById("sdate");
+        var edate = document.getElementById("edate");
+        var stempdate = null;
+        laydate.render({
+            elem: '#sdate', done: function (a, date, endDate) {
+                var btime = Date.parse(a.replace(/-/g, "/"));
+                if (searchObj.etime && btime >= searchObj.etime) {
+                    layer.msg("选择时间不能大于结束时间");
+                    if (stempdate) sdate.value = stempdate;
+                    else sdate.value = "";
+                    return false;
+                }
+                stempdate = a;
+                searchObj.btime = btime;
+                p.refresh();
+            }
+        });
+        var etempdate = null;
+        laydate.render({            
+elem: '#edate', done: function (a, date, endDate) {
+                var etime = Date.parse(a.replace(/-/g, "/")) + 24 * 3600000;
+                if (searchObj.btime && etime <= searchObj.btime) {
+                    layer.msg("选择时间不能小于开始时间");
+                    if (etempdate) edate.value = etempdate;
+                    else edate.value = "";
+                    return false;
+                }
+                etempdate = a;
+                searchObj.etime = etime;
+                p.refresh();
+            }
+        });
+
+
+        var tb = document.getElementById("tb");
+        var tbd = tb.getElementsByTagName('tbody')[0];
+
+        var p = new Pager(document.querySelector(".pager"));
+        var searchObj = { key: '', type: '', groupids: -1, area: '', btime: '', etime: '', qzr: '', tempids: '' };
+        var curdata = null;
+        p.change = function (pageno, cb) {
+            //执行操作／首次也会响应方法
+            searchObj.pageno = pageno;
+            if (allDetail) {
+                var row = '<tr>\
+                            <td class="moneyc c009">'+ toMoney(allDetail.total) + '</td>\
+                            <td>'+ radioNumber(allDetail.rate) + '</td>\
+                            <td>'+ (allDetail.years * 12).toFixed(2) + '</td>\
+                            <td>'+ radioNumber(allDetail.E[1]) + '</td>\
+                            <td>'+ radioNumber(allDetail.E[2]) + '</td>\
+                            <td>'+ toMoney(allDetail.totalRepayment) + '</td>\
+                            <td>'+ radioNumber(allDetail.XIRR) + '</td>\
+                            <td>'+ radioNumber(allDetail.IRRY) + '</td>\
+                            </tr>';
+                tbd = setTBodyInnerHTML(tbd, row);
+                top.ready=true
+                cb && cb(1, 1);
+                parent.setIframeHeight(parent.mframe);
+            } else {
+                allDetail = null;
+                isNaN(searchObj.btime) && (searchObj.btime = '');
+                isNaN(searchObj.etime) && (searchObj.etime = '');
+
+                if (!searchObj.tempids && searchObj.groupids != -1) {
+                    cb && cb(1, 1);
+                    return;
+                }
+                LoadingBox.show();
+                Http.get("api/count/custom", searchObj, function (r) {
+                    LoadingBox.hide();
+                    var trs = [];
+                    curdata = r.list;
+                    var ii = (searchObj.pageno-1) *searchObj.pagesize || 1
+                    
+                    for (var i = 0; i < r.list.length; i++) {
+                        var d = r.list[i];
+                        !d.project && (d.project = {});
+                        !d.calcResult && (d.calcResult = { totalmoney: 0 });
+                        trs.push('<tr>\
+                                <td>\
+                                    <span tid="'+ d.pcaseid + '" class="checkbox"><img src="img/cno.png"></span>\
+                                </td>\
+                                <td>'+ (ii+i) + '</td>\
+                                <td>'+ d.pcasename + '</td>\
+                                <td class="moneyc c009">'+ toMoney(d.calcResult.totalmoney) + '</td>\
+                                <td>'+ (d.calcResult.yearrate ? radioNumber(d.calcResult.yearrate) : '') + '</td>\
+                                <td>'+ (d.calcResult.qixianyue ? Math.round(d.calcResult.qixianyue) : '') + '</td>\
+                                <td>'+ (d.calcResult.baozhengjinrate ? radioNumber(d.calcResult.baozhengjinrate) : '') + '</td>\
+                                <td>'+ (d.calcResult.serverrate ? radioNumber(d.calcResult.serverrate) : '') + '</td>\
+                                <td class="moneyc c009">'+ toMoney(d.calcResult.rentmoney) + '</td>\
+                                <td>'+ (d.calcResult.xirr ? radioNumber(d.calcResult.xirr) : 0) + '</td>\
+                                <td>'+ (d.calcResult.xuncunxirr ? radioNumber(d.calcResult.xuncunxirr) : 0) + '</td>\
+                                <td>'+ (d.calcResult.remark ? d.calcResult.remark : '') + '</td></tr>');
+                    }
+                    tbd = setTBodyInnerHTML(tbd, trs.join(""));
+                    top.ready=true
+                    
+                    Check.init();
+                    cb && cb(pageno, r.pages);
+                    parent.setIframeHeight(parent.mframe);
+                }, null, null, true)
+            }
+        };
+
+        Area.init(function () {
+            var op = document.createElement("OPTION");
+            filterselect[2].appendChild(op);
+            op.value = "";
+            op.text = "省";
+
+            for (var i = 0; i < Area._d.length; i++) {
+                var op = document.createElement("OPTION");
+                filterselect[2].appendChild(op);
+                op.value = Area._d[i].i;
+                op.text = Area._d[i].n;
+            }
+            filterselect[2].onchange = function () { searchObj.area = filterselect[2].value; p.refresh(); };
+
+            p.pageok();
+        });
+
+
+        function caseAll() {
+            top.layer.msg("功能开发中");
+            return
+            if (p.total <= 1 && (!curdata || curdata.length <= 0)) {
+                top.layer.msg("当前暂无数据可汇总");
+                return;
+            }
+            var ids = Check.getCheckIds();
+            Prompt.openIfr('startdate.html', { w: 350, h: 350 }, function (a) {
+                if (a) {
+                    LoadingBox.show();
+                    Http.get("api/count/date", { qzr: a.date, cids: ids.join(",") }, function (r) {
+                        for (var i = 0; i < r.length; i++) {
+                            r[i].b = Unit.time(r[i].b, 'yyyy-MM-dd');
+                            for (var j in r[i]) {
+                                r[i][j.toUpperCase()] = r[i][j];
+                                delete r[i][j];
+                            }
+                        }
+                        data = r;
+                        mframe.src = 'tool/new.html?calc=1&start=' + Unit.time(a.date, 'yyyy-MM-dd') + '&callback=callback&ts=' + Math.random();
+                    });
+                }
+            });
+        }
+
+        var data = [];
+        var allDetail = null;
+        function callback(a) {
+            LoadingBox.hide();
+            if (a && a.data.length > 0) {
+                allDetail = a;
+                var casename = document.getElementById("casename")
+                casename.style.display = "none";
+                getPreviousElement(casename).style.display = "none";
+                document.getElementById("choose").style.display = "none";
+                document.getElementById("remark").style.display = "none";
+                p.refresh();
+            } else
+                top.layer.msg("方案汇总失败，请重试");
+        }
+
+
+
+
+
+        function exportExcel() {
+            if (level != 2) {
+                top.layer.msg("只有成为专业会员才能使用该功能")
+                return;
+            } else if(level === 2) {
+                if (curdata.length > 0) {
+                    var es = ['<tr style="white-space: nowrap">\
+                        <th>序号</th>\
+                        <th>方案名称</th>\
+                    <th>项目总额</th>\
+                    <th>是否等期</th>\
+                    <th>是否等额</th>\
+                    <th>年利率</th>\
+                    <th>期限（年）</th>\
+                    <th>年还款次数</th>\
+                    <th>总还款次数</th>\
+                    <th>期限（月）</th>\
+                    <th>资产余值</th>\
+                    <th>残值收入</th>\
+                    <th>保证金比例</th>\
+                    <th>起租日</th>\
+                    <th>首付款金额</th>\
+                    <th>保证金金额</th>\
+                    <th>服务费比例</th>\
+                    <th>咨询费比例</th>\
+                    <th>保险收入</th>\
+                    <th>其他收入</th>\
+                    <th>其他支出</th>\
+                    <th>非利息收入合计</th>\
+                    <th>利息总额</th>\
+                    <th>等额本息</th>\
+                    <th>还款总额</th>\
+                    <th>总收益额</th>\
+                    <th>当年总收益额</th>\
+                    <th>总负担率（年）</th>\
+                    <th>平面利率（年）</th>\
+                    <th>资金占用（月）</th>\
+                    <th>IRR</th>\
+                    <th>XIRR</th>\
+                    <th>未回收成本末期余额</th>\
+                    <th>现金流税收调整</th>\
+                    <th>税率调整</th>\
+                    <th>调整现金流</th>\
+                    <th>存续XIRR</th>\
+                    <th>IRR（逐月贴现）</th>\
+                    <th>IRR（最大公约月）</th>\
+                    <th>IRR（实际间隔月）</th>\
+                    <th>IRR（实际间隔天）</th>\
+                    <th>备注</th>\
+                    </tr>'];
+                    for (var i = 0; i < curdata.length; i++) {
+                        var ii = i+1
+                        var d = curdata[i].calcResult;
+                        var taxtype = ['直租赁', '回租赁', '保理', '贷款'][d.shuilvtiaozheng - 1];
+                        es.push('<tr>\
+                            <td>'+ ii + '</td>\
+                                <td>'+ curdata[i].pcasename + '</td>\
+                    <td class="moneyc c009">'+ toMoney(d.totalmoney) + '</td>\
+                    <td>'+ (d.equaldate ? '是' : '否') + '</td>\
+                    <td>'+ (d.equalmonth ? '是' : '否') + '</td>\
+                    <td>'+ radioNumber(d.yearrate) + '</td>\
+                    <td>'+ Math.round(d.qixiannian) + '</td>\
+                    <td>'+ Math.round(d.backcount) + '</td>\
+                    <td>'+ Math.round(d.zonghuankuancishu) + '</td>\
+                    <td>'+ Math.round(d.qixianyue) + '</td>\
+                    <td class="moneyc c009">'+ toMoney(d.zichanyuzhi) + '</td>\
+                    <td class="moneyc c009">'+ toMoney(d.canzhishouru) + '</td>\
+                    <td>'+ radioNumber(d.baozhengjinrate) + '</td>\
+                    <td>'+ Unit.time(d.qizuri, 'yyyy-MM-dd') + '</td>\
+                    <td class="moneyc c009">'+ toMoney(d.headmoney) + '</td>\
+                    <td class="moneyc c009">'+ toMoney(d.baozhengjin) + '</td>\
+                    <td>'+ radioNumber(d.serverrate) + '</td>\
+                    <td>'+ radioNumber(d.zixunfeishoururate) + '</td>\
+                    <td class="moneyc c009">'+ toMoney(d.baoxianshouru) + '</td>\
+                    <td class="moneyc c009">'+ toMoney(d.qitashouru) + '</td>\
+                    <td class="moneyc c009">'+ toMoney(d.qitazhichu) + '</td>\
+                    <td class="moneyc c009">'+ toMoney(d.feilixishouruheji) + '</td>\
+                    <td class="moneyc c009">'+ toMoney(d.lixizonge) + '</td>\
+                    <td class="moneyc c009">'+ toMoney(d.dengebenxi) + '</td>\
+                    <td class="moneyc c009">'+ toMoney(d.huankuanzonge) + '</td>\
+                    <td class="moneyc c009">'+ toMoney(d.zongshouyie) + '</td>\
+                    <td class="moneyc c009">'+ toMoney(d.dangnianzongshouyie) + '</td>\
+                    <td>'+ radioNumber(d.yearburdenrate) + '</td>\
+                    <td>'+ radioNumber(d.pingmianlilv) + '</td>\
+                    <td>'+ (d.zijinzhanyongyue ? d.zijinzhanyongyue : 0) + '</td>\
+                    <td>'+ radioNumber(d.irr) + '</td>\
+                    <td>'+ radioNumber(d.xirr) + '</td>\
+                    <td class="moneyc c009">'+ toMoney(d.weihuishouchengbenmoqiyue) + '</td>\
+                    <td>'+ (parseInt(d.xianjinliushuishoutiaozheng) ? '税后' : '税前') + '</td>\
+                    <td>'+ (taxtype ? taxtype : '') + '</td>\
+                    <td>'+ (d.tiaozhengxianjinliu ? '是' : '否') + '</td>\
+                    <td>'+ (d.xuncunxirr ? radioNumber(d.xuncunxirr) : '0%') + '</td>\
+                    <td>'+ radioNumber(d.zhunyutiexianirr) + '</td>\
+                    <td>'+ radioNumber(d.zuidagongyueyueirr) + '</td>\
+                    <td>'+ radioNumber(d.shijijiangeyueirr) + '</td>\
+                    <td>'+ radioNumber(d.shijijiangetianirr) + '</td>\
+                    <td>'+ (d.remark ? d.remark : '无') + '</td>\
+                    </tr>');
+                    }
+                    var mtb = document.createElement("TABLE");
+                    mtb.innerHTML = es.join("");
+                    exportTB(mtb);
+                } else top.layer.msg("当前没有数据");
+            }
+
+        }
+
+
+
+        var idTmr;
+        function getExplorer() {
+            var explorer = window.navigator.userAgent;
+            //ie
+            if (explorer.indexOf("MSIE") >= 0) {
+                return 'ie';
+            }
+            //firefox
+            else if (explorer.indexOf("Firefox") >= 0) {
+                return 'Firefox';
+            }
+            //Chrome
+            else if (explorer.indexOf("Chrome") >= 0) {
+                return 'Chrome';
+            }
+            //Opera
+            else if (explorer.indexOf("Opera") >= 0) {
+                return 'Opera';
+            }
+            //Safari
+            else if (explorer.indexOf("Safari") >= 0) {
+                return 'Safari';
+            }
+        }
+        function exportTB(curTbl) {//整个表格拷贝到EXCEL中
+            if (getExplorer() == 'ie') {
+
+                var oXL = new ActiveXObject("Excel.Application");
+
+                //创建AX对象excel
+                var oWB = oXL.Workbooks.Add();
+                //获取workbook对象
+                var xlsheet = oWB.Worksheets(1);
+                //激活当前sheet
+                var sel = document.body.createTextRange();
+                sel.moveToElementText(curTbl);
+                //把表格中的内容移到TextRange中
+                sel.select;
+                //全选TextRange中内容
+                sel.execCommand("Copy");
+                //复制TextRange中内容
+                xlsheet.Paste();
+                //粘贴到活动的EXCEL中
+                oXL.Visible = true;
+                //设置excel可见属性
+
+                try {
+                    var fname = oXL.Application.GetSaveAsFilename("Excel.xls", "Excel Spreadsheets (*.xls), *.xls");
+                } catch (e) {
+                    print("Nested catch caught " + e);
+                } finally {
+                    oWB.SaveAs(fname);
+
+                    oWB.Close(savechanges = false);
+                    //xls.visible = false;
+                    oXL.Quit();
+                    oXL = null;
+                    //结束excel进程，退出完成
+                    //window.setInterval("Cleanup();",1);
+                    idTmr = window.setInterval("Cleanup();", 1);
+
+                }
+
+            }
+            else {
+                tableToExcel(curTbl)
+            }
+        }
+        function Cleanup() {
+            window.clearInterval(idTmr);
+            CollectGarbage();
+        }
+        var tableToExcel = (function () {
+            var uri = 'data:application/vnd.ms-excel;base64,',
+                template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>',
+                base64 = function (s) { return window.btoa(unescape(encodeURIComponent(s))) },
+                format = function (s, c) {
+                    return s.replace(/{(\w+)}/g,
+                        function (m, p) { return c[p]; })
+                }
+            return function (table, name) {
+                var ctx = { worksheet: name || 'Worksheet', table: table.innerHTML };
+                window.location.href = uri + base64(format(template, ctx))
+            }
+        })()
+
+    </script>
+</body>
+
+</html>

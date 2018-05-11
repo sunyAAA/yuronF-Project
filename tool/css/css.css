@@ -1,0 +1,179 @@
+#header{background: #eee;height: 50px;}
+textarea{ resize: none;}
+#header input{margin: 10px 5px;}
+body{ margin:0px; padding: 0px; font-size: 12px; line-height: 130%;}
+#main{ margin: auto; padding: 0; margin: 0;}
+table{border-collapse:collapse;border-spacing:0;}
+td{padding:0px 5px; width:150px; max-width: 150px; overflow: hidden; height: 25px; text-align:right;user-modify: read-write-plaintext-only;}
+textarea{resize:none;}
+.left{ }
+.right{ float: right;}
+.center{ text-align: center;}
+tr.titlebar td,.titlebg{background: #BDD7EE; text-align: left; font-weight: bold;}
+tr.titlebar td{text-align: center; font-weight: bold;}
+.titlebg >b{ color:#CF2D28; margin-left: 10px;}
+.readonly,.noinput{background: #D9D9D9;}
+.text{ text-align: center; background-color: #CDCDCD;}
+.hide{ display: none;}
+.show{ display: block;}
+.vhide{ visibility: hidden;}
+.vshow{visibility: visible;}
+.error{border-color: red;}
+.button{ margin: 0px 5px;}
+.errorResult{color:red;}
+ul,li{ margin: 0px; padding: 0px;list-style: none; }
+ul.inp li{ list-style: none; padding: 5px; width: 300px; line-height: 20px;}
+ul.inp span{ display: inline-block; width: 80px;}
+ul.inp .inpitem,.error{ line-height: 20px; width: 200px; margin-left: 5px;}
+#mbg{position: absolute; top: 0px; left: 0px; z-index: 9999; width: 100%; height: 100%;background:url(../img/bg.png); }
+#showresult{
+	position: absolute;top: 0; left: 0; z-index: 10000; width: 140px;border-radius: 3px;
+	background: #fff;background: rgba(255,255,255,0.8); cursor: move; height: 24px;border:1px solid #7F7F80;
+}
+#showresult_out{
+	margin-right: 25px;
+	height: 24px;
+	line-height: 24px;
+	word-break: keep-all;
+	white-space: nowrap;
+	padding:0px 5px;
+	overflow: hidden;
+	user-select:none;    
+}
+#showresult_close{
+	height: 24px;
+	width: 24px;
+	background: url(../img/close.png) no-repeat;
+	float: right;
+	cursor: pointer;
+}
+#msg{
+	position: fixed;top: 5px; left: 50%; margin-left: -160px; z-index: 10000;
+	background-color: #fff;overflow: hidden;
+	padding: 0px;
+	background: #fff;
+	width: 320px;
+	height: 190px;
+	border:1px solid #CDCDCD;
+	border-radius: 5px;
+}
+#msg >h3{ 
+	display: block; line-height: 40px; text-align: center;border-bottom: 1px solid #CDCDCD;
+	margin: 0px; padding: 0px;
+}
+#msg >ul{ margin: 0px 10px;}
+#mbg p{ text-align: center; margin: 0px; padding: 10px;}
+#inp_start,#inp_step{
+	position: absolute;
+	border: 1px solid #7F7F80;
+	text-align: right;
+	padding: 0 5px;
+	background-color: #FFF;
+	background-position: 2px center;
+	background-repeat: no-repeat;
+	background-size: auto 40%;
+}
+#inp_start:read-only,#inp_step:read-only
+{
+	display: block !important;
+}
+#inp_start{
+	background-image: url(../img/je.png);
+}
+#box_repayment{
+	position: fixed;
+	padding: 0px 10px;
+	background: #fff;
+	width: 300px;
+	height: 110px;
+	border:1px solid #CDCDCD;
+	border-radius: 5px;
+}
+.switchbox{
+	float: right;
+}
+#editer{
+	position:relative;
+}
+#canteditface{
+	position:absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	background:url(../img/bg.png) repeat;
+	z-index: 9;
+	display: none;
+}
+ul.libutton >li{ line-height: 30px; cursor:pointer; list-style: none;  text-align: center;}
+ul.libutton >li:hover{ background-color:#eee;}
+#waiting{
+	position: fixed;
+	z-index: 999;
+	border:1px solid #CDCDCD;
+	border-radius: 5px;
+	background-color:#fff;
+	padding: 5px;
+	width: 300px;
+	height: 30px;
+	line-height: 30px;
+	text-align: center;
+	margin-left:-150px;
+	top:5px;
+	left:50%;
+}
+#impbox{
+	position: fixed;
+	z-index: 999;
+	border:1px solid #CDCDCD;
+	border-radius: 5px;
+	background-color:#fff;
+	padding: 5px;
+	width: 400px;
+	margin-left:-200px;
+	top:30px;
+	left:50%;
+}
+#impinp{
+	width: 400px;
+	height: 400px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	resize: none;
+	margin: 0;
+	padding: 0;
+}
+.selectitem,#inp_start:read-only,#inp_step:read-only{
+	border:1px solid red; background-color:azure !important;cursor: pointer;
+}
+.hand{ cursor: pointer;}
+.relative{
+	position: relative;
+}
+.relative{
+	position: relative;
+}
+.icon{
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 25px;
+	height: 25px;
+	background-position: center center;
+	background-repeat: no-repeat;
+	cursor: pointer;
+	z-index: 99;
+}
+.calc{
+	background-image: url(../img/calc.png);
+}
+.leftico{
+	background-image: url(../img/left.png);
+}
+.rightico{
+	background-image: url(../img/right.png);
+}
+#op_B2,#op_G8,#op_G9{display: none;}
+.relative{ position: relative;}
+#dosolveResult_close{ position: absolute; top: 1px; right: 2px; cursor: pointer;}
+

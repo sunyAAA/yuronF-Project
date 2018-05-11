@@ -1,0 +1,279 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>语融服</title>
+    <link href="css/style.css" rel="stylesheet" />
+    <script src="inc/jquery-1.9.1.min.js"></script>
+    <script src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .rbox {border-radius: 8px; padding: 25px 62px; position: relative}
+        .rbox .facebox {width: 100px}
+        .rbox .facebox .btn {line-height: 32px; color: #6286FF; background-color: #F3F3F3}
+        .rbox .ct {margin-left: 130px; margin-top: -5px}
+        .rbox .icon {width: 26px ; height: 23px; vertical-align: -34%; display: inline-block}
+        .rbox .icon>img {width: auto}
+        .rbox .tt {width: 90px; display: inline-block; font-size: 13px}
+        .rbox .tct {width: 20%; display: inline-block; font-size: 13px}
+        .rbox .row {margin-top: 13px}
+
+        .rbbox {border-radius: 8px; padding: 12.5px; margin-top: 12px}
+        .rbbox .icon {width: 16.5px; height: 16.5px; display: inline-block; vertical-align: -16%}
+        .plist {height: 225px}
+        .plist .imgbox {width: 115px; height: 65px; margin: 18px 0px}
+        .plist .bct {margin-left: 127px}
+
+        .upbtn {width: 92px; height: 29px; line-height: 29px; border-radius: 8px; position: absolute; right: 30px;}
+        .poi:hover {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="rbox bcw oh">
+    <div class="facebox fleft">
+        <div style="height: 100px">
+            <img onerror="this.src='img/error.png';this.onerror=null" id="headImg" alt=""/>
+        </div>
+        <div class="tc btn poi" style="position: relative">
+            修改头像
+            <form id="upImgForm" target="rfFrame" method="post" onsubmit="return upHead()" enctype="multipart/form-data">
+                <input name="upfile"  onchange="selectImg(this)" style="width: 100%; height: 100%; position: absolute; left: 0px; top: 0px; opacity: 0" type="file" accept="image/gif,image/jpeg,image/jpg,image/png,image/svg"/>
+                <input style="display: none" id="linkInp" name="href" value="">
+                <input style="display: none" name="_device" value="4">
+                <input style="display: none" id="upTk" name="_token" value="">
+            </form>
+            <iframe frameborder="0" id="rfFrame" name="rfFrame" src="about:blank" style="display:none;"></iframe>
+        </div>
+        <div onclick="editInfo()" style="background-color: #E6E6E6" class="tc btn poi">编辑人员信息</div>
+    </div>
+    <div class="ct">
+        <div style="margin-bottom: 32px">
+            <span p="realname" class="fpx16">&nbsp;</span>
+            <span class="icon"><img style="width: 100%; height: auto; vertical-align: -1px" id="authImg" src="img/gcard.png" alt=""/></span>
+            <span style="vertical-align: -24%" class="icon"><img id="vipImg" style="height: 20px" src="img/gv.png" alt=""/></span>
+            <span class="hide viptext" style="margin-left: 5px">(您正享用<span style="color: #6286FF">专业会员</span>特权<span class="endtime"></span>到期) <span onclick="pay()" style="color: #FA6841" class="poi">续费</span></span>
+        </div>
+        <div>
+            <span noauth class="fright hide" style="margin-right: -30px; margin-top: -40px; font-size: 16px; font-weight: 600">专业资格认证：</span>
+            <span onclick="upCard()" class="fright bcf7 tc cw poi upbtn">上传名片</span>
+            <span noauth onclick="sharePC()" style="margin-top: 40px; background-color: #009AD0" class="fright bcf7 tc cw poi upbtn hide">分享</span>
+            <div class="row">
+                <span class="tt c80">性别</span>
+                <span p="sex" class="tct">&nbsp;</span>
+                <span class="tt c80">资格认证</span>
+                <span id="authstate" style="display: inline-block; max-width: 150px" class="fpx13">未认证</span>
+            </div>
+            <div class="row">
+                <span class="tt c80">生日</span>
+                <span p="birthday" class="tct">&nbsp;</span>
+                <span class="tt c80">职位</span>
+                <span p="job" style="display: inline-block; max-width: 150px" class="fpx13">未设置</span>
+            </div>
+            <div class="row">
+                <span class="tt c80">学历</span>
+                <span p="education" class="tct">&nbsp;</span>
+                <span class="tt c80">公司</span>
+                <span p="companyname" style="display: inline-block; max-width: 150px" class="fpx13">未设置</span>
+            </div>
+            <div class="row">
+                <span class="tt c73">电话</span>
+                <span style="white-space: nowrap" class="tct">
+                    <span p="phone"></span>
+                    <span onclick="changePhone()" style="margin-left: 15px" class="cf7 poi">修改电话</span>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="rbbox bcw">
+    <div style="padding-bottom: 15px" class="bline">
+                        <span class="icon">
+                            <img src="img/hyqy.png" alt=""/>
+                        </span>
+        <span class="fpx15" style="font-weight: 500">会员权益</span>
+    </div>
+    <div class="plist" id="viplist"></div>
+</div>
+    <script src="js/comm.js"></script>
+    <script>
+
+        var upImgForm = document.getElementById("upImgForm");
+        var linkInp = document.getElementById("linkInp");
+        var headImg = document.getElementById("headImg");
+        linkInp.value = encodeURIComponent(location.href.split("?")[0].replace("usercenter.html","callback.html"));
+        var upTk = document.getElementById("upTk");
+        var u = Local.user();
+        if(u) upTk.value = u.token;
+        var rfFrame = document.getElementById("rfFrame");
+        upImgForm.setAttribute("action", Config.baseUrl + 'api/busicard/upload');
+        rfFrame.onload = function () {
+            LoadingBox.hide();
+        };
+        function upOk(a) {
+            var inp = getPreviousElement(linkInp);
+            if(inp.files && inp.files.length>0) {
+                headImg.src = getObjectURL(inp.files[0]);
+                top.document.querySelector(".face").src = headImg.src;
+                LoadingBox.show();
+                Http.post("api/customer/uploadHead", {img:a}, function () {
+                    LoadingBox.hide();
+                    top.layer.msg("上传用户头像成功");
+                    u.head = a;
+                    Local.user(u);
+                })
+            }
+        }
+        function selectImg(e) {
+            if(e.files && e.files.length>0) {
+                if(e.files[0].size>10000000) {
+                    top.layer.msg("上传图片体积不能大于10M");
+                    return;
+                }
+            }
+            LoadingBox.show();
+            upImgForm.submit();
+        }
+        function upHead() {return false;}
+
+        function upCard() {
+            Prompt.openIfr('upcard.html', {w:575,h:570,sc:true,sd:.3}, function(a) {
+                if(a) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                }
+            });
+        }
+        if(u.companyname)
+            document.querySelector(".upbtn").innerHTML = "修改名片";
+
+        var ba = ['不设置','男','女'];
+        var ga = ['不设置','高中','本科','硕士','博士','其他'];
+
+        var u = Local.user();
+        var authstate = document.getElementById("authstate");
+
+        if(u.level==0){
+            if(u.recommendcount>=0) {
+                authstate.innerHTML = "已有"+u.recommendcount+"人推荐<span style='color:#F7775F'>("+u.recommendcount+"/10)</span>";
+            } else if(u.isreal==1) {
+                authstate.innerHTML = "认证审核中";
+            } else if (u.isreal==2)
+                authstate.innerHTML = "未认证";
+            else if(u.isreal==3) {
+                // u.companyname="";
+                // u.job="";
+                authstate.innerHTML = "拒绝";
+            }
+
+            var as = document.querySelectorAll("[noauth]");
+            for(var i=0;i<as.length;i++)
+                as[i].style.display="initial";
+        } else 
+            authstate.innerHTML = "通过";
+
+        if(!u.phone && u.loginname)
+            u.phone = u.loginname;
+        var ps = document.querySelectorAll("[p]");
+        for(var i=0;i<ps.length;i++) {
+            var p = ps[i].getAttribute("p");
+            var str = u[p];
+            if(p==="birthday") {
+                str = str?Unit.time(str,'yyyy-MM-dd'):"未设置";
+            } else if (p==="education") {
+                var idx = parseInt(str);
+                str = idx>0?ga[idx]:"未设置";
+            } else if (p==="sex") {
+                var idx = parseInt(str);
+                str = idx>0?ba[idx]:"未设置";
+            }
+            if(str)
+                ps[i].innerHTML = str;
+        }
+        headImg.src = Unit.getImgUrl(u.head);
+        var viptext = document.querySelector(".viptext");
+
+        var vipImg = document.getElementById("vipImg");
+        if(u.level===0)
+            vipImg.parentNode.removeChild(vipImg);
+        else if(u.level===1)
+            vipImg.src = "img/gv.png";
+            
+
+        if(u.level==2) {
+            if(u.vipterm && u.vipterm>new Date().getTime()) {
+                viptext.style.display = "block";
+                viptext.querySelector(".endtime").innerHTML = Unit.time(u.vipterm, 'yyyy-MM-dd');
+                vipImg.src = "img/v.png";
+            } else {
+                vipImg.src = "img/gv.png";
+                viptext.style.display = "block";
+                viptext.style.marginLeft = '0px';
+                viptext.innerHTML = "您的专业会员已过期";
+            }
+        }
+        
+        if(u.nickname == u.realname)
+            document.getElementById("authImg").src = "img/ucard.png";
+
+        
+
+
+
+
+
+
+
+
+        function editInfo() {
+            Prompt.openIfr('edituser.html', {w:550,h:500,o:u,sc:true,sd:.5}, function(a) {
+                if(parseInt(a)) {
+                    top.layer.msg("编辑用户信息成功！");
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+                }
+            });
+        }
+
+        function pay() {
+            top.select(top.document.querySelector("[pay]"), 1)
+        }
+
+        function changePhone() {
+            Prompt.openIfr('registerbox.html?title=修改电话', {w:400,h:290,sc:true,sd:.5}, function(a) {
+                if(parseInt(a)) {
+                    top.layer.msg("修改电话号码成功！请重新登录");
+                    setTimeout(function () {
+                        exitUser();
+                    }, 1000);
+                }
+            });
+        }
+
+
+
+        var viplist = document.getElementById("viplist");
+        Http.get("api/article/list", {articletype:397, pageno:1, pagesize:999999}, function (r) {
+            var as = [];
+            if(r) {
+                r=r.reverse();
+                for(var i=0;i<r.length;i++) {
+                    as.push('<div class="oh '+(i!=r.length-1?'bline':'')+'">\
+                    <div class="imgbox fleft">\
+                    <img onerror="this.src=\'img/error.png\';this.onerror=null"  src="'+Unit.getImgUrl(decodeURIComponent(r[i].face))+'" alt=""/>\
+                    </div>\
+                    <div class="bct" style="padding-top: 15px">\
+                    <span onclick="top.Prompt.openIfr(\'article.html?aid='+r[i].articleid+'\',{w:500,h:600,sc:true,sd:.5})" style="font-weight: 600" class="fpx16 poif7">'+r[i].articlename+'</span><br/>\
+                    <div style="line-height: 30px">'+r[i].summary+'</div>\
+                </div>\
+                </div>')
+                }
+            }
+            viplist.innerHTML = as.join("");
+        });
+    </script>
+</body>
+</html>

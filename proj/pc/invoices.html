@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>缴费记录</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+
+        .box {height: 100%; border-radius: 8px; overflow: hidden}
+        .box .item {overflow: hidden; padding-left: 11px}
+        .box .item>img {width: 24px; height: 24px; margin: 16px}
+        .box .item>span {line-height: 56px}
+
+        .rbox {border-radius: 8px; padding: 25px; position: relative}
+    </style>
+</head>
+<body>
+<script type="text/javascript">
+    setNav();
+</script>
+    <div class="bg">
+        <div class="content oh">
+            <div style="width: 240px; height: 515px" class="fleft">
+                <div class="box bcw">
+                    <div class="item poi">
+                        <img class="fleft" src="img/ab0.png" alt=""/>
+                        <span class="fpx14">个人中心</span>
+                    </div>
+                    <div onclick="privite()" class="item poi">
+                        <img class="fleft" src="img/ab1.png" alt=""/>
+                        <span class="fpx14">隐私设置</span>
+                    </div>
+                    <div class="item poi">
+                        <img class="fleft" src="img/ab2.png" alt=""/>
+                        <span class="fpx14">会员中心</span>
+                    </div>
+                    <div class="item poi">
+                        <img class="fleft" src="img/ab3.png" alt=""/>
+                        <span class="fpx14">缴费记录</span>
+                    </div>
+                    <div class="item bcf7 poi">
+                        <img class="fleft" src="img/ab3ok.png" alt=""/>
+                        <span class="fpx14 cw">发票查询</span>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-left: 252px; height: 613px">
+                <div class="rbox bcw oh">
+                    <table class="base" id="tb" border="0" cellspacing="0">
+                        <tr style="height: 32px; background-color: #FFEDE7">
+                            <th>
+                                <span class="checkbox">&nbsp;&nbsp;全选</span>
+                            </th>
+                            <th>序号</th>
+                            <th>项目名称</th>
+                            <th>项目金额</th>
+                            <th>项目地址</th>
+                            <th>类型</th>
+                            <th>项目阶段</th>
+                            <th>立项时间</th>
+                            <th style="border-right: 0px">操作</th>
+                        </tr>
+                    </table>
+                    <div class="pager"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript">
+
+        function privite() {
+            Prompt.confirm({text:'<div class="fpx20 tl">隐私设置</div><div class="tl" style="margin-top: 15px"><span style="font-size: 12px" class="c73">加我为好友时需要验证？</span></div><div style="margin-top: 20px" class="tl"><span class="checkbox singal">是</span><span style="margin-left: 40px" class="checkbox singal">否</span></div>'})
+        }
+
+
+        var p = new Pager(document.querySelector(".pager"));
+        p.change = function (pageno, cb) {
+            //执行操作／首次也会响应方法
+            for(var i=tb.rows.length-1;i>0;i--)
+                tb.deleteRow(i);
+            for(var i=0;i<6;i++) {
+                var tr = document.createElement("TR");
+                tr.innerHTML = '<td>\
+                                <span class="checkbox"></span>\
+                            </td>\
+                            <td>'+(i+1)+'</td>\
+                            <td>共有房产抵押贷款</td>\
+                            <td><span style="color: #5D83CA">150 万元</span></td>\
+                            <td>四川省成都市高新区</td>\
+                            <td>租赁</td>\
+                            <td>前期准备</td>\
+                            <td>2017-09-18 9:00</td>\
+                            <td><span onclick="window.open(\'caselist.html\')" class="btn">查看详情</span></td>';
+                tb.appendChild(tr);
+            }
+            cb&&cb(1, 20);
+        };
+        p.pageok();
+    </script>
+</body>
+</html>

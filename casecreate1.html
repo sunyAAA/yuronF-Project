@@ -1,0 +1,185 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>选择方案数据</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .tbox {height: 51.5px; border-top-left-radius: 8px; border-top-right-radius: 8px; margin-bottom: 17.5px; padding-top: 16px; padding-left: 3%; padding-right: 3%; line-height: 35px; font-size: 16px; font-weight: 600}
+        .tbox .ticon {width: 20px; height: 20px; vertical-align: -8%; margin-right: 6px}
+        .bbox {border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; padding: 25px 3%}
+        select {height: 34px; line-height: 34px; margin-top: 1px; width: 12%; border:1px solid #D9D9D9; background-color: white}
+        .oh .btn {height: 32px; line-height: 35px; width: 10%; border:1px solid #009AD0; color: #009AD0; border-radius: 5px; margin-top: 1px; position: relative; margin-left: 20px; float: left; text-align: center}
+        .oh .btn.right {float: right}
+        .oh .btn:hover{cursor: pointer; background-color: #009AD0; color: white}
+        .hook{display: none;}
+    </style>
+</head>
+<body>
+<script type="text/javascript">
+    setNav();
+</script>
+    <div class="bg">
+        <div class="content oh">
+            <div class="tbox bcw">
+                <img class="ticon" src="img/fasj.png">请选择方案数据
+                <span style="font-size: 16px" class="fright">1/2</span>
+            </div>
+            <div class="bbox bcw">
+                <div style="padding:18px 0px" class="oh">
+                    <select class="fleft c73" title="">
+                        <option value="0">本项目</option>
+                        <option value="-1">临时区</option>
+                    </select>
+                    <div onclick="top.location.href='csb.html?create=1&reT='+URI+'&pid='+(parseInt(sel.value)?sel.value:pid)" class="btn">新建</div>
+                    <div onclick="next()" class="btn">下一步</div>
+                    <div onclick="cancelEvent()" class="btn right">取消</div>
+                </div>
+                <table class="base" id="tb" border="0" cellspacing="0">
+                    <tr style="height: 32px; background-color: #FFEDE7">
+                        <th>&nbsp;&nbsp;</th>
+                        <th>项目总额</th>
+                        <th>是否<br/>等期</th>
+                        <th>是否<br/>等额</th>
+                        <th>年利率</th>
+                        <th>期限<br/>（月）</th>
+                        <th>年还款<br/>次数</th>
+                        <th>总还款<br/>次数</th>
+                        <th>保证金<br/>比例</th>
+                        <th>服务费<br/>比例</th>
+                        <th>咨询费<br/>比例</th>
+                        <th class="hook">IRR</th>
+                        <th class="hook">XIRR</th>
+                        <th class="hook">IRR<br/>（逐月贴现）</th>
+                        <th>利息<br/>总额</th>
+                        <th>还款<br/>总额</th>
+                        <th>总负担率<br/>（年）</th>
+                        <th>平面利率<br/>（年）</th>
+                    </tr>
+                </table>
+                <div class="pager"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript" src="inc/layer/laydate/laydate.js" charset="utf-8"></script>
+    <script type="text/javascript" src="inc/area.js"></script>
+    <script type="text/javascript">
+        
+        Local.del("csdata");
+
+        var tb = document.getElementById("tb");
+        var tbd = tb.getElementsByTagName('tbody')[0];
+        var pid = Unit.query("pid");
+        var sel = document.querySelector(".bbox select");
+        var id = Unit.query('id') 
+        var from = Unit.query('from')
+        if(from == 'lswj'){
+                document.querySelectorAll('div.fleft')[3].className='fleft item tc ok'
+            }
+        sel.onchange = function() {
+            p.refresh();
+        };
+        var a = 'casecreate1.html?pid='+(parseInt(sel.value)?sel.value:pid)
+        var URI = encodeURIComponent(a)
+        console.log(URI)
+        var level = Local.user().level
+        if(pid==-1)
+            sel.style.display="none";
+
+        var p = new Pager(document.querySelector(".pager"));
+        p.change = function (pageno, cb) {
+            //执行操作／首次也会响应方法
+            for(var i=tb.rows.length-1;i>0;i--)
+                tb.deleteRow(i);
+            Http.get("api/calc/list", {pageno:pageno,hide:0,pid:sel.selectedIndex===1?-1:(pid?pid:'')}, function(r) {
+                cb&&cb(pageno, r.pages);
+                var trs = [];
+                for(var i=0;i<r.list.length;i++) {
+                    var d = r.list[i];
+                    var html = '<tr><td style="width:50px">\
+                                    <span money="'+d.totalmoney+'" cid='+d.calcresultid+' class="checkbox radio"><img src="img/crno.png"></span>\
+                                    <td class="moneyc c009">'+toMoney(d.totalmoney)+'</td>\
+                    <td>'+(d.equaldate?'是':'否')+'</td>\
+                    <td>'+(d.equalmonth?'是':'否')+'</td>\
+                    <td>'+radioNumber(d.yearrate)+'</td>\
+                    <td>'+Math.round(d.qixianyue)+'</td>\
+                    <td>'+Math.round(d.backcount)+'</td>\
+                    <td>'+Math.round(d.zonghuankuancishu)+'</td>\
+                    <td>'+radioNumber(d.baozhengjinrate)+'</td>\
+                    <td>'+radioNumber(d.serverrate)+'</td>\
+                    <td>'+radioNumber(d.zixunfeishoururate)+'</td>'
+                    if(level == 2) {
+                        html += '<td>'+radioNumber(d.irr)+'</td><td>'+radioNumber(d.xirr)+'</td><td>'+radioNumber(d.zhunyutiexianirr)+'</td>'
+                    }
+                    html +='<td class="moneyc c009">'+toMoney(d.lixizonge)+'</td>\
+                    <td class="moneyc c009">'+toMoney(d.huankuanzonge)+'</td>\
+                    <td>'+radioNumber(d.yearburdenrate)+'</td>\
+                    <td>'+radioNumber(d.pingmianlilv)+'</td>\</tr>'
+                trs.push(html)
+                }
+                tbd = setTBodyInnerHTML(tbd, trs.join(""));
+                if(id){
+                    var spans = document.querySelectorAll('span.checkbox')
+                    console.log(spans)
+                    for(var i =0 ;i<spans.length;i++){
+                        var attr = spans[i].getAttribute('cid')
+                        console.log(attr)
+                        if(attr == id){
+                            spans[i].className='checkbox radio ok'
+                            spans[i].querySelector('img').src='img/crok.png'
+                        }
+                    }
+                }
+                radioInit();
+            },null,null,true)
+        };
+        p.pageok();
+        if(level == 2) {
+            var hys = document.getElementsByClassName('hook')
+            for (var i = hys.length-1; i >=0; i--) {
+                var ele = hys[i];
+                console.log(ele)
+                ele.className=''
+            }
+        }
+        function radioInit() {
+            var cs = document.querySelectorAll(".checkbox");
+            for(var i=0;i<cs.length;i++) {
+                cs[i].onclick = function() {
+                    var cok = document.querySelector(".checkbox.ok");
+                    if(cok) {
+                        cok.className="checkbox radio";
+                        Check.setImg(cok);
+                    }
+                    this.className = "checkbox radio ok";
+                    Check.setImg(this);
+                }
+            }
+        }
+
+        function next() {
+            var cok = document.querySelector(".checkbox.ok");
+            if(!cok) {
+                layer.msg("请选择方案数据");
+                return;
+            }
+            Local.save("csdata", cok.getAttribute("cid"));
+            var t = from=='lswj'?'&from=lswj':''
+            location.href = "casecreate2.html?pid="+pid+"&money="+cok.getAttribute("money")+"&cpid="+(sel.value==-1?-1:pid)+t;
+        }
+
+        function cancelEvent() {
+            if(pid==-1 || from)
+                top.location.href = "lswj.html";
+            else
+                top.location.href = "projdetail.html?pid="+pid;
+        }
+    </script>
+</body>
+</html>

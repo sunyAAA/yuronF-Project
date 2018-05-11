@@ -1,0 +1,9 @@
+abbr, article, aside, audio, canvas, datalist, details, dialog, eventsource, figure, footer, header, hgroup, mark, menu, meter, nav, output, progress, section, time, video {
+    display: block;
+}
+.placeholder {
+    color: #bbbbbb;
+}
+select {padding-bottom: 8px}
+
+input[type='file'] {filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=0); }

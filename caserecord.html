@@ -1,0 +1,284 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>方案记录</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        
+        
+         select {height: 34px; line-height: 34px; margin-top: 1px; width: 8%; margin-left: 20px; border:1px solid #D9D9D9; background-color: white}
+         .oh .btn {height: 32px; line-height: 35px; width: 9%; border:1px solid #009AD0; color: #009AD0; border-radius: 5px; margin-top: 1px; position: relative; margin-left: 20px; float: left; text-align: center}
+         .oh .btn.right {float: right}
+         .oh .btn:hover{cursor: pointer; background-color: #009AD0; color: white}
+         .date>input {display: block; width: 100%;  margin-top: 9px;}
+        .bbox {border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; padding: 25px 50px}
+
+         .btns>span {display: inline-block; width: 107px; height: 38px; text-align: center; line-height: 38px; border:1px solid #D9D9D9; border-left:none ; box-sizing: border-box}
+         .btns>span.ok {font-weight: 600; color: white; background-color: #F7775F; border-color: #F7775F; border-right-color: #D9D9D9}
+
+        .newproj {width: 375px; height: 147px; border-radius: 8px; margin: auto; padding-top: 40px}
+        .newproj>.ninp {display: inline-block; width: 180px; height: 17px; border:1px solid #D9D9D9; padding: 8px 3px; overflow: hidden; margin-left: 10px; vertical-align: -65%;}
+        .newproj>.ninp>input {width: 100%; height: 100%}
+        .mbtn {padding: 10px 35px; border-radius: 8px}
+        .btnrows {display: none}
+    </style>
+</head>
+<body>
+    <div style="margin-bottom:18px" class="bcw">
+        <div style="margin: 0px 40px; padding:18px 0px" class="oh">
+            <select onchange="selChange('filesharetarget', this)" class="fleft c73" title="">
+                <option value="3,4,5">全部分类</option>
+                <option value="3">发送</option>
+                <option value="4">接收</option>
+                <option value="5">保存</option>
+            </select>
+            <!--<select onchange="selChange('casestatus', this)" class="fleft c73" title="">-->
+                <!--<option value="">全部状态</option>-->
+                <!--<option value="0">未知</option>-->
+                <!--<option value="1">洽谈中</option>-->
+                <!--<option value="2">已确认</option>-->
+                <!--<option value="3">终止</option>-->
+                <!--<option value="4">签约执行</option>-->
+            <!--</select>-->
+            <span class="btnrows">
+                <div onclick="newRecord()" zz class="btn">新增</div>
+                <div onclick="deleteCaseRecord()" class="btn">删除</div>
+                <div onclick="gohide()" class="btn right">隐藏区</div>
+                <div onclick="hideData(1)" class="btn right">隐藏</div>
+            </span>
+            <span class="btnrows">
+                <div onclick="hideData(0)" class="btn">恢复</div>
+                <div onclick="deleteCaseRecord()" class="btn">删除</div>
+                <div onclick="pageback()" class="btn">返回</div>
+            </span>
+        </div>
+    </div>
+    <div class="bbox bcw">
+        <table class="base" id="tb" border="0" cellspacing="0">
+            <tr style="height: 32px; background-color: #FFEDE7">
+                <th>
+                    <span class="checkbox"><img src="img/cno.png">全选</span>
+                </th>
+                <th>序号</th>
+                <th>方案名称</th>
+                <th>往来分类</th>
+                <th style="min-width: 140px">合作单位名称</th>
+                <th>交往人员姓名</th>
+                <!--<th>预计项目金额（万元）</th>-->
+                <!--<th>方案状态</th>-->
+                <th>发送模版</th>
+                <th>记录时间</th>
+                <th style="border-right: 0px">操作</th>
+            </tr>
+        </table>
+        <div class="pager"></div>
+    </div>
+    <div class="newproj bcw tc hide">
+        <span class="fpx16">请输入方案名称</span>
+        <span class="ninp">
+            <input class="fpx14" type="text"/>
+        </span>
+        <div style="margin-top: 40px">
+            <span onclick="layer.close(nProjTag)" style="border:1px solid #999999; padding: 9px 35px" class="mbtn c73 poi">取消</span>
+            <span onclick="location.href='addcase.html?type=1'" style="margin-left: 85px" class="bcf7 cw mbtn poi">保存</span>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript">
+
+        var pid = Unit.query("pid");
+        var cid = Unit.query("cid");
+        var tb = document.getElementById("tb");
+        var tbd = tb.getElementsByTagName('tbody')[0];
+        var hide = Unit.query("hide");
+        var btnrs = document.querySelectorAll(".btnrows");
+        var indetail = Unit.query("indetail");
+
+        if(hide) btnrs[1].style.display="block";
+        else btnrs[0].style.display="block";
+
+        var zzid = Unit.query("zzid");
+        zzDomReset(zzid);
+
+
+        var nProjTag = null;
+        function newCase() {
+            nProjTag = layer.open({
+                area: ['auto', 'auto'],
+                type: 1,
+                shade: .3,
+                shadeClose: false,
+                closeBtn: 0,
+                title: false, //不显示标题
+                content: $('.newproj'), //捕获的元素，注意：最好该指定的元素要存放在body最外层，否则可能被其它的相对元素所影响
+                cancel: function(){}
+            });
+        }
+
+
+        var searchObj = {};
+        function selChange(k, e) {
+            searchObj[k] = e.value;
+            p.refresh();
+        }
+
+
+        var u = Local.user();
+        var rdict = {};
+        var p = new Pager(document.querySelector(".pager"));
+        p.change = function (pageno, cb) {
+            rdict = {};
+            var url = "api/case/record/pro";
+            var hobj = {pageno:pageno,json:{filesharetarget:'3,4,5', status:hide?1:0, filesharetype:1}};
+            if(pid) hobj.json.filesharetargetid=pid;
+            else delete hobj.json.filesharetargetid;
+            if(searchObj.casestatus) hobj.json.casestatus = searchObj.casestatus;
+            else delete hobj.json.casestatus;
+            if(searchObj.filesharetarget) hobj.json.filesharetarget = searchObj.filesharetarget;
+            if(cid) hobj.json.fileshareitemid = cid;
+            else delete hobj.json.fileshareitemid;
+            hobj.json = JSON.stringify(hobj.json);
+            Http.get(url, hobj, function(r) {
+                cb&&cb(pageno, r.pages);
+                var trs = [];
+                for(var i=0;i<r.list.length;i++) {
+                    var d = r.list[i];
+                    rdict[d.fileshareid] = d;
+                trs.push('<tr class="poi" onclick="window.open(\'casedetail.html?cid='+d.fileshareitemid+'&pid='+pid+'\')"><td>\
+                                    <span tid="'+d.fileshareid+'" class="checkbox"><img src="img/cno.png"></span>\
+                                </td>\
+                                <td>'+((p.cur-1)*10+i+1)+'</td>\
+                                <td>'+d.filesharename+'</td>\
+                                <td>'+(d.filesharetarget==3?'发送':d.filesharetarget==4?'接收':'保存')+'</td>\
+                                <td>'+(d.unitname?d.unitname:'')+'</td>\
+                                <td>'+(d.personname?d.personname:'')+'</td>\
+                                <td tempid="'+d.templateid+'"></td>\
+                                <td>'+Unit.time(d.subdate)+'</td>\
+                                <td><span style="margin-right:5px" onclick="edit('+d.fileshareid+')" class="btn bcf7">编辑</span><span onclick="deleteCaseRecord('+d.fileshareid+')" class="btn">删除</span></td></tr>');
+//                <td class="moneyc c009">'+(d.projectmoney?toMoney(d.projectmoney):'')+'</td>\
+//                <td>'+casestatus[d.casestatus].t+'</td>\
+                }
+                tbd = setTBodyInnerHTML(tbd, trs.join(""));
+                Check.init();
+
+                configTemp();
+
+                if(parent.mframe)
+                    setIframeHeight(parent.mframe);
+                else if(parent.id_miframe)
+                    setIframeHeight(parent.id_miframe);
+            },null,null,true);
+        };
+        p.pageok();
+
+
+
+        function configTemp() {
+            var tids = [];
+            var ts = document.querySelectorAll("[tempid]");
+            for(var i=0;i<ts.length;i++) {
+                tids.push(ts[i].getAttribute("tempid"));
+            }
+            if(tids.length>0) {
+                var dict = {'-1':{templatename:'标准方案模版'},'-2':{templatename:'简单方案模版'}};
+                Http.post("api/template/list",{tids:tids.join(","),key:'',pageno:1,pagesize:999999},function (r) {
+                    for(var i=0;i<r.length;i++) dict[r[i].templateid] = r[i];
+                    for(var i=0;i<ts.length;i++) {
+                        var tid = ts[i].getAttribute("tempid");
+                        ts[i].innerHTML = dict[tid]?dict[tid].templatename:'无模版';
+                    }
+                })
+            }
+        }
+
+
+        function hideData(hide) {
+            var ids = Check.getCheckIds();
+            if(ids.length>0) {
+                LoadingBox.show();
+                Http.post('api/record/hide' , {hide:hide?1:0, ids:ids.join(",")}, function (a) {
+                    LoadingBox.hide();
+                    top.layer.msg("方案记录"+(hide?"隐藏":"恢复")+"成功");
+                    setTimeout(function () {
+                        if(hide) location.reload(); else pageback();
+                    }, 1000);
+
+                })
+            } else top.layer.msg("请勾选方案记录");
+        }
+
+        function deleteCaseRecord(fid) {
+            var ids = [];
+            if(fid) ids = [fid];
+            else ids = Check.getCheckIds();
+            if(ids.length>0) {
+                LoadingBox.show();
+                Http.post('api/case/record/remove' , {fsids:ids.join(",")}, function (a) {
+                    LoadingBox.hide();
+                    top.layer.msg("方案记录删除成功");
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+
+                })
+            } else top.layer.msg("请勾选方案记录");
+        }
+
+
+        function edit(fid) {
+            var o = rdict[fid];
+            Prompt.openIfr('inputsendrecord.html', {w:450,h:280,o:o}, function(a) {
+                if(parseInt(a)) {
+                    top.layer.msg("保存方案记录成功！");
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+                }
+            });
+        }
+
+
+        function newRecord() {
+            if(cid) {
+                Prompt.openIfr('inputsendrecord.html?cid='+cid, {w:450,h:350}, function(a) {
+                    if(parseInt(a)) {
+                        top.layer.msg("新增方案记录成功！");
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000);
+                    }
+                });
+            } else {
+                top.location.href = 'import.html?t=0&share=1&pid='+pid+"&addrecord=1";
+            }
+        }
+
+        function gohide() {
+            var gid = Unit.query("gid");
+            if(top.location.href.indexOf("zz")>-1) {
+                top.location.href='hidearea.html?idx=5&pid='+pid+'&zzid='+zzid+(indetail?'&indetail='+cid:'')+'&gid='+(gid?gid:'-1');
+            } else
+                top.location.href='hidearea.html?idx=5&pid='+pid+'&zzid='+zzid+(indetail?'&indetail='+cid:'');
+        }
+
+        function pageback() {
+            var hgid = Unit.query("gid", top.location.href);
+            if(hgid) {
+                top.location.href = 'zz.html?sidx=3'+(hgid>0?'&zid='+hgid:'');
+            } else {
+                if(indetail) {
+                    top.location.href = 'casedetail.html?cid='+cid+'&pid='+pid;
+                } else 
+                    top.location.href=(pid==-1?'lswj.html':'projdetail.html?pid='+pid);
+            }
+        }
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>语融服</title>
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .inp {height: 30px; border:1px solid #D9D9D9; width: 85%; padding: 3px 10px}
+        .inp>input {width: 100%; height: 100%; font-size: 14px}
+        .btmbox {padding: 20px 28px; border-radius: 8px}
+        .fbox {width: 222px; height: 205px; overflow-y: scroll; overflow-x: hidden; margin-top: 0px}
+        .fitem {margin-top: 13px}
+        .fitem>img {width: 32px; height: 32px}
+        .fitem .info {margin-left: 40px}
+        .fitem .info>span {color: #FA6841}
+        .choose {height: 155px; overflow-y: scroll; overflow-x: hidden; margin-top: 20px; width: 260px; padding-right: 20px}
+        .choose .fitem .info {margin-right: 30px}
+        .choose .del {float: right; width: 20px; height: 20px; border-radius: 10px; overflow: hidden; margin-top: 6px}
+        .btmbox .btn {padding: 10px 37px; border:1px solid #D9D9D9; border-radius: 10px}
+        .btmbox .btn.bcf7 {border-color: #F7775F; margin-left: 20px}
+        .checkbox {float: left;width: 32px;height: 32px;padding-left: 0px;background-position: center center;background-size: 18px auto;margin-right: 5px}
+        .checkbox img {width: 20px; height: 20px; margin: 6px}
+    </style>
+</head>
+<body>
+    <div class="btmbox bcw oh">
+        <div class="fpx14" style="line-height: 30px; margin-bottom: 12px">选择好友</div>
+        <div class="fleft">
+            <span style="line-height: 38px" onclick="searchfriends()" class="fright tc fpx14 c73 poi">搜索</span>
+            <div style="width: 160px" class="inp">
+                <input maxlength="11" id="keyInp" style="font-size: 12px" type="text" placeholder="请输入姓名、电话号码查询"/>
+            </div>
+            <div id="flist" class="fbox"></div>
+        </div>
+        <div style="margin-left: 290px">
+            已选好友：<span class="cf7 selected">0</span>
+            <div class="choose"></div>
+            <div style="width: 260px; margin-top: 20px;" class="tc">
+                <span onclick="Prompt.closeIfr()" class="btn c9 poi">取消</span>
+                <span onclick="send()" class="btn bcf7 cw poi">发送</span>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript">
+
+        var pids = Unit.query("pids");
+        var curpid = Unit.query("pid");
+        var cid = Unit.query("cid");
+        var detail = Unit.query("detail");
+        var tempid = Unit.query("tempid");
+        var keyInp = document.getElementById("keyInp");
+        var company = ''
+        var sencCalcRes = null;
+        function pageload() {
+            LoadingBox.show();
+            flist();
+            if(top.tempCaseObj) {
+                LoadingBox.show();
+                Http.get("api/calc/show", {crid:top.tempCaseObj.clacresultid}, function (r) {
+                    LoadingBox.hide();
+                    sencCalcRes = r;
+                })
+            }
+        }
+
+        function searchfriends() {
+            key = keyInp.value;
+            flist();
+        }
+
+        var flistbox = document.getElementById("flist");
+        var flistData = [];
+        var key = "";
+        var cfdict = {};
+        var fdict = {};
+        var fcdict = {};
+        //获取好友列表
+        function flist() {
+            Http.get("api/friend/list", {pageno:1,pagesize:999999,key:key}, function (r) {
+                LoadingBox.hide();
+                if(key && r.length<=0) {
+                    top.layer.msg("需先添加对方为好友");
+                    return;
+                }
+                flistData = r?r:[];
+                setflist();
+            })
+        }
+        //设置好友列表
+        function setflist() {
+            var html = "";
+            var r = flistData;
+            for(var i=0;i<r.length;i++) {
+                fdict[r[i].friendid] = r[i];
+                fcdict[r[i].friendcustomerid] = r[i];
+                if(cfdict[r[i].friendid]) continue;
+                var ph = r[i].friendphone != 'null' ? r[i].friendphone : "暂无联系方式"
+                html += '<div class="fitem">\
+                        <span onclick="addf(this, '+r[i].friendid+')" class="checkbox radio poi"><img src="img/crno.png"></span>\
+                    <img class="fleft" src="'+Unit.getImgUrl(r[i].friendheader)+'" alt=""/>\
+                    <div class="info" style="padding-left:42px">\
+                        '+r[i].friendname+(r[i].friendremark?'('+r[i].friendremark+')':'')+'<br/>\
+                        <span>'+ph +'</span>\
+                    </div>\
+                </div>'
+            }
+            flistbox.innerHTML = html;
+        }
+        var sflist = [];
+        //添加进已选择
+        function addf(e, fid) {
+            if(e.className.indexOf("ok")>-1) {
+                e.className = e.className.replace(" ok", "");
+                Check.setImg(e);
+                for(var i=0;i<sflist.length;i++) {
+                    if(sflist[i].friendid == fid) {
+                        sflist.splice(i,1);
+                        break;
+                    }
+                }
+                delete cfdict[fid];
+                setaddlist();
+            } else {
+                var f = fdict[fid];
+                if(f) {
+                    cfdict[fid] = f;
+                    sflist.push(f);
+                    setaddlist();
+                    e.className = e.className + " ok";
+                    Check.setImg(e);
+                }
+            }
+            var arr = document.querySelectorAll('.fitem>span')
+            var spans = document.querySelectorAll('.fitem>span.ok');
+
+            if(spans.length ===1) {
+                var i = idx(arr,spans[0])
+                if(flistData[i].friendcompany != null) {
+                    company = flistData[i].friendcompany
+                }
+            }
+
+
+        }
+
+        var sfbox = document.querySelector(".choose");
+        var snum = document.querySelector(".btmbox .selected");
+        //设置已选择
+        function setaddlist() {
+            var sfes = [];
+            for(var i=0;i<sflist.length;i++) {
+                var p = sflist[i].friendphone !='null'?sflist[i].friendphone:'暂无联系方式'
+                sfes.push('<div class="fitem">\
+                                <img class="fleft" src="'+Unit.getImgUrl(sflist[i].friendheader)+'" alt=""/>\
+                                <span style="display:none" onclick="delsf(this, '+sflist[i].friendid+')" class="del poi"><img src="img/zzdel.png" alt=""/></span>\
+                                <div class="info">\
+                                    '+sflist[i].friendname+(sflist[i].friendremark?'('+sflist[i].friendremark+')':'')+'<br/>\
+                                    <span>'+p+'</span>\
+                                </div>\
+                            </div>')
+            }
+            sfbox.innerHTML = sfes.join("");
+            snum.innerHTML = sflist.length;
+        }
+        //删除已选择
+        function delsf(e, fid) {
+            delete cfdict[fid];
+            for(var i=0;i<sflist.length;i++) {
+                if(sflist[i].friendid === fid) {
+                    sflist.splice(i,1);
+                    break;
+                }
+            }
+            e.parentNode.parentNode.removeChild(e.parentNode);
+            snum.innerHTML = sflist.length;
+            setflist();
+        }
+
+
+        function send() {
+            top.company = company
+            if (cid==-1 && !detail) {
+                top.mframe.contentWindow.saveCase(-1, function (a) {
+                    sureSend(a);
+                })
+            } else
+                sureSend();
+        }
+
+
+        function sureSend(a) {
+            var fids = [];
+            for(var i=0;i<sflist.length;i++)
+                fids.push(sflist[i].friendcustomerid);
+            var u = Local.user();
+            var sendInfo = {};
+            if(fids.length>0) {
+                var url = "";
+                var obj = {};
+                if(pids) {
+                    url = "api/case/sendn";
+                    obj.json = [];
+                    var pidss = pids.split(",");
+                    var u = Local.user();
+                    for(var j=0;j<pidss.length;j++) {
+                        var pid = pidss[j];
+                        for(var i=0;i<fids.length;i++) {
+                            var o1 = {filesharetarget:1, filesharetargetid:fids[i], customerid:u.customerid};
+                            var o2 = {filesharetarget:2, filesharetargetid:u.customerid, customerid:fids[i]};
+                            var o3 = {filesharetarget:3, filesharetargetid:pid, customerid:u.customerid};
+                            o1.fileshareitemid = o2.fileshareitemid = o3.fileshareitemid = pid;
+                            o1.filesharetype = o2.filesharetype = o3.filesharetype = 2;
+                            var o = top.tempProjObj[pid];
+                            o1.filesharename = o2.filesharename = o3.filesharename = o.projectname;
+                            o1.projectmoney = o2.projectmoney = o3.projectmoney = o.projectmoney;
+                            var fo = fcdict[fids[i]];
+                            if(fo) {
+                                o3.unitname = fo.friendcompany;
+                                o3.personname = fo.friendname;
+                            }
+                            obj.json.push(o1);obj.json.push(o2);obj.json.push(o3);
+                        }
+                    }
+                    obj.json = JSON.stringify(obj.json);
+                } else if (cid || a) {
+                    //发送方案
+                    url = "api/case/sendn";
+                    obj.json = [];
+                    !curpid&&(curpid=-1);
+                    for(var i=0;i<fids.length;i++) {
+                        var o1 = {filesharetarget:1, filesharetargetid:fids[i], customerid:u.customerid};
+                        var o2 = {filesharetarget:2, filesharetargetid:u.customerid, customerid:fids[i]};
+                        var o3 = {filesharetarget:3, filesharetargetid:curpid, customerid:u.customerid};
+                        o1.fileshareitemid = o2.fileshareitemid = o3.fileshareitemid = a?a:cid;
+                        o1.filesharetype = o2.filesharetype = o3.filesharetype = 1;
+                        o1.templateid = o2.templateid = o3.templateid = tempid?tempid:'';
+                        o1.filesharename = o2.filesharename = o3.filesharename = top.tempCaseObj.pcasename;
+                        var fo = fcdict[fids[i]];
+                        if(fo) {
+                            sendInfo.unitname = o3.unitname = fo.friendcompany;
+                            sendInfo.personname = o3.personname = fo.friendname;
+                            sendInfo.projectmoney = o3.projectmoney = sencCalcRes?sencCalcRes.totalmoney:0;
+                        }
+                        obj.json.push(o1);obj.json.push(o2);obj.json.push(o3);
+                    }
+                    obj.json = JSON.stringify(obj.json);
+                }
+                LoadingBox.show();
+                console.log(obj)
+                Http.post(url, obj, function(r) {
+                    var ids = r.split(",");
+                    var editids = [];
+                    for(var i=0;i<ids.length;i++) {
+                        if(i%3===2)editids.push(ids[i]);
+                    }
+                    LoadingBox.hide();
+                    sendInfo.rids = editids;
+                    sendInfo.c=1;
+                    Prompt.closeIfr(sendInfo);
+                })
+            } else top.layer.msg("请选择发送好友");
+        }
+
+        function idx(arr,ele){
+            for(var i=0;i<arr.length;i++){
+                var item = arr[i]
+                if(item == ele){
+                    return i 
+                }
+            }
+        }
+    </script>
+</body>
+</html>

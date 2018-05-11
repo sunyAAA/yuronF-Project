@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>语融服</title>
+    <link href="css/style.css" rel="stylesheet" />
+    <script src="inc/jquery-1.9.1.min.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+</head>
+<body>
+    <div id="ct" style="padding: 20px;overflow-y:auto;height: 500px;"></div>
+    <script src="js/comm.js"></script>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <script src="inc/layer/layer.js"></script>
+    <script>
+        var aid = Unit.query("aid");
+        LoadingBox.show();
+        window.onload = function() {
+            Http.get("api/article/show", {articleId:aid}, function (r) {
+                LoadingBox.hide();
+                document.title = r.articlename;
+                document.getElementById("ct").innerHTML = r.section;
+                setTimeout(function() {
+                    parent.setIframeHeight(parent.mframe);
+                }, 200);
+            })
+        }
+    </script>
+</body>
+</html>

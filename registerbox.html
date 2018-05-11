@@ -1,0 +1,277 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>语融服</title>
+    <link href="css/style.css" rel="stylesheet" />
+    <script src="inc/jquery-1.9.1.min.js"></script>
+    <script src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .popbox {
+            border-radius: 8px;
+            background-color: white;
+            overflow: hidden;
+        }
+        .popbox .title {
+            height: 56px;
+            line-height: 56px;
+            font-weight: 600;
+        }
+        .popbox .title>div {
+            width: 50%;
+            float: left;
+        }
+        .popbox .title>div.ok {
+            color: #F7775F;
+        }
+
+        .ac {width: 240px; margin: auto; overflow: hidden}
+        .ictbox {margin-top: 25px}
+        .inp {height: 32px; border:1px solid #C5C5C5; overflow: hidden; position: relative}
+        .inp .icon {width: 32px; height: 32px; float: left; background-color: #C5C5C5}
+        .inp .icon .tbc {width: 32px; height: 32px; display: table-cell; text-align: center; vertical-align: middle}
+        .inp .icon .tbc img {width: 14px; height: auto;}
+        .inp .ict {margin-left: 37px; padding-top: 8px; overflow: hidden}
+        .inp .ict>input {width: 100%; height: 16px; line-height: 16px; border:none; outline: none}
+
+        .loginbtn {height: 35px; border-radius: 6px; line-height: 35px; margin-bottom: 37px; margin-top: 40px}
+
+        .wx .qr {width: 113px; height: 113px; margin: 0px auto 32px auto}
+        .scan {width: 140px; margin: auto; overflow: hidden; margin-bottom: 37px; background: left center no-repeat url("img/scan.png"); background-size: 25px 25px}
+
+        .reg {width: 400px}
+        .reg>.regct {width: 330px; margin: 35px auto; overflow: hidden}
+        .reg .inp {height: 38px; margin-top: 18.5px}
+        .reg span.fleft {line-height: 38px; margin-left: 10px; letter-spacing: 5px}
+        .reg .inp .ict {margin-left: 90px; padding-top: 11px}
+        .reg .code {line-height: 34px; margin-top: 2px; margin-right: 2px; display: inline-block;  background-color: #e8e8e8; width: 90px; text-align: center}
+
+        .remind {padding-left: 15px; background: left center no-repeat url("img/gt.png"); background-size: 12px auto}
+        .checkbox>img {vertical-align:-12%}
+    </style>
+</head>
+<body>
+<div class="popbox reg">
+    <div class="regct">
+        <div class="errmsg hide"></div>
+        <div style="margin-top: 0px" class="inp">
+            <span class="fleft">手机号码</span>
+            <div class="ict">
+                <input k="phone" reg="/^1[34578]\d{9}$/" regtext="手机号码格式错误" placeholder="请输入手机号码" type="tel" maxlength="11"/>
+            </div>
+        </div>
+        <div class="inp">
+            <span style="letter-spacing: .8px" class="fleft">手机验证码</span>
+            <span id="gcode" class="fright code c73 poi">获取验证码</span>
+            <div style="margin-right: 95px" class="ict">
+                <input k="validate" placeholder="请输入验证码" type="number" maxlength="11"/>
+            </div>
+        </div>
+        <div id="inpname">
+            <div class="inp">
+                <span style="letter-spacing: 14px" class="fleft">用户名</span>
+                <div class="ict">
+                    <input k="realname" placeholder="请输入姓名" type="text" maxlength="11"/>
+                </div>
+            </div>
+            <div class="remind c73">请输入真实姓名，一旦注册不可更改</div>
+        </div>
+        <div class="inp">
+            <span id="pwtt"  class="fleft">设置密码</span>
+            <div class="ict">
+                <input k="password" placeholder="请输入密码" reg="/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,18}$/" regtext="密码必须为6-18位数字和字母组合" type="password" maxlength="18"/>
+            </div>
+        </div>
+        <div style="margin-top: 25px; margin-bottom: 25px" class="checkbox poi c73"><img src="img/cno.png" alt=""/>我已阅读并同意<span onclick="openrule()" class="cf7 poi">《服务条款》</span></div>
+        <div onclick="regEvent(this)" id="regbtn" style="margin-top: 0px; margin-bottom: 0px" class="loginbtn fpx14 bcf7 cw tc poi">免费注册</div>
+    </div>
+</div>
+    <script src="js/comm.js"></script>
+    <script>
+
+        //勾选框配置
+        +function () {
+            var cs = document.querySelectorAll(".checkbox");
+            for(var i=0;i<cs.length;i++) {
+                cs[i].onclick = function (e) {
+                    var ev = window.event || e;
+                    var ele = ev.target || ev.srcElement;
+                    if(ele.tagName!=="SPAN") {
+                        if(this.className.indexOf("ok")>-1)
+                            this.className = this.className.replace(" ok","");
+                        else
+                            this.className = this.className + " ok";
+                        Check.setImg(this);
+                    }
+                }
+            }
+        }();
+
+        var regbtn = document.getElementById("regbtn");
+        var inpname = document.getElementById("inpname");
+        var tt = Unit.query("title");
+
+        var getback = 0;
+        var mphone = 0;
+        var mpw = 0;
+        if(tt==="忘记密码") {
+            getback = 1;
+            inpname.style.display="none";
+            regbtn.innerHTML = "确认更改";
+            document.querySelector(".checkbox.poi").style.display="none";
+            regbtn.style.marginTop="50px";
+            var pwtt = document.getElementById("pwtt");
+            pwtt.style.letterSpacing = '.8px';
+            pwtt.innerHTML = "设置新密码";
+        } else if (tt==="修改密码") {
+            mpw = 1;
+            inpname.style.display="none";
+            document.querySelector(".checkbox.poi").style.display="none";
+            var codebox = getPreviousElement(inpname);
+            codebox.style.display = "none";
+
+            var phonebox = getPreviousElement(codebox);
+            phonebox.querySelector("span.fleft").innerHTML = "旧密码";
+            var pninp = phonebox.querySelector("input");
+            pninp.setAttribute("placeholder", "请输入旧密码");
+            pninp.setAttribute("k", "oldPWD");
+            pninp.setAttribute("type", "text");
+            pninp.setAttribute("maxlength", "18");
+            pninp.setAttribute("reg","/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,18}$/");
+            pninp.setAttribute("regtext","密码必须为6-18位数字和字母组合");
+
+            regbtn.style.marginTop="50px";
+            var pw = getNextElement(inpname);
+            var npw = pw.cloneNode(true);
+            pw.parentNode.insertBefore(npw, getNextElement(pw));
+            pw.querySelector("span.fleft").innerHTML = "新密码";
+            pw.querySelector("input").setAttribute("placeholder", "请输入新密码");
+            npw.querySelector("span.fleft").innerHTML = "再次输入";
+            var ninp = npw.querySelector("input");
+            ninp.setAttribute("placeholder", "请再次输入密码");
+            ninp.setAttribute("k", "newPWD");
+            regbtn.innerHTML = "修改密码";
+
+        } else if (tt==="修改电话") {
+            mphone = 1;
+            getPreviousElement(inpname).style.marginBottom = "50px";
+            inpname.style.display="none";
+            var nextE = getNextElement(inpname);
+            nextE.style.display="none";
+            nextE = getNextElement(nextE);
+            nextE.style.display="none";
+            regbtn.innerHTML = "修改电话";
+        }
+
+
+        function regEvent(e) {
+            var errbox = e.parentNode.querySelector(".errmsg");
+            var req = {};
+            if(mphone) {
+                LoadingBox.show();
+                Http.post("api/customer/phone/change", {phone:id_pinp.value,verificationCode:id_code.parentNode.querySelector("input").value}, function (r) {
+                    LoadingBox.hide();
+                    Prompt.closeIfr(1);
+                });
+            } else if (mpw) {
+                req = InputVal.test(e.parentNode.querySelectorAll("input"),{realname:1, phone:1, validate:1});
+                if(req.data) {
+                    !req.data.oldPWD&&(req.data.oldPWD='');
+                    if(req.data.password != req.data.newPWD) {
+                        req = {msg:"新密码输入不一致", data:null};
+                    } else if (req.data.oldPWD.toString().length>0 && req.data.oldPWD == req.data.newPWD) {
+                        req = {msg:"旧密码不能等于新密码", data:null};
+                    } else {
+                        LoadingBox.show();
+                        Http.post("api/customer/password/change", req.data, function () {
+                            LoadingBox.hide();
+                            Prompt.closeIfr(1);
+                        })
+                    }
+                }
+            } else {
+                var fback = e.innerHTML.indexOf("注册")<0;
+                req = InputVal.test(e.parentNode.querySelectorAll("input"),fback?{realname:1}:null);
+                if(req.data) {
+                    if(fback) {
+                        req.data.newPWD = req.data.password;
+                        req.data.verificationCode = req.data.validate;
+                        LoadingBox.show();
+                        Http.post("api/customer/password/back", req.data, function (r) {
+                            LoadingBox.hide();
+                            Prompt.closeIfr(1);
+                        });
+                    } else {
+                        if(document.querySelector(".regct .checkbox.ok")) {
+                            errbox.style.display='none';
+                            LoadingBox.show();
+                            Http.post("api/customer/register", req.data, function (r) {
+                                LoadingBox.hide();
+                                Prompt.closeIfr(1);
+                            });
+                            return;
+                        } else
+                            req.msg = "请勾选服务协议";
+                    }
+                }
+            }
+            if(req.msg) {
+                errbox.innerHTML = req.msg;
+                errbox.style.display='block';
+            } else
+                errbox.style.display='none';
+        }
+
+
+
+
+        function Coder(e, inp, o) {
+            var t = this;
+            t.url = o.url;
+            t.data = o.data;
+            e.onclick = function () {
+                if(!/^1[34578]\d{9}$/.test(inp.value.toString())) {
+                    top.layer.msg("请输入正确手机号码");
+                    return 0;
+                }
+                if(t.timer) {
+                    top.layer.msg("验证码已发送，请注意查收");
+                    return 0;
+                }
+                LoadingBox.show();
+                t.data[o._phone] = inp.value;
+                Http.post(t.url, t.data, function () {
+                    LoadingBox.hide();
+                    top.layer.msg("验证码发送成功");
+                    e.innerHTML = t.sec + "s";
+                    t.timer = setInterval(function () {
+                        t.sec --;
+                        if(t.sec<=0) {
+                            clearInterval(t.timer);
+                            t.timer = null;
+                            e.innerHTML = "获取验证码";
+                            t.sec = 60;
+                        } else
+                            e.innerHTML = t.sec + "s";
+                    }, 1000);
+                })
+            };
+            t.timer = null;
+            t.sec = 60;
+        }
+
+
+        var id_pinp = document.querySelector('[k="phone"]');
+        var id_code = document.getElementById('gcode');
+        //初始化验证码obj
+        var co = new Coder(id_code, id_pinp, {url:"api/customer/sendVerificationCode", data:{type:(getback?2:mphone?3:1)}, _phone:'phone'});
+
+
+        function openrule() {
+            Prompt.openIfr('article.html?aid=8', {w:500,h:600,sc:true,sd:.5})
+        }
+
+    </script>
+</body>
+</html>

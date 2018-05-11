@@ -1,0 +1,131 @@
+﻿html, body, ul, li {margin: 0px; padding: 0px; border:none; line-height: 1.5}
+* {color: #333333; font-size: 12px}
+img {width: 100%; height: 100%; object-fit: cover}
+li,dl,dt,dd{ list-style:none;}
+*{outline:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none; font-family: 'Helvetica Neue',Helvetica,sans-serif}
+input {border:none; outline: none; padding: 0px}
+input::placeholder {color: #999999}
+.content {max-width: 1190px; min-width: 990px; margin: auto}
+.poi:hover {cursor: pointer;}
+.poif7:hover {cursor: pointer; color: #F7775F}
+iframe {border:none; width: 100%; height: 100%}
+
+
+
+
+
+.fpx12 {font-size: 12px}
+.fpx13 {font-size: 13px}
+.fpx14 {font-size: 14px}
+.fpx15 {font-size: 15px}
+.fpx16 {font-size: 16px}
+.fpx17 {font-size: 17px}
+.fpx18 {font-size: 18px}
+.fpx19 {font-size: 19px}
+.fpx20 {font-size: 20px}
+.c9 {color: #999999}
+.c80 {color: #808080  }
+.c73 {color: #737373}
+.cf7 {color: #F7775F}
+.bcf7 {background-color: #F7775F}
+.cbf {color: #BF4530}
+.c009 {color: #5D83CA}
+.bc009 {background-color: #5D83CA}
+.cw {color: white}
+.bcw {background-color: white}
+.fleft {float: left}
+.fright { float: right}
+.tl {text-align: left}
+.tc {text-align: center}
+.tr {text-align: right}
+.bline {border-bottom: 1px solid #d9d9d9}
+.linebox{background-color: #d9d9d9; height: 1px}
+.tline {border-bottom: 1px solid #d9d9d9}
+.hide {display: none}
+.oh {overflow: hidden}
+.w100 {width: 100%}
+
+
+.errmsg {background: #ffebeb;  color: #e4393c;  border: 1px solid #faccc6; padding: 5px; margin-bottom: 10px}
+.layui-layer-iframe {border-radius: 8px!important}
+
+
+.moneyc {padding-right: 15px!important; text-align: right!important; padding-left: 15px!important;}
+
+
+
+
+
+
+
+
+
+/*-------- Comm ---------*/
+.topBox {height: 69px; background-color: white}
+.topBox .left {width: 40%; height: 69px; text-align: center; display: table-cell; vertical-align: middle}
+.topBox .left>img {width: 240px; height: 34px}
+.topBox .right {float: right; padding-right: 15.7%; height: 100%}
+.topBox .right>span {margin-left: 56px; line-height: 69px; float: right; color: #999999}
+.topBox .right>span:hover {cursor: pointer; color: #F7775F;}
+.topBox .right .v {display: table-cell;  vertical-align: middle;  width: 20px;  height: 69px}
+.topBox .right .face {width: 30px; height: 30px; border-radius: 15px; overflow: hidden}
+.topNav {height: 63px; min-width: 990px;}
+.topNav>.content {height: 100%}
+.topNav .item {width: 12.5%; height: 100%; box-sizing: border-box}
+.topNav .item.ok {background-color: #BF4530}
+.topNav .item:hover {cursor: pointer; background-color: #BF4530}
+.topNav .item>.imgbox {height: 20px; margin-top: 13px; margin-bottom: 8px}
+.topNav .item>.imgbox>img {width: auto}
+.bg {background-color: #f0f2fa; padding-top: 19px; padding-bottom: 30px; min-width: 990px;}
+
+table.base {width: 100%}
+table.base th,table.base td.th,th.moveth {color: #BF4530; border-top: 2px solid #F7775F; border-right: 1px solid #D9D9D9; border-bottom: 0px; height: auto}
+table.base th>span,table.base td.th>span {color: #BF4530}
+table.base td {height: 40px; text-align: center; border-bottom: 1px dashed #D9D9D9}
+table.base td .btn {background-color: #36B2FF; color: white; padding: 3px 6px; border-radius: 5px; min-width: 46px; display: inline-block}
+table.base td .btn:hover {background-color: #2987c1; cursor: pointer}
+table.base td .btn.bcf7 {background-color: #F7775F}
+table.base td .btn.bcf7:hover {background-color: #BF4530; cursor: pointer}
+
+.checkbox {padding-left: 3px; padding-right: 3px}
+.checkbox>img {width: 12px; height: 12px; vertical-align: -15%; margin-right: 3px}
+.checkbox:hover {cursor: pointer}
+
+.pt-box {min-width: 250px; min-height: 100px; border-radius: 8px; overflow: hidden; background-color: white; padding: 44px 60px; font-size: 18px; text-align: center; display: none}
+.pt-box .pt-btns {margin-top: 35px}
+.pt-box .pt-btn {display: inline-block; width: 100px; height: 35px; box-sizing: border-box; line-height: 33px; font-size: 16px; border-radius: 8px}
+.pt-box .pt-btn.gray {border:1px solid #999999; color: #737373}
+.pt-box .pt-btn.red {background-color: #F7775F; color: white}
+
+
+/*-------- Pager --------*/
+.pager {text-align: center; margin-top: 41px}
+.pager .ct {display: inline-block; overflow: hidden}
+.pager .pre,.pager .next, .pager .pg {width: 24px; height: 24px; background-color: white; box-sizing: border-box; border: 1px solid #DBDBDB; line-height: 22px; float: left; margin-left: 4px}
+.pager .pre>img,.pager .next>img {height: 12px; width: auto; margin-top: 5px}
+.pager .pg.cur {background-color: #F7775F; color: white; border-color: #F7775F}
+.pager .skip {border-color: transparent; line-height: 16px}
+.pager .num {line-height: 24px; margin-left: 5px}
+.pager .pginpbox {line-height: 24px; margin-left: 25px; display: inline-block}
+.pager .pginpbox .pginp {height: 14px; border: 1px solid #DBDBDB; width: 35px; float: left; overflow: hidden; padding: 5px 3px; margin: 0px 5px}
+.pager .pginpbox .pginp>input {width: 100%; height: 100%; text-align: center}
+.pager .okbtn {width: 40px; line-height: 24px; background-color: #F7775F; color: white; display: inline-block; margin-left: 15px}
+.pager .pre:hover,.pager .next:hover, .pager .pg:hover, .pager .okbtn:hover {cursor: pointer; box-shadow: -2px 2px 1px #eaeaea}
+.pager .pg.skip:hover,.pager .pg.cur:hover {cursor:default; box-shadow: none}
+.pager .pg {color: #BFBFBF}
+
+
+
+
+input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{
+    -webkit-appearance: none !important;
+    margin: 0;
+}
+input[type="number"]{-moz-appearance:textfield;}
+
+td {
+	border-right-color: black;
+	border-bottom-color: black;
+}
+
+

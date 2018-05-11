@@ -1,0 +1,122 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>方案模版</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .tbox {height: 51.5px; border-top-left-radius: 8px; border-top-right-radius: 8px; margin-bottom: 17.5px; padding-top: 16px; padding-left: 3%; padding-right: 3%}
+        .hsearch {height: 34px; width: 20%}
+        .hsearch .inpbox {width: 100%; height: 100%; border: 1px solid #D9D9D9}
+        .hsearch .inpbox .fright {width: 44px; height: 32px; display: inline-block; line-height: 32px; margin-top: 1px; margin-right: 1px; background-color: #D9D9D9}
+        .hsearch .inpbox .inp {margin-right: 46px; margin-left: 5px; padding-top: 10px}
+        .tbox select {height: 34px; line-height: 34px; margin-top: 1px; width: 8%; margin-left: 20px; border:1px solid #D9D9D9; background-color: white}
+        .tbox .date,.tbox .btn {height: 32px; line-height: 35px; width: 7.5%; border:1px solid #D9D9D9; border-radius: 5px; margin-top: 1px; position: relative; margin-left: 20px; float: left}
+        .tbox .btn {width: 9%; text-align: center; border:1px solid #009AD0; color: #009AD0; float: left; margin-right: 15px}
+        .tbox .btn:hover{cursor: pointer; background-color: #009AD0; color: white}
+        .tbox .date>input {display: block; width: 100%;  margin-top: 9px;}
+        .bbox {border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; padding: 25px 50px}
+        .tname:hover {cursor: pointer; color: #F7775F}
+    </style>
+</head>
+<body>
+<script type="text/javascript">
+    setNav();
+</script>
+    <div class="bg">
+        <div class="content oh">
+            <div class="tbox bcw">
+                <div onclick="newModel()" class="btn">新建</div>
+                <div onclick="del()" class="btn">删除</div>
+            </div>
+            <div class="bbox bcw">
+                <table class="base" id="tb" border="0" cellspacing="0">
+                    <tr style="height: 32px; background-color: #FFEDE7">
+                        <th>
+                            <span class="checkbox"><img src="img/cno.png">全选</span>
+                        </th>
+                        <th>模版名称</th>
+                        <th>创建时间</th>
+                        <th style="border-right: 0px">操作</th>
+                    </tr>
+                </table>
+                <div class="pager"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript" src="inc/layer/laydate/laydate.js" charset="utf-8"></script>
+    <script type="text/javascript">
+
+
+        var tb = document.getElementById("tb");
+        var tbd = tb.getElementsByTagName('tbody')[0];
+
+        var p = new Pager(document.querySelector(".pager"));
+        var searchObj = {key:'',tids:''};
+        var defmodels = [{templatename:"标准方案模版",templateid:-1},{templatename:"简单方案模版",templateid:-2}];
+
+        p.change = function (pageno, cb) {
+            //执行操作／首次也会响应方法
+            searchObj.pageno = pageno;
+            Http.get("api/template/list",searchObj, function(r) {
+                if(searchObj.pageno===1)
+                    r.list = defmodels.concat(r.list);
+                var trs = [];
+                for(var i=0;i<r.list.length;i++) {
+                    var d = r.list[i];
+                    trs.push('<tr><td>'+(d.templateid>=0?'<span tid='+d.templateid+' class="checkbox"><img src="img/cno.png"></span>':'不可选')+'</td>\
+                                <td onclick="detail('+d.templateid+')" class="tname">'+d.templatename+'</td>\
+                                <td>'+(d.subdate?Unit.time(d.subdate):'无')+'</td>\
+                                <td>\
+                                    <span onclick="edit('+d.templateid+')" class="btn">'+(d.templateid>=0?'编辑':'预览')+'</span>\
+                                </td></tr>');
+                }
+                tbd = setTBodyInnerHTML(tbd, trs.join(""));
+                Check.init();
+                cb&&cb(pageno, r.pages);
+            }, null, null, true)
+        };
+
+        userPrivilege(function () {
+            if(!privilege) {
+                defmodels.shift();
+            }
+            p.pageok();
+        });
+
+        function del() {
+            var ids = Check.getCheckIds();
+            if(ids.length>0) {
+                LoadingBox.show();
+                Http.post("api/template/remove", {templateID:ids.join(",")}, function() {
+                    location.reload();
+                })
+            } else top.layer.msg("请选项数据");
+        }
+
+        function newModel() {
+            location.href = 'modelcreate.html';
+        }
+
+
+        function edit(tid) {
+            if(tid>=0) {
+                location.href = 'modelcreate.html?tid='+tid+"&back=0";
+            } else {
+                location.href = "modelpreview.html?tid="+tid;
+            }
+        }
+
+        function detail(tid) {
+            location.href = "modelpreview.html?tid="+tid;
+        }
+        
+    </script>
+</body>
+</html>

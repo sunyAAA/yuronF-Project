@@ -1,0 +1,179 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>语融服</title>
+    <link href="css/style.css" rel="stylesheet" />
+    <script src="inc/jquery-1.9.1.min.js"></script>
+    <script src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        body {padding: 20px}
+        .tt {font-size: 20px; font-weight: 600; text-align: center}
+        .ct {font-size: 14px; padding: 20px; min-height: 100px}
+        .btmbox .btn {padding: 10px 37px; border:1px solid #D9D9D9; border-radius: 10px}
+        .btmbox .btn.bcf7 {border-color: #F7775F; margin-left: 150px}
+        #orgInfo {width: 280px; margin: auto; margin-top: 20px}
+        .orgface {width: 80px; height: 80px; float: left; border-radius: 40px; overflow: hidden}
+        .orgctor {margin-left: 90px; height: 80px}
+    </style>
+</head>
+<body>
+    <div class="tt"></div>
+    <div class="ct"></div>
+    <div class="btmbox tc hide">
+        <span onclick="refuse()" class="btn c9 poi">拒绝</span>
+        <span onclick="agree()" class="btn bcf7 cw poi">同意</span>
+    </div>
+    <script src="js/comm.js"></script>
+    <script>
+        var tt = document.querySelector(".tt");
+        var ct = document.querySelector(".ct");
+        var btns = document.querySelector(".btmbox");
+        var detail = 0;
+        var orgInfo = document.getElementById("orgInfo");
+
+        function pageload() {
+            var o = Prompt.getObj();
+            detail = o;
+            if(o.isread > 1) {
+                if(o.isread === 2) {
+                    btns.innerHTML = "已接受好友申请";
+                } else if (o.isread === 3) {
+                    btns.innerHTML = "已拒绝好友申请";
+                } else if(o.isread === 4) {
+                    btns.innerHTML = "已接受组织邀请";
+                } else if (o.isread === 5) {
+                    btns.innerHTML = "已拒绝组织邀请";
+                }
+                btns.className = btns.className + " fpx18 cf7";
+            }
+            if(o.messagetype===0) {
+                tt.innerHTML = "好友申请";
+                if(o.isread>1)
+                    btns.style.display="block";
+                else {
+                    Http.get("api/friend/list", {key:'', pagesize:9999999, pageno:1}, function (r) {
+                        for(var i=0;i<r.length;i++) {
+                            if(r[i].friendcustomerid==o.itemid) {
+                                btns.innerHTML = "<div class='tc fpx18 cf7'>已经是您的好友了</div>";
+                                break;
+                            }
+                        }
+                        btns.style.display="block";
+                    })
+                }
+            } else if(o.messagetype===1) {
+                tt.innerHTML = "组织邀请";
+                Http.get("api/group/show", {gid:o.itemid}, function (r) {
+                    var infobox = document.createElement("DIV");
+                    infobox.id = "orgInfo";
+                    ct.appendChild(infobox);
+                    if(!r) {
+                        infobox.innerHTML = "<div class='tc fpx18' style='margin-top: 50px'>当前组织已经失效</div>";
+                    } else {
+                        btns.style.display="block";
+                        var ogstr = getOrg(r);
+                        infobox.innerHTML = ogstr;
+                        Http.get("api/customer/selectCustomerList", {ids:r.groupcreatorid}, function (r) {
+                            var cn = document.getElementById("cname");
+                            if(r && r.length>0 && cn) {
+                                cn.innerHTML = r[0].realname;
+                            }
+                        });
+                    }
+                })
+            } else if(o.messagetype===2) {
+                tt.innerHTML = o.messagetitle;
+//                tt.innerHTML = "系统消息";
+                if(o.messagetitle.indexOf("方案")>-1) {
+                    btns.innerHTML = "<div onclick='goLook()' class='tc fpx18 cf7 poi'>查看详情</div>";
+                    btns.style.display="block";
+                }
+            } else if(o.messagetype===3) {
+                tt.innerHTML = "好友消息";
+            }
+            ct.innerHTML = o.messagecontext;
+        }
+
+        function goLook() {
+            if(detail.messagecontext.indexOf("上报")>-1) {
+                top.location.href = 'zz.html?zid='+detail.itemid;
+            } else {
+                top.location.href = "hy.html";
+            }
+        }
+
+        function refuse() {
+            var msg = "";
+            var tag = 0;
+            if(detail.messagetype===0) {
+                msg = "已拒绝好友邀请";
+                tag = 3;
+            } else if(detail.messagetype===1) {
+                msg = "已拒绝组织邀请";
+                tag = 5;
+            }
+            LoadingBox.show();
+            handleMsg(detail.messageid, tag, function () {
+                LoadingBox.hide();
+                top.layer.msg(msg);
+                setTimeout(function () {
+                    Prompt.closeIfr(1);
+                },1000);
+            })
+        }
+
+        function agree() {
+            var msg = "";
+            var url = "";
+            var obj = {};
+            if(detail.messagetype===0) {
+                url = "api/friend/accept";
+                obj = {friendid:detail.itemid, msgid:detail.messageid, tag:2};
+                msg = "接受好友邀请成功";
+            } else if(detail.messagetype===1) {
+                url = "api/group/accept";
+                obj = {groupid:detail.itemid, msgid:detail.messageid, tag:4};
+                msg = "接受组织邀请成功";
+            }
+            sendHttp(url, obj, msg);
+        }
+
+        function sendHttp(url, obj, msg) {
+            LoadingBox.show();
+            Http.post(url, obj, function (r) {
+                handleMsg(obj.msgid, obj.tag, function () {
+                    LoadingBox.hide();
+                    top.layer.msg(msg);
+                    setTimeout(function () {
+                        Prompt.closeIfr(1);
+                    },1000);
+                });
+            })
+        }
+
+
+        function handleMsg(mid, tag, cb) {
+            Http.post("api/message/handle", {messageid:mid, tag:tag}, function () {
+                cb&&cb();
+            });
+        }
+
+        function getOrg(d) {
+            return '<div style="overflow: hidden">\
+                <div class="orgface">\
+                <img src="'+Unit.getImgUrl(d.groupheader)+'" onerror="this.src=\'img/error.png\';this.onerror=null" alt=""/>\
+                </div>\
+                <div class="orgctor fpx14" style="padding-top: 15px; height: 70px">\
+                创建人：<span id="cname" class="fpx14">&nbsp;</span><br/>\
+                创建时间：<span class="fpx14">'+Unit.time(d.subdate,'yyyy-MM-dd')+'</span>\
+                </div>\
+                <div>名称：<span>'+d.groupname+'</span></div>\
+            <div>简介：<span>'+d.groupdesc+'</span></div>\
+            </div>';
+        }
+
+    </script>
+</body>
+</html>

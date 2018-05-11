@@ -1,0 +1,159 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>我加入的组织</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <script type="text/javascript" src="js/zz.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .box {height: 100%; border-radius: 8px; overflow: hidden}
+        .box .item {overflow: hidden; padding-left: 11px}
+        .box .item>img {width: 24px; height: auto; margin: 16px}
+        .box .item>span {line-height: 56px}
+        .ctbox {overflow-y: scroll; overflow-x: hidden; transition-duration: .3s}
+        .ctbox>div {line-height: 50px; padding-left: 70px; font-size: 13px}
+        .ctbox>div:hover {cursor: pointer; background-color: #F7775F; color: white}
+
+
+        .zzbox {padding: 32px 28px;border-radius: 8px; margin-top: 12px}
+        .zzbox .face {width: 100px; height: 100px; float: left}
+        .zzbox .ct {margin-left: 132px}
+        .zzbox .ct>div {margin-bottom: 10px}
+        .zzbox .ct>div>.tt {display: inline-block; width: 100px}
+
+        .btmbox {margin-top: 12px; border-radius: 8px; padding-bottom: 20px}
+        .btmbox .tt {padding: 24px 0px; border-bottom: 1px solid #D9D9D9; margin: 0px 13px}
+        .btmbox .tt .imgbox {display: inline-block; width: 16.5px; height: 16.5px; vertical-align: -15%}
+        .btmbox table td {color: #6C6C6C}
+        .sendbtn {border-radius: 8px; border:1px solid #009AD0; color: #009AD0; padding: 6px 20px}
+        .sendbtn:hover {cursor: pointer; background: #009AD0; color: white}
+    </style>
+</head>
+<body>
+    <script type="text/javascript" >zzInfo(1)</script>
+    <div class="btmbox bcw">
+        <div class="tt fpx14">
+            <span class="imgbox"><img src="img/fslb.png" alt=""/></span>
+            发送列表
+            <span onclick="top.location.href='import.html?zzid='+gid+'&t=0&up=1&pid='+pid+'&creator='+detail.groupcreatorid" class="sendbtn fright">上报方案</span>
+        </div>
+        <div style="margin: 18px 19px;" >
+            <table class="base" id="tb" border="0" cellspacing="0">
+                <tr style="height: 32px; background-color: #FFEDE7">
+                    <th>序号</th>
+                    <th>方案名称</th>
+                    <th>方案数据编号</th>
+                    <th>交易结构编号</th>
+                    <th>方案来源</th>
+                    <th>上报时间</th>
+                    <th>备注</th>
+                    <th class="handle" style="border-right: 0px">操作</th>
+                </tr>
+            </table>
+            <div class="pager"></div>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript">
+    
+        var gid = Unit.query("gid");
+        var pid = Unit.query("pid");
+        function pageload() {
+            orgshow(gid);
+        }
+
+        var tb = document.getElementById("tb");
+        var tbd = tb.getElementsByTagName('tbody')[0];
+
+        var p = new Pager(document.querySelector(".pager"));
+        var dataDict = {};
+        p.change = function (pageno, cb) {
+            for(var i=tb.rows.length-1;i>0;i--)
+                tb.deleteRow(i);
+            dataDict = {};
+            var hobj = {pageno:pageno,json:{filesharetarget:6,filesharetargetid:pid}};
+            hobj.json = JSON.stringify(hobj.json);
+            Http.get("api/case/record/pro", hobj, function(r) {
+                var trs = [];
+                for(var i=0;i<r.list.length;i++) {
+                    var d = r.list[i];
+                    dataDict[d.pcaseid] = d;
+                    trs.push('<tr cid="'+d.fileshareitemid+'">\
+                                <td  onclick="window.open(\'casedetail.html?cid='+d.fileshareitemid+'&pid='+pid+'\')" class="poif7">'+(i+1)+'</td>\
+                                <td  onclick="window.open(\'casedetail.html?cid='+d.fileshareitemid+'&pid='+pid+'\')" class="poif7">'+d.filesharename+'</td>\
+                                <td class="poif7"></td>\
+                                <td class="poif7"></td>\
+                                <td></td>\
+                                <td>'+Unit.time(d.subdate)+'</td>\
+                                <td></td>\
+                                <td><span style="margin-right:5px" onclick="window.open(\'casedetail.html?cid='+d.fileshareitemid+'&pid='+pid+'\')" class="btn bcf7">查看详情</span></td></tr>');
+                }
+                tbd = setTBodyInnerHTML(tbd, trs.join(""));
+                cb&&cb(pageno, r.pages);
+                configAllCase();
+                parent.setIframeHeight(parent.ctframe);
+            },null,null,true)
+        };
+        p.pageok();
+
+
+        function configAllCase() {
+            var cs = document.querySelectorAll("[cid]");
+            var cids = [];
+            for(var i=0;i<cs.length;i++) {
+                cids.push(cs[i].getAttribute("cid"));
+            }
+            if(cids.length>0) {
+                Http.get("api/case/shows", {ids:cids.join(",")}, function (r) {
+                    var dict = {};
+                    for(var i=0;i<r.length;i++) {
+                        if(r[i])
+                            dict[r[i].pcaseid] = r[i];
+                    }
+                    for(var i=0;i<cs.length;i++) {
+                        var o = dict[cs[i].getAttribute("cid")];
+                        var boxs = cs[i].querySelectorAll("td");
+                        boxs[2].innerHTML = 'FASJ-'+o.clacresultid;
+                        boxs[2].onclick = function () {
+                            window.open('csb.html?calcid='+o.clacresultid);
+                        };
+                        boxs[3].innerHTML = (o.transtructid?'JYJG-'+o.transtructid:'');
+                        if(o.transtructid) {
+                            boxs[3].onclick = function () {
+                                Prompt.openIfr('newtrans.html?pid='+pid+'&tid='+this.innerHTML, {w:500,h:450}, function(a) {
+                                    Prompt.closeIfr();
+                                    if(parseInt(a)) {
+                                        p.refresh();
+                                    }
+                                })
+                            };
+                        }
+                        boxs[4].innerHTML = o.source?"接收":"自建";
+                        // boxs[5].innerHTML = Unit.time(o.subdate);
+                        boxs[6].innerHTML = o.remark?o.remark:"无";
+
+                    }
+                })
+            }
+        }
+
+
+        function exit() {
+            var u = Local.user();
+            Prompt.confirm({text:"是否确认退出组织？"}, function(a) {
+                if(parseInt(a)) {
+                    LoadingBox.show();
+                    Http.post("api/group/exit",{groupid:gid,customerid:u.customerid}, function(r){
+                        top.location = top.location.href.split("?")[0];
+                    })
+                }
+            })
+        }
+    </script>
+</body>
+</html>

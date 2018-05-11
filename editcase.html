@@ -1,0 +1,226 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>语融服</title>
+    <link href="css/style.css" rel="stylesheet" />
+    <script src="inc/jquery-1.9.1.min.js"></script>
+    <script src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .box {padding: 40px 20px; height: 400px;}
+        .leftbox {float: left; height: 350px; width: 260px}
+        .rightbox {margin-left: 40px; height: 100%}
+        .flist {height: 270px; overflow-x: hidden; overflow-y: scroll; border-right: 1px solid #d9d9d9}
+        .fitem {margin-top: 13px}
+        .fitem>img {width: 32px; height: 32px}
+        .fitem .info {margin-left: 40px; margin-right: 80px}
+        .fitem .info>span {color: #FA6841}
+        .fitem .okbox {width: 30px; height: 30px; margin-right: 25px}
+        .row {height: 34px; line-height: 34px; font-size: 16px; margin-bottom: 19px}
+        .row .ct {margin-left: 120px; margin-right: 40px; border:1px solid #D9D9D9; box-sizing: border-box; height: 100%; padding:7px}
+        .row .ct>input {width: 100%; height: 18px; line-height: 18px}
+        .row .ct>select {border: none; width: 100%; height: 100%}
+        .btmbox {margin-top: 20px; margin-right: 40px}
+        .btmbox .btn {padding: 8px 32px; border:1px solid #D9D9D9; border-radius: 8px}
+        .btmbox .btn.bcf7 {border-color: #F7775F; margin-left: 50px; color: white}
+
+        .selfriends {display: inline-block;  width: 28px;  height: 28px;  text-align: center;  border-radius: 17px;  background-color: #F7775F;  color: white;  font-size: 25px;  line-height: 23px; margin-top: 3px; margin-right: 40px;}
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="tc fpx18" style="margin-bottom: 20px">编辑方案</div>
+        <div class="rightbox">
+            <div class="row">
+                <span class="fleft">方案名称</span>
+                <div class="ct">
+                    <input name="pcasename" type="text" placeholder="请输入方案名称" />
+                </div>
+            </div>
+            <!--<div class="row">-->
+                <!--<span class="fleft">交往人员姓名</span>-->
+                <!--<span class="fright selfriends poi" onclick="selectFriends()">+</span>-->
+                <!--<div style="margin-right: 80px" class="ct">-->
+                    <!--<input name="personname" type="text" placeholder="请输入交往人员姓名" />-->
+                <!--</div>-->
+            <!--</div>-->
+            <div class="row">
+                <span class="fleft">方案类型</span>
+                <div style="padding: 0px" class="ct">
+                    <select id="typeSel">
+                        <option value="1">租赁</option>
+                        <option value="2">保理</option>
+                        <option value="3">银行贷款</option>
+                        <option value="4">其他</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <span class="fleft">方案状态</span>
+                <div style="padding: 0px" class="ct">
+                    <select id="stateSel">
+                        <option value="1">洽谈中</option>
+                        <option value="2">已确认</option>
+                        <option value="3">终止</option>
+                        <option value="4">签约执行</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <span class="fleft">方案金额（万元）</span>
+                <div class="ct">
+                    <input name="casemoney" type="number" placeholder="请输入项目金额（万元）" />
+                </div>
+            </div>
+            <div class="row">
+                <span class="fleft">实际起租日</span>
+                <div class="ct">
+                    <input id="sdate" name="rentday" type="text" placeholder="请输入实际起租日" />
+                </div>
+            </div>
+            <div class="row">
+                <span class="fleft">费用收入（元）</span>
+                <div class="ct">
+                    <input id='valiNum1' onchange="fixNumber(this,this.value)" name="caseincome"  placeholder="请输入费用收入" />
+                </div>
+            </div>
+            <div class="row">
+                <span class="fleft">费用支出（元）</span>
+                <div class="ct">
+                    <input id='valiNum2' onkeyup='valiLast(this.value)' onchange="fixNumber(this,this.value)"  name="caseotcome"  placeholder="费用支出" />
+                </div>
+            </div>
+            <!--<div class="row hide">-->
+                <!--<span class="fleft">记录时间</span>-->
+                <!--<div class="ct">-->
+                    <!--<input id="subdate" name="subdate" type="text" placeholder="请输入记录时间" />-->
+                <!--</div>-->
+            <!--</div>-->
+            <div class="btmbox">
+                <span class="btn poi fleft" onclick="Prompt.closeIfr()">取消</span>
+                <span class="btn bcf7 poi fright" onclick="sure()">保存</span>
+            </div>
+        </div>
+    </div>
+    <script src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript" src="inc/layer/laydate/laydate.js" charset="utf-8"></script>
+    <script>
+
+        var cid = Unit.query("cid");
+        var noName = Unit.query('noname')
+
+        var sdate = document.getElementById("sdate");
+        laydate.render({elem: '#sdate', ready:function(){
+            var dt = document.querySelector(".layui-laydate");
+            if(dt) dt.style.top = '46px';
+        }, done: function(a, date, endDate){
+            var btime = Date.parse(a.replace(/-/g,  "/"));
+            sdate.setAttribute("data", btime);
+        }});
+
+
+
+        var stateSel = document.getElementById("stateSel");
+        var typeSel = document.getElementById("typeSel");
+
+        var tobj = null;
+        if (top.tempCaseObj)
+            tobj = top.tempCaseObj;
+        if(tobj) {
+            rids = tobj.fileshareid;
+            var inps = document.querySelectorAll('input[name]');
+            for(var i=0;i<inps.length;i++) {
+                var p = inps[i].getAttribute("name");
+                if(p=="rentday") {
+                    if(tobj[p]) {
+                        inps[i].setAttribute("data", tobj[p]);
+                        inps[i].value = Unit.time(tobj[p],'yyyy-MM-dd');
+                    } else inps[i].value="";
+                    continue;
+                }
+                inps[i].value = tobj[p] || '';
+            }
+            if(tobj.casestate)
+                stateSel.value = casestatus[tobj.casestate].i;
+            if(tobj.casetype)
+                typeSel.value = casetypes[tobj.casetype].i;
+        }
+        
+        if(noName == 1) {
+            document.querySelectorAll('div.row')[0].style='display:none';
+        }
+        var oldNmae = document.querySelector('input[name=pcasename]').value
+        function sure() {
+           
+            var obj = {};
+            var inps = document.querySelectorAll('input[name]');
+            for(var i=0;i<inps.length;i++) {
+                var p = inps[i].getAttribute("name");
+                if(p=="rentday") {
+                    obj[p] = inps[i].getAttribute("data");
+                    continue;
+                }
+                if(inps[i].value)
+                    obj[p] = inps[i].value;
+            }
+            var op = stateSel.options[stateSel.selectedIndex];
+            if(op) obj.casestate = op.value;
+            var op1 = typeSel.options[typeSel.selectedIndex];
+            if(op1) obj.casetype = op1.value;
+            if(Object.keys(obj).length>0) {
+                obj.caseid = cid;
+                LoadingBox.show();
+                obj.caseincome = deCodeFixNumber(obj.caseincome)
+                obj.caseotcome = deCodeFixNumber(obj.caseotcome)
+                console.log(obj)
+                if(isNaN(obj.caseincome) || isNaN( obj.caseotcome)) {
+                    top.layer.msg('必须输入数字')
+                    LoadingBox.hide();
+                }else{
+                    pid = top.Unit.query('pid')
+                    console.log(oldNmae,obj.pcasename)
+                    Http.get('api/case/exist?pid='+pid+'&cname='+encodeURIComponent(obj.pcasename),{},function(r){
+                        if(r == 1 && oldNmae != obj.pcasename) {
+                            top.layer.msg('方案名称不得重复')
+                            LoadingBox.hide();
+                            return 
+                        }else{
+                            Http.post("api/case/update", obj, function () {
+                            LoadingBox.hide();
+                            Prompt.closeIfr(1);
+                        })
+                        }
+
+                    })
+
+                }
+
+            } else{ top.layer.msg("请填写完整内容");}
+        }
+        
+        function fixNumber(e,v){
+            if(isNaN(v)){
+                e.value = ''
+                top.layer.msg('必须输入数字')
+                return
+            }
+            e.value = toMoney(v)   || '' 
+        } 
+        
+        function deCodeFixNumber(str){
+            return str?Number(str.split(',').join('')):''
+        }
+
+        function valiLast(v){
+            if(isNaN(v)){
+                top.layer.msg('必须输入数字') 
+            }
+        }
+
+        valiNum1.onchange()
+        valiNum2.onchange()
+    </script>
+</body>
+</html>

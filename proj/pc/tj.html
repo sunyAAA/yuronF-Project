@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>统计</title>
+    <link href="css/style.css" rel="stylesheet" />
+    <script src="inc/jquery-1.9.1.min.js"></script>
+    <script src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .icon {width: auto;  height: 18px;  float: left;  margin-top: 13px;  margin-right: 10px;}
+        .mtt {height: 47.5px; line-height: 47.5px; margin: 0px 20px; border-bottom: 1px dashed #d9d9d9}
+        .mtt .icon {margin-top: 15px; margin-right: 8px}
+        .box {height: 100%; border-radius: 8px; overflow: hidden}
+        .box .item {overflow: hidden; padding-left: 11px}
+        .box .item>img {width: 24px; height: 24px; margin: 16px; object-fit: contain}
+        .box .item>span {line-height: 56px}
+        .box .item.bcf7>span {color: white}
+    </style>
+</head>
+<body>
+<script type="text/javascript">
+    setNav();
+</script>
+    <div class="bg">
+        <div class="content oh">
+            <div style="width: 240px; height: 613px" class="fleft">
+                <div class="box bcw">
+                    <div class="item poi">
+                        <img style="width: 22px; margin-left: 17px" class="fleft" src="img/zzsx.png" alt=""/>
+                        <span class="fpx14">自主筛选分析</span>
+                    </div>
+                    <div class="item poi">
+                        <img style="margin-left: 15px" class="fleft" src="img/zjsz.png" alt=""/>
+                        <span class="fpx14">资金收支分析</span>
+                    </div>
+                    <div class="item poi">
+                        <img class="fleft" src="img/fysz.png" alt=""/>
+                        <span class="fpx14">费用收支分析</span>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-left: 252px; min-height: 613px">
+                <div class="box">
+                    <iframe style="min-height: 613px" frameborder="0" id="mframe" ></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/comm.js"></script>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <script src="inc/layer/layer.js"></script>
+    <script>
+
+        var is = document.querySelectorAll(".box .item");
+        var mframe = document.getElementById("mframe");
+        var srcs = ['customcount.html','incomecount.html?t=1','incomecount.html?t=2'];
+        for(var i=0;i<is.length;i++) {
+            is[i].idx = i;
+            is[i].onclick = function () {
+                var s = document.querySelector(".box .item.poi.bcf7");
+                if(s) {
+                    s.className = "item poi";
+                    var img = s.querySelector("img");
+                    img.src = img.src.replace("ok.png", ".png");
+                }
+                if(this.className.indexOf('bcf7')<0) {
+                    this.className = "item poi bcf7";
+                    var imgok = this.querySelector("img");
+                    imgok.src = imgok.src.replace(".png", "ok.png");
+                }
+                mframe.src = srcs[this.idx];
+            }
+        }
+        is[0].onclick();
+    </script>
+</body>
+</html>

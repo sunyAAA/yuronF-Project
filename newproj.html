@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>语融服</title>
+    <link href="css/style.css" rel="stylesheet"/>
+    <script src="inc/jquery-1.9.1.min.js"></script>
+    <script src="js/dom.js"></script>
+    <!--[if lte IE 8]>
+    <script src="inc/compatible_ie8.js"></script>
+    <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style>
+        .pop {
+            padding: 32px;
+            width: 475px;
+            background-color: white;
+            border-radius: 15px
+        }
+
+        .pop .row {
+            height: 35px;
+            margin-bottom: 26px
+        }
+
+        .pop .row > .fleft {
+            line-height: 35px
+        }
+
+        .pop .row .select {
+            height: 35px;
+            line-height: 35px;
+            border-color: #D9D9D9
+        }
+
+        .pop .row .inp {
+            border: 1px solid #D9D9D9;
+            margin-left: 76px;
+            padding-left: 5px
+        }
+
+        .pop .row .inp > input {
+            line-height: 14px;
+            height: 14px;;
+            width: 100%;
+            margin: 9.5px 0px
+        }
+
+        .btns > span {
+            width: 100px;
+            height: 35px;
+            line-height: 35px;
+            display: inline-block;
+            border-radius: 5px;
+            margin-top: 10px
+        }
+
+        .btns > span.gray {
+            box-sizing: border-box;
+            border: 1px solid #999999
+        }
+        .reminds {position: absolute;  bottom: -20px;  width: 100%;  left: 0px;  text-align: center;}
+    </style>
+</head>
+<body>
+<div class="pop">
+    <div class="row">
+        <span class="fleft c73 fpx14">项目名称</span>
+        <div class="inp">
+            <input maxlength="20" name="ProjectName" placeholder="请输入项目名称" type="text"/>
+        </div>
+    </div>
+    <div class="row">
+        <span class="fleft c73 fpx14" style="position: relative">项目金额<span class="reminds c73">（万元）</span></span>
+        <div class="inp">
+            <input maxlength="15" name="ProjectMoney" placeholder="请输入项目金额" type="text"/>
+        </div>
+    </div>
+    <div class="row">
+        <span class="fleft c73 fpx14">项目地址</span>
+        <div name="ProjectAddress" style="margin-left: 76px">
+            <div class="fleft"><select class="select" style="width:120px"></select></div>
+            <div class="fleft"><select class="select" style="width:120px; margin:0px 15px"></select></div>
+            <div class="fleft"><select class="select" style="width:120px"></select></div>
+        </div>
+    </div>
+    <div class="row">
+        <span class="fleft c73 fpx14">项目类型</span>
+        <div name="ProjectType" style="margin-left: 76px">
+            <div class="fleft"><select class="select" style="width:200px"></select></div>
+        </div>
+    </div>
+    <div class="row">
+        <span class="fleft c73 fpx14">项目阶段</span>
+        <div name="ProjectStage" style="margin-left: 76px">
+            <div class="fleft"><select class="select" style="width:200px"></select></div>
+        </div>
+    </div>
+    <div class="btns tc">
+        <span onclick="cancel()" style="margin-right: 65px" class="tc poi gray c73">取消</span>
+        <span onclick="add()" class="bcf7 cw tc poi">确认</span>
+    </div>
+</div>
+<script src="js/comm.js"></script>
+<script src="inc/area.js"></script>
+<script>
+
+    var namebox = document.querySelector('[name="ProjectName"]');
+    var moneybox = document.querySelector('[name="ProjectMoney"]');
+    var pid = Unit.query("pid");
+    var reload = parseInt(Unit.query("reload"));
+
+    var stageselect = document.querySelector('[name="ProjectStage"] select');
+    var stageop = [];
+    for (var i = 0; i < projstages.length; i++) stageop.push('<option value="' + projstages[i].i + '">' + projstages[i].t + '</option>');
+    var p1 = stageselect.parentNode;
+    stageselect.parentNode.innerHTML = "<select class='select' style='width: 200px'>"+stageop.join("")+"</select>";
+    stageselect = p1.querySelector("select");
+
+
+    var typeselect = document.querySelector('[name="ProjectType"] select');
+    var typeop = [];
+    for (var i = 0; i < projtypes.length; i++) typeop.push('<option value="' + projtypes[i].i + '">' + projtypes[i].t + '</option>');
+    var p2 = typeselect.parentNode;
+    typeselect.parentNode.innerHTML = "<select class='select' style='width: 200px'>"+typeop.join("")+"</select>";
+    typeselect = p2.querySelector("select");
+
+
+    var aas = document.querySelectorAll('[name="ProjectAddress"] select');
+    var aselects = [];
+    for(var i=0;i<aas.length;i++) {
+        aselects.push(aas[i]);
+    }
+
+    var p3 = null;
+    var p4 = null;
+    var p5 = null;
+    Area.init(function () {
+        var l = Area.getList();
+        var ps = [];
+        for (var i = 0; i < l.length; i++) ps.push('<option value="' + l[i].value + '">' + l[i].text + '</option>');
+        p3 = aselects[0].parentNode;
+        aselects[0].parentNode.innerHTML = '<select class="select" style="width:120px">'+ps.join("")+'</select>';
+        aselects[0] = p3.querySelector("select");
+        aselects[0].onchange = change0;
+        aselects[1].onchange = change1;
+        aselects[0].onchange();
+        aselects[1].onchange();
+
+
+        function change0(e) {
+            var sl = Area.getArea(aselects[0].value).c;
+            var sps = [];
+            for (var i = 0; i < sl.length; i++) sps.push('<option value="' + sl[i].value + '">' + sl[i].text + '</option>');
+            p4 = aselects[1].parentNode;
+            aselects[1].parentNode.innerHTML = '<select class="select" style="width:120px; margin:0px 15px">'+sps.join("")+'</select>';
+            aselects[1] = p4.querySelector("select");
+            aselects[1].onchange = change1;
+            if (e) aselects[1].onchange();
+        }
+
+
+        function change1() {
+            var ssl = [];
+            if(aselects[1].value)
+                ssl = Area.getArea(aselects[1].value).c;
+            var ssps = [];
+            for (var i = 0; i < ssl.length; i++) ssps.push('<option value="' + ssl[i].value + '">' + ssl[i].text + '</option>');
+            p5 = aselects[2].parentNode;
+            aselects[2].parentNode.innerHTML = '<select class="select" style="width:120px">'+ssps.join("")+'</select>';
+            aselects[2] = p5.querySelector("select");
+        }
+
+        if (pid && top.detail) {
+            namebox.value = top.detail.projectname;
+            moneybox.value = top.detail.projectmoney;
+            typeselect.value = top.detail.projecttype;
+            stageselect.value = top.detail.projectstage;
+            var area = Area.getArea(top.detail.projectaddress);
+            var areap = Area.getArea(area.p);
+            aselects[0].value = areap.p;
+            aselects[0].onchange();
+            aselects[1].value = area.p;
+            aselects[1].onchange();
+            aselects[2].value = top.detail.projectaddress;
+        }
+    });
+
+    function cancel() {
+        Prompt.closeIfr(0);
+    }
+
+    function add() {
+        var name = namebox.value;
+        var money = moneybox.value;
+        if (name.toString().length < 3) {
+            top.layer.msg("项目名不能小于3个字");
+            return;
+        }
+        if (!money > 0) {
+            top.layer.msg("请输入项目金额");
+            return;
+        }
+        if(isNaN(parseFloat(money))) {
+            top.layer.msg("项目金额格式输入错误，请修改");
+            return;
+        }
+        var ao = {};
+        ao.ProjectName = name;
+        ao.ProjectMoney = money;
+        ao.ProjectAddress = aselects[2].value?aselects[2].value:(aselects[1].value?aselects[1].value:aselects[0].value);
+        ao.ProjectType = typeselect.selectedIndex;
+        ao.ProjectStage = stageselect.selectedIndex;
+        LoadingBox.show();
+        if (pid) ao.ProjectID = pid;
+        Http.post(pid ? "api/project/update" : "api/project/save", ao, function (r) {
+            LoadingBox.hide();
+            top.layer.msg(pid ? "项目编辑成功！" : "项目创建成功！");
+            Prompt.closeIfr(1);
+        })
+    }
+</script>
+</body>
+</html>

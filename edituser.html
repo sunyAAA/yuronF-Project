@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>语融服</title>
+    <link href="css/style.css" rel="stylesheet" />
+    <script src="inc/jquery-1.9.1.min.js"></script>
+    <script src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .box {padding: 40px 20px; height: 350px}
+        .leftbox {float: left; height: 350px; width: 260px}
+        .rightbox {height: 100%}
+        .rightbox>.row {margin-left: 40px}
+        .flist {height: 270px; overflow-x: hidden; overflow-y: scroll; border-right: 1px solid #d9d9d9}
+        .fitem {margin-top: 13px}
+        .fitem>img {width: 32px; height: 32px}
+        .fitem .info {margin-left: 40px; margin-right: 80px}
+        .fitem .info>span {color: #FA6841}
+        .fitem .okbox {width: 30px; height: 30px; margin-right: 25px}
+        .row {height: 34px; line-height: 34px; font-size: 16px; margin-bottom: 19px}
+        .row .ct {margin-left: 100px; margin-right: 40px; border:1px solid #D9D9D9; box-sizing: border-box; height: 100%; padding:7px}
+        .row .ct>input {width: 100%; height: 18px; line-height: 18px}
+        .row .ct>select {border: none; width: 100%; height: 100%}
+        .btmbox {margin-top: 20px; margin-right: 40px}
+        .btmbox .btn {padding: 8px 40px; border:1px solid #D9D9D9; border-radius: 8px}
+        .btmbox .btn.bcf7 {border-color: #F7775F; margin-left: 50px; color: white}
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="tc fpx18" style="margin-bottom: 20px">修改个人资料</div>
+        <div class="rightbox">
+            <div class="row">
+                <span class="fleft">性别</span>
+                <div style="padding: 0px" class="ct">
+                    <select id="sexSel">
+                        <option value="0">不设置</option>
+                        <option value="1">男</option>
+                        <option value="2">女</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <span class="fleft">生日</span>
+                <div class="ct">
+                    <input id="bdate" placeholder="请选择日期" title="" type="text" onkeydown="return false" />
+                </div>
+            </div>
+            <div class="row">
+                <span class="fleft">学历</span>
+                <div style="padding: 0px" class="ct">
+                    <select id="graSel">
+                        <option value="0">不设置</option>
+                        <option value="1">高中</option>
+                        <option value="2">本科</option>
+                        <option value="3">硕士</option>
+                        <option value="4">博士</option>
+                        <option value="5">其他</option>
+                    </select>
+                </div>
+            </div>
+            <div style="height: 36px;width: 60%;margin: 80px auto 0px auto;" class="btmbox">
+                <span class="btn poi fleft" onclick="Prompt.closeIfr()">取消</span>
+                <span class="btn bcf7 poi fright" onclick="sure()">保存</span>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <!--<script type="text/javascript" src="inc/layer/layer.js"></script>-->
+    <script type="text/javascript" src="inc/layer/laydate/laydate.js" charset="utf-8"></script>
+    <script type="text/javascript">
+        var sexSel = document.getElementById("sexSel");
+        var graSel = document.getElementById("graSel");
+        var bdateInp = document.getElementById("bdate");
+        var u = top.Prompt.tempObj;
+        if(parseInt(u.sex))
+            sexSel.value = u.sex;
+        if(parseInt(u.education))
+            graSel.value = u.education;
+        var btime = "";
+        if(u.birthday) {
+            btime = u.birthday;
+        }
+        laydate.render({elem: '#bdate',value: u.birthday?Unit.time(u.birthday,"yyyy-MM-dd"):'',done: function(a, date, endDate){
+            btime = Date.parse(a.replace(/-/g,  "/"));
+        }});
+
+
+
+        function sure() {
+            LoadingBox.show();
+            Http.post("api/customer/modify", {sex:sexSel.value,birthday:btime,education:graSel.value}, function () {
+                LoadingBox.hide();
+                u.sex = sexSel.value;
+                u.birthday = btime;
+                u.education = graSel.value;
+                Local.user(u);
+                Prompt.closeIfr(1);
+            })
+        }
+
+    </script>
+</body>
+</html>

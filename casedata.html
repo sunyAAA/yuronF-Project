@@ -1,0 +1,403 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>方案数据</title>
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <script type="text/javascript" src="js/dom.js"></script>
+    <style type="text/css">
+
+         select {height: 34px; line-height: 34px; margin-top: 1px; width: 8%; margin-left: 20px; border:1px solid #D9D9D9; background-color: white}
+         .oh .btn {height: 32px; line-height: 35px; width: 9%; border:1px solid #009AD0; color: #009AD0; border-radius: 5px; margin-top: 1px; position: relative; margin-left: 20px; float: left; text-align: center}
+         .oh .btn.right {float: right}
+         .oh .btn:hover{cursor: pointer; background-color: #009AD0; color: white}
+         .date>input {display: block; width: 100%;  margin-top: 9px;}
+        .bbox {border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; padding: 25px 50px}
+
+        .tbox .btns>span {display: inline-block; width: 107px; height: 38px; text-align: center; line-height: 38px; border:1px solid #D9D9D9; border-left:none ; box-sizing: border-box; float: left}
+        .tbox .btns>span.ok {font-weight: 600; color: white; background-color: #F7775F; border-color: #F7775F; border-right-color: #D9D9D9}
+
+        .newproj {width: 375px; height: 147px; border-radius: 8px; margin: auto; padding-top: 40px}
+        .newproj>.ninp {display: inline-block; width: 180px; height: 17px; border:1px solid #D9D9D9; padding: 8px 3px; overflow: hidden; margin-left: 10px; vertical-align: -65%;}
+        .newproj>.ninp>input {width: 100%; height: 100%}
+        .mbtn {padding: 10px 35px; border-radius: 8px}
+        #innerTbBox {overflow-x: scroll; overflow-y: hidden}
+        table.base th {min-width: 40px; white-space: nowrap}
+        .btnrows {display: none}
+        #innerTbBox {padding-bottom: 20px}
+        .hook{display: none;}
+    </style>
+</head>
+<body>
+    <div style="margin-bottom:18px" class="bcw">
+        <div style="margin: 0px 40px; padding:18px 0px" class="oh">
+            <span class="btnrows">
+                <div onclick="newCaseData()" zz class="btn">新建</div>
+                <div onclick="top.location.href='import.html?t=1&pid='+pid+'&zzid='+zzid" class="btn">导入</div>
+                <div onclick="deleteData()" class="btn">删除</div>
+                <div onclick="designTh()" class="btn">设计表头</div>
+                <div onclick="gohide()" class="btn right">隐藏区</div>
+                <div onclick="hideData(1)" class="btn right">隐藏</div>
+            </span>
+            <span class="btnrows">
+                <div onclick="hideData()" class="btn">恢复</div>
+                <div onclick="deleteData()" class="btn">删除</div>
+                <div onclick="pageback()" class="btn">返回</div>
+            </span>
+        </div>
+    </div>
+    <div class="bbox bcw">
+        <div>
+            <table class="base" id="tb" border="0" cellspacing="0"></table>
+        </div>
+        <div class="pager"></div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript">
+        var pid = Unit.query('pid');
+        
+        var tb = document.getElementById("tb");
+        var innerTbBox = null;
+        var btnrs = document.querySelectorAll(".btnrows");
+        var hide = Unit.query("hide");
+        var imp = Unit.query("imp");
+        var level = Local.user().level;
+        var zzid = Unit.query("zzid");
+        zzDomReset(zzid);
+        var id = Unit.query("id")
+        var checkedIndex = -1;
+        if(imp) {
+            document.querySelector("body>div").style.display="none";
+            document.querySelector(".bbox.bcw").style.padding = "0px";
+        } else {
+            if(hide) btnrs[1].style.display="block";
+            else btnrs[0].style.display="block";
+        }
+
+        var dataDict = {};
+        var p = new Pager(document.querySelector(".pager"));
+        p.change = function (pageno, cb) {
+            dataDict = {};
+            Http.get("api/calc/list", {pageno:pageno,pid:pid,hide:hide?1:0}, function(r) {
+                var t = pageno == 0?1:(pageno-1)*10
+                var tbes = ['<tr style="height: 40px; background-color: #FFEDE7">\
+                                <td style="width: 40px" class="th">\
+                                    <span class="checkbox"><img src="img/cno.png">全选</span>\
+                                </td>\
+                                <td  style="width: 40px"class="th">序号</td>\
+                                <td style="background-color:white" rowspan="11"><div><div id="innerTbBox" ></div></div></td>\
+                                <td class="th" style="border-right: 0px; width: 120px">操作</td>\
+                            </tr>'];
+                for(var i=0;i<r.list.length;i++) {
+                    dataDict[r.list[i].calcresultid] = r.list[i];
+                    tbes.push('<tr>\
+                                    <td>\
+                                        <span tid="'+r.list[i].calcresultid+'" class="checkbox"><img src="img/cno.png"></span>\
+                                    </td>\
+                                    <td style="white-space: nowrap" idx="'+i+'">'+(i+t+1)+'</td>\
+                                    <td>\
+                                        <span onclick="window.open(\'csb.html?calcid='+r.list[i].calcresultid+'\')" class="btn bcf7">详情</span>\
+                                        <span onclick="dataRemark('+r.list[i].calcresultid+')" class="btn">备注</span>\
+                                    </td>\
+                                </tr>')
+                }
+                var tbp = tb.parentNode;
+                tb.parentNode.innerHTML = '<table class="base" id="tb" border="0" cellspacing="0">'+tbes.join("")+'</table>';
+                tb = tbp.querySelector("table");
+
+                tb.querySelector("tr .th").innerHTML="勾选";
+                innerTbBox = document.getElementById("innerTbBox");
+                configInnerTb(r.list);
+                cb&&cb(pageno, r.pages);
+                Check.noTH = 1;
+                Check.init();
+
+                if(parent.mframe)
+                    setIframeHeight(parent.mframe);
+                else if(parent.id_miframe)
+                    setIframeHeight(parent.id_miframe);
+            },null,null,true)
+        };
+        userPrivilege(function () {
+            p.pageok();
+        })
+
+
+        function configInnerTb(list) {
+            var html = '<tr style="height: 40px; background-color: #FFEDE7">\
+                    <th>项目总额</th>\
+                    <th>是否<br/>等期</th>\
+                    <th>是否<br/>等额</th>\
+                    <th>年利率</th>\
+                    <th>期限<br/>（月）</th>\
+                    <th>年还款<br/>次数</th>\
+                    <th>总还款<br/>次数</th>\
+                    <th>保证金<br/>比例</th>\
+                    <th>服务费<br/>比例</th>\
+                    <th>咨询费<br/>比例</th>'
+            if(level == 2 ){
+                html+= '<th>IRR</th>\
+                    <th>XIRR</th>\
+                    <th>IRR<br/>（逐月贴现）</th>'
+            }
+            html+='<th>利息<br/>总额</th>\
+                    <th>还款<br/>总额</th>\
+                    <th>总负担率<br/>（年）</th>\
+                    <th>平面利率<br/>（年）</th>\
+                    <th>期限<br>（年）</th>\
+                    <th>资产<br>余值</th>\
+                    <th>残值<br>收入</th>\
+                    <th style="min-width: 70px">起租日</th>\
+                    <th>首付款<br/>金额</th>\
+                    <th>保证金<br/>金额</th>\
+                    <th>保险<br/>收入</th>\
+                    <th>其他<br/>收入</th>\
+                    <th>其他<br/>支出</th>\
+                    <th>非利息<br/>收入合计</th>\
+                    <th>等额<br/>本息</th>\
+                    <th>总收益额</th>\
+                    <th>当年<br/>总收益额</th>\
+                    <th>资金占用<br/>（月）</th>\
+                    <th>未回收成本<br/>末期余额</th>\
+                    <th>现金流<br/>税收调整</th>\
+                    <th>税率<br/>调整</th>\
+                    <th>调整<br/>现金流</th>\
+                    <th>存续XIRR</th>\
+                    <th>IRR<br/>（最大公约月）</th>\
+                    <th>IRR<br/>（实际间隔月）</th>\
+                    <th>IRR<br/>（实际间隔天）</th>\
+                    <th>备注</th>\
+                    </tr>'
+                var es = []
+                    es.push(html)
+            for(var i=0;i<list.length;i++) {
+                var d = list[i];
+                if(id == d.calcresultid){
+                    checkedIndex = i
+                }
+                var taxtype = ['直租赁','回租赁','保理','贷款'][d.shuilvtiaozheng-1];
+                var tps = '<tr>\
+                    <td class="moneyc c009">'+toMoney(d.totalmoney)+'</td>\
+                    <td>'+(d.equaldate?'是':'否')+'</td>\
+                    <td>'+(d.equalmonth?'是':'否')+'</td>\
+                    <td>'+radioNumber(d.yearrate)+'</td>\
+                    <td>'+Math.round(d.qixianyue)+'</td>\
+                    <td>'+Math.round(d.backcount)+'</td>\
+                    <td>'+Math.round(d.zonghuankuancishu)+'</td>\
+                    <td>'+radioNumber(d.baozhengjinrate)+'</td>\
+                    <td>'+radioNumber(d.serverrate)+'</td>\
+                    <td>'+radioNumber(d.zixunfeishoururate)+'</td>'
+                    if(level == 2) {
+                        tps+= '<td>'+radioNumber(d.irr)+'</td>\
+                    <td>'+radioNumber(d.xirr)+'</td>\
+                    <td>'+radioNumber(d.zhunyutiexianirr)+'</td>'
+                    }
+                    tps += '                    <td class="moneyc c009">'+toMoney(d.lixizonge)+'</td>\
+                    <td class="moneyc c009">'+toMoney(d.huankuanzonge)+'</td>\
+                    <td>'+radioNumber(d.yearburdenrate)+'</td>\
+                    <td>'+radioNumber(d.pingmianlilv)+'</td>\
+                    <td>'+Math.round(d.qixiannian)+'</td>\
+                    <td class="moneyc c009">'+toMoney(d.zicanyuzhi)+'</td>\
+                    <td class="moneyc c009">'+toMoney(d.canzhishouru)+'</td>\
+                    <td>'+Unit.time(d.qizuri,'yyyy-MM-dd')+'</td>\
+                    <td class="moneyc c009">'+toMoney(d.headmoney)+'</td>\
+                    <td class="moneyc c009">'+toMoney(d.baozhengjin)+'</td>\
+                    <td class="moneyc c009">'+toMoney(d.baoxianshouru)+'</td>\
+                    <td class="moneyc c009">'+toMoney(d.qitashouru)+'</td>\
+                    <td class="moneyc c009">'+toMoney(d.qitazhichu)+'</td>\
+                    <td class="moneyc c009">'+toMoney(d.feilixishouruheji)+'</td>\
+                    <td class="moneyc c009">'+toMoney(d.dengebenxi)+'</td>\
+                    <td class="moneyc c009">'+toMoney(d.zongshouyie)+'</td>\
+                    <td class="moneyc c009">'+toMoney(d.dangnianzongshouyie)+'</td>\
+                    <td>'+(d.zijinzhanyongyue?d.zijinzhanyongyue:0)+'</td>\
+                    <td class="moneyc c009">'+toMoney(d.weihuishouchengbenmoqiyue)+'</td>\
+                    <td>'+(parseInt(d.xianjinliushuishoutiaozheng)?'税后':'税前')+'</td>\
+                    <td>'+(taxtype?taxtype:'')+'</td>\
+                    <td>'+(d.tiaozhengxianjinliu?'是':'否')+'</td>\
+                    <td>'+(d.xuncunxirr?radioNumber(d.xuncunxirr):'0%')+'</td>\
+                    <td>'+radioNumber(d.zuidagongyueyueirr)+'</td>\
+                    <td>'+radioNumber(d.shijijiangeyueirr)+'</td>\
+                    <td>'+radioNumber(d.shijijiangetianirr)+'</td>\
+                    <td>'+(d.remark?d.remark:'无')+'</td>\
+                    </tr>'
+                es.push(tps)
+                console.log(checkedIndex)
+                var spans = document.querySelectorAll('span.checkbox')
+                if(checkedIndex!=-1){
+                    spans[checkedIndex].className='checkbox ok'
+                    spans[checkedIndex].querySelector('img').src='img/cok.png'
+                }
+            }
+//            innerTbBox.parentNode.style.height = tb.clientHeight-1+ "px";
+//            innerTbBox.style.height = tb.clientHeight-6+ "px";
+            innerTbBox.style.width = innerTbBox.clientWidth+"px";
+            innerTbBox.style.marginTop = "-1px";
+            innerTbBox.innerHTML = '<table border="0" cellspacing="0" class="base">'+es.join("")+'</table>';
+
+            showDes();
+            if(!list || list.length===0)
+                innerTbBox.querySelector("table").style.height='32px';
+            window.tbd=innerTbBox.querySelector("table");
+
+            innerTbBox.style.height = tbd.clientHeight - 6 + "px";
+            innerTbBox.parentNode.style.height = tbd.clientHeight-1+ "px";
+
+            for(var i=0;i<tbd.rows.length;i++) {
+                if(i>0) {
+                    tb.rows[i].style.height = tbd.rows[i].clientHeight + 'px';
+                }
+            }
+            resetTableSort();
+        }
+
+        
+        function designTh() {
+            Prompt.openIfr('thdesign.html',{w:800,h:450}, function(a) {
+                if(parseInt(a)) {
+                    location.reload();
+                }
+            })
+        }
+
+
+        function showDes(a) {
+            var desNo = {};
+            if(!imp) desNo = Local.get("designNos");
+            !desNo&&(desNo={});
+
+            var innerTb = innerTbBox.querySelector("table");
+            // for(var i=0;i<innerTb.rows.length; i++) {
+            //     for(var j=0;j<innerTb.rows[i].cells.length;j++) {
+            //         if(desNo[j+2] && level == 2) {
+            //             innerTb.rows[i].cells[j].style.display=a?"":"none";
+            //         }else if(desNo[j]) {
+            //             if(j>10){
+            //                 innerTb.rows[i].cells[j].style.display=a?"":"none";
+            //             }else{
+            //                 innerTb.rows[i].cells[j-2].style.display=a?"":"none";
+            //             }
+            //         }
+            //     }
+            // }
+            if(level != 2){
+                desNo[12] = 0
+                desNo[13] = 0
+                desNo[14] = 0
+            }
+            for(var key in desNo) {
+                if(desNo[key]){
+                    var n = key
+                    if(level != 2 && n >=10) {
+                        n = n-3
+                    }
+                    console.log(n)
+                    for(var i=0;i<innerTb.rows.length; i++) {
+                    // for(var j=0;j<innerTb.rows[i].cells.length;j++) {
+                    var row = innerTb.rows[i]
+                        row.cells[n-2].style.display=a?"":"none"
+                    // }
+                    }
+                }
+
+            }
+        }
+
+        function hideData(hide) {
+            var ids = Check.getCheckIds();
+            if(ids.length>0) {
+                LoadingBox.show();
+                Http.post('api/calc/hide', {hide:hide?1:0, crids:ids.join(",")}, function (a) {
+                    LoadingBox.hide();
+                    top.layer.msg("方案数据"+(hide?"隐藏":"恢复")+"成功");
+                    setTimeout(function () {
+                        if(hide) location.reload(); else pageback();
+                    }, 1000);
+
+                })
+            } else top.layer.msg("请勾选方案数据");
+        }
+
+        function deleteData() {
+            var ids = Check.getCheckIds();
+            if(ids.length>0) {
+                Prompt.confirm({text:"确认删除数据?"}, function (a) {
+                    if(parseInt(a)) {
+                        LoadingBox.show();
+                        Http.post('api/calc/remove' , {ids:ids.join(",")}, function (a) {
+                            LoadingBox.hide();
+                            top.layer.msg("方案数据删除成功");
+                            setTimeout(function () {
+                                location.reload();
+                            }, 1000);
+
+                        })
+                    }
+                });
+            } else top.layer.msg("请勾选方案数据");
+        }
+
+        function impData(impid) {
+            var ids = Check.getCheckIds();
+            if(ids.length>0) {
+                LoadingBox.show();
+                Http.post("api/calc/saveas", {calcids:ids[0],projectid:impid}, function (a) {
+                    LoadingBox.hide();
+                    top.layer.msg("导入测算数据成功！");
+                    location.reload();
+                })
+            } else top.layer.msg("请勾选测算数据");
+        }
+
+
+
+        function dataRemark(cid) {
+            var o = dataDict[cid];
+            if(o) {
+                Local.save("remark", o.remark);
+                Prompt.openIfr('popinput.html?title=提示&placeholder=请输入备注&savelocal=1', {w:350,h:250}, function (a) {
+                    if(!(a===undefined || a===null) && a!=o.remark) {
+                        LoadingBox.show();
+                        Http.post("api/calc/remark",{crid:cid, remark:a}, function () {
+                            LoadingBox.hide();
+                            p.refresh();
+                        })
+                    }
+                });
+            }
+        }
+
+        function newCaseData() {
+            var URI=encodeURIComponent('lswj.html?pid=-1');
+            var retURI = encodeURIComponent('projdetail.html?pid='+pid)
+            top.location.href = 'csb.html?reT='+retURI+'&pid='+pid;
+        }
+
+        function gohide() {
+            var gid = Unit.query("gid");
+            if(top.location.href.indexOf("zz")>-1) {
+                top.location.href='hidearea.html?idx=3&pid='+pid+'&gid='+(gid?gid:'-1');
+            } else 
+                top.location.href='hidearea.html?idx=3&pid='+pid
+        }
+
+        function pageback() {
+            var hgid = Unit.query("gid", top.location.href);
+            if(hgid) {
+                top.location.href = 'zz.html?sidx=1'+(hgid>0?'&zid='+hgid:'');
+            } else 
+                top.location.href=(pid==-1?'lswj.html':'projdetail.html?pid='+pid);
+        }
+
+
+        window.onresize = function() {
+            var inbox = document.getElementById("innerTbBox");
+            var w = inbox.parentNode.clientWidth;
+            if(w > 800)
+                inbox.style.width = inbox.parentNode.clientWidth + 'px';
+        }
+        
+    </script>   
+</body>
+</html>

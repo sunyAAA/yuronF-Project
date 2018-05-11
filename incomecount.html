@@ -1,0 +1,305 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>语融服</title>
+    <link href="css/style.css" rel="stylesheet" />
+    <script src="inc/jquery-1.9.1.min.js"></script>
+    <script src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .rbbox {
+            border-radius: 8px;
+            padding: 12.5px
+        }
+
+        .rbbox .icon {
+            width: 16.5px;
+            height: 16.5px;
+            display: inline-block;
+            vertical-align: -16%
+        }
+
+        select {
+            height: 34px;
+            line-height: 34px;
+            margin-top: 1px;
+            width: 110px;
+            border: 1px solid #D9D9D9;
+            background-color: white
+        }
+
+        .date {
+            height: 32px;
+            line-height: 35px;
+            width: 110px;
+            border: 1px solid #D9D9D9;
+            border-radius: 5px;
+            margin-top: 1px;
+            position: relative
+        }
+
+        .date>img {
+            width: auto;
+            height: 16px;
+            margin-top: 8px;
+            margin-left: 15px;
+            margin-right: 5px
+        }
+
+        .date>input {
+            display: block;
+            width: 100%;
+            margin-top: 9px;
+            text-align: center
+        }
+
+        .moneyc {
+            max-width: 70px;
+            word-break: break-all
+        }
+
+        .ignore {
+            position: relative;
+            padding: 11px 0px
+        }
+
+        .ignoreText {
+            position: absolute;
+            background-color: white;
+            padding: 5px;
+            line-height: 1.2;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #d9d9d9;
+            top: 100%;
+            left: 0px;
+            min-width: 200px;
+            z-index: 2;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="rbbox bcw">
+        <div style="padding-bottom: 15px">
+            <span class="icon">
+                <img src="img/tjtt1.png" alt="" />
+            </span>
+            <span class="fpx15 tt" style="font-weight: 500">&nbsp;</span>
+        </div>
+        <table class="base" id="tb" border="0" cellspacing="0">
+            <tr></tr>
+        </table>
+        <div id="pg0" class="pager"></div>
+    </div>
+    <div class="rbbox bcw" style="margin-top: 20px">
+        <div style="padding-bottom: 15px">
+            <span class="icon">
+                <img src="img/tjtt2.png" alt="" />
+            </span>
+            <span class="fpx15 tt" style="font-weight: 500">&nbsp;</span>
+        </div>
+        <div style="padding:18px 0px" class="oh">
+            <div class="fleft date c73">
+                <input class="c73" placeholder="开始日期" title="" type="text" onkeydown="return false" id="sdate" />
+            </div>
+            <div style="margin-left: 25px" class="fleft date c73">
+                <input class="c73" title="" type="text" placeholder="结束日期" onkeydown="return false" id="edate" />
+            </div>
+            <select id="sel" style="margin-left: 25px" class="fleft c73" title="">
+                <option value="">选择出资方</option>
+            </select>
+        </div>
+        <table class="base" id="tb1" border="0" cellspacing="0">
+            <tr></tr>
+        </table>
+        <div id="pg1" class="pager"></div>
+    </div>
+    <script src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/laydate/laydate.js" charset="utf-8"></script>
+    <script>
+
+        top.ready = false
+        var type = Unit.query("t");
+        var tts = document.querySelectorAll(".tt");
+        var trs = [];
+        var url = "";
+        var dataDict = {}
+        if (type == 1) {
+            url = "api/count/income";
+            tts[0].innerHTML = "历年租金汇总表";
+            tts[1].innerHTML = "资金收支详表";
+            trs.push(['年份', '年度应收还款总额（元）', '年度应收利息总额（元）', '年度应收成本总额']);
+            trs.push(['到期时间', '方案名称', '融资方', '出资方', '还款收入', '利息收入', '回收成本']);
+        } else {
+            url = "api/count/otcome";
+            tts[0].innerHTML = "历年费用收支汇总表";
+            tts[1].innerHTML = "费用收支统计";
+            trs.push(['年份', '年度项目总金额（元）', '年度费用总收入（元）', '年度费用总支出（元）', '年度净收入（元）', '年度净收入率']);
+            trs.push(['起租日', '方案名称', '出资方', '项目总额', '费用收入', '费用支出', '净收入', '净收入率']);
+        }
+
+        var p0List = null;
+        var p = new Pager(document.getElementById("pg0"));
+        var tb = document.getElementById("tb");
+        var tbd = tb.getElementsByTagName('tbody')[0];
+        p.change = function (pageno, cb) {
+            var rows = [];
+            var thstr = '<tr style="height: 32px; background-color: #FFEDE7">';
+            for (var i = 0; i < trs[0].length; i++) thstr += '<th>' + trs[0][i] + '</th>';
+            thstr += '</tr>';
+            rows.push(thstr);
+            var p0Data = p0List[pageno - 1];
+            if(!Object.keys(p0Data)){
+                top.layer.msg('网络连接不畅，请重新刷新')
+                return false
+            }
+            var ks = Object.keys(p0Data)
+            for (var i = 0; i < ks.length; i++) {
+                var d = p0Data[ks[i]];
+                if (type == 1) {
+                    rows.push('<tr><td>' + ks[i] + '</td><td class="moneyc c009">' + toMoney(d.b) + '</td><td class="moneyc c009">' + toMoney(d.c) + '</td><td class="moneyc c009">' + toMoney(d.d) + '</td></tr>');
+                } else {
+                    rows.push('<tr><td>' + ks[i] + '</td><td class="moneyc c009">' + toMoney(d.b) + '</td><td class="moneyc c009">' + toMoney(d.c) + '</td><td class="moneyc c009">' + toMoney(d.d) + '</td><td class="moneyc c009">' + toMoney(d.e) + '</td><td>' + radioNumber(d.f) + '</td></tr>');
+                }
+            }
+            tbd = setTBodyInnerHTML(tbd, rows.join(""));
+            cb && cb(pageno, Math.ceil(ks.length / 10));
+            parent.setIframeHeight(parent.mframe);
+
+        };
+
+
+
+        var p1Obj = { btime: '', etime: '', czr: '' };
+        var p1 = new Pager(document.getElementById("pg1"));
+        var tb1 = document.getElementById("tb1");
+        p1.change = function (pageno, cb) {
+            p1Obj.pageno = pageno;
+            isNaN(p1Obj.btime) && (p1Obj.btime = '');
+            isNaN(p1Obj.etime) && (p1Obj.etime = '');
+            Http.get(url, p1Obj, function (r) {
+                dataDict = r.list.dwn
+                console.log(r)
+                top.ready = true
+                var list = r.list.dwn;
+                var rows = [];
+                var thstr = '<tr style="height: 32px; background-color: #FFEDE7">';
+                for (var i = 0; i < trs[1].length; i++) thstr += '<th>' + trs[1][i] + '</th>';
+                thstr += '</tr>';
+                rows.push(thstr);
+                for (var i = 0; i < list.length; i++) {
+                    var d = list[i];
+                    try {
+                        if (d.c) {
+                            d.c = decodeURIComponent(d.c);
+
+                        }
+                    } catch (e) { }
+                    try {
+                        if (d.d) {
+                            d.d = decodeURIComponent(d.d);
+                        }
+                    } catch (e) { }
+
+                    if (type == 1) {
+                        rows.push('<tr><td>' + Unit.time(d.a, 'yyyy-MM-dd') + '</td><td>' + (d.b ? d.b : '') + '</td><td tid=' + i + ' key="c"  class="ignore poi">' + (d.c.length > 12 ? d.c.slice(0, 12)+'...' : d.c) + '</td><td tid=' + i + ' key="d"  class="ignore poi">' + (d.d.length > 12 ? d.d.slice(0, 12) +'...': d.d) + '</td><td class="moneyc c009">' + toMoney(d.e) + '</td><td class="moneyc c009">' + toMoney(d.f) + '</td><td class="moneyc c009">' + toMoney(d.g) + '</td></tr>');
+                    } else {
+                        rows.push('<tr><td>' + Unit.time(d.a, 'yyyy-MM-dd') + '</td><td>' + (d.b ? d.b : '') + '</td><td tid=' + i + ' key="c"  class="ignore poi">' + (d.c.length > 12 ? d.c.slice(0, 12)+'...' : d.c) + '</td><td class="moneyc c009">' + (d.d ? toMoney(d.d) : '') + '</td><td class="moneyc c009">' + toMoney(d.e) + '</td><td class="moneyc c009">' + toMoney(d.f) + '</td><td class="moneyc c009">' + toMoney(d.g) + '</td><td>' + (d.h ? radioNumber(d.h) : '') + '</td></tr>');
+                    }
+                }
+                var tbd1 = tb1.getElementsByTagName('tbody')[0];
+                setTBodyInnerHTML(tbd1, rows.join(""));
+                cb && cb(pageno, Math.ceil(r.total / 10));
+                if (!p0List) {
+                    var list = r.list.top;
+                    p0List = [list];
+                    p.pageok();
+                }
+                console.log(dataDict)
+                showIgnore()
+            }, null, null, true)
+
+        };
+        p1.pageok();
+        function showIgnore() {
+            var igs = document.querySelectorAll(".ignore");
+            for (var i = 0; i < igs.length; i++) {
+                igs[i].onmouseover = function () {
+                    if (!this.querySelector("DIV")) {
+                        var d = document.createElement("DIV");
+                        d.className = "ignoreText";
+                        var tid = this.getAttribute("tid");
+                        var key = this.getAttribute("key");
+                        console.log(tid, key)
+                        var t = dataDict[tid][key];
+                        t = t.replace(/;/g, "<br/>");
+                        d.innerHTML = decodeURIComponent(t);
+                        this.appendChild(d)
+                    }
+                };
+                igs[i].onmouseout = function () {
+                    var d = this.querySelector("DIV");
+                    if (d) this.removeChild(d);
+                }
+            }
+        }
+        var sdate = document.getElementById("sdate");
+        var edate = document.getElementById("edate");
+        var stempdate = null;
+        laydate.render({
+            elem: '#sdate', done: function (a, date, endDate) {
+                var btime = Date.parse(a.replace(/-/g, "/"));
+                if (p1Obj.etime && btime >= p1Obj.etime) {
+                    top.layer.msg("选择时间不能大于结束时间");
+                    if (stempdate) sdate.value = stempdate;
+                    else sdate.value = "";
+                    return false;
+                }
+                stempdate = a;
+                p1Obj.btime = btime;
+                p1.refresh()
+            }
+        });
+        var etempdate = null;
+        laydate.render({
+            elem: '#edate', done: function (a, date, endDate) {
+                var etime = Date.parse(a.replace(/-/g, "/")) + 24 * 3600000;
+                if (p1Obj.btime && etime <= p1Obj.btime) {
+                    top.layer.msg("选择时间不能小于开始时间");
+                    if (etempdate) edate.value = etempdate;
+                    else edate.value = "";
+                    return false;
+                }
+                etempdate = a;
+                p1Obj.etime = etime;
+                p1.refresh()
+            }
+        });
+
+
+        var sel = document.getElementById("sel");
+        Http.get("api/count/leaser", {}, function (r) {
+            top.ready = true
+            for (var i = 0; i < r.length; i++) {
+                try {
+                    r[i] = decodeURIComponent(r[i]);
+                    var op = document.createElement("OPTION");
+                    sel.appendChild(op);
+                    op.value = r[i];
+                    op.text = r[i];
+                } catch (e) {
+
+                }
+            }
+        });
+        sel.onchange = function () {
+            p1Obj.czr = encodeURIComponent(sel.value);
+            p1.refresh();
+        }
+    </script>
+</body>
+
+</html>

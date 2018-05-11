@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>组织成员</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <script type="text/javascript" src="js/zz.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .box {height: 100%; border-radius: 8px; overflow: hidden}
+        .box .item {overflow: hidden; padding-left: 11px}
+        .box .item>img {width: 24px; height: auto; margin: 16px}
+        .box .item>span {line-height: 56px}
+        .ctbox {overflow-y: scroll; overflow-x: hidden; transition-duration: .3s}
+        .ctbox>div {line-height: 50px; padding-left: 70px; font-size: 13px}
+        .ctbox>div:hover {cursor: pointer; background-color: #F7775F; color: white}
+
+        .topbox {padding: 12px 28px; border-top-left-radius: 8px; border-top-right-radius: 8px}
+        .topbox>span {padding: 4px 16.5px; border-radius: 13px; margin-right: 15px; display: inline-block}
+
+        .zzbox {padding: 32px 28px;border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; margin-top: 12px}
+        .zzbox .face {width: 100px; height: 100px; float: left}
+        .zzbox .ct {margin-left: 132px}
+        .zzbox .ct>div {margin-bottom: 10px}
+        .zzbox .ct>div>.tt {display: inline-block; width: 100px}
+
+        .btmbox {margin-top: 12px; border-radius: 8px; padding-bottom: 20px}
+        .btmbox .tb {line-height: 38px; display: inline-block; border-bottom: 2px solid transparent; width: 75px; font-weight: 600}
+        .btmbox .tb.ok {border-color: #F7775F}
+        .btmbox .btns>span {display: inline-block; width: 107px; height: 38px; text-align: center; line-height: 38px; border:1px solid #D9D9D9; border-left:none ; box-sizing: border-box; float: left; background-color: #F5F5F5}
+        .btmbox .btns>span.ok {font-weight: 600; color: white; background-color: #F7775F; border-color: #F7775F; border-right-color: #D9D9D9}
+        .btmbox select {height: 34px; line-height: 34px; margin-top: 1px; width: 10%; margin-right: 20px; border:1px solid #D9D9D9; background-color: white}
+        .btmbox .oh .btn {height: 32px; line-height: 35px; width: 10%; border:1px solid #009AD0; color: #009AD0; border-radius: 5px; margin-top: 1px; position: relative; margin-right: 20px; float: left; text-align: center}
+        .btmbox .oh .btn.right {float: right; margin-right: 0px; margin-left: 20px}
+        .btmbox .oh .btn:hover{cursor: pointer; background-color: #009AD0; color: white}
+    </style>
+</head>
+<body>
+    <div style="margin: 18px 19px;" >
+        <table class="base" id="tb" border="0" cellspacing="0">
+            <tr style="height: 32px; background-color: #FFEDE7">
+                <th>序号</th>
+                <th>姓名</th>
+                <th>职位</th>
+                <th>电话号码</th>
+                <th>上报方案数量</th>
+                <th style="border-right: 0px">操作</th>
+            </tr>
+        </table>
+        <div class="pager"></div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript">
+
+        var gid = Unit.query("gid");
+        function pageload() {
+           
+        }
+
+        var tb = document.getElementById("tb");
+        var tbd = tb.getElementsByTagName('tbody')[0];
+
+        var mdict = {};
+        var p = new Pager(document.querySelector(".pager"));
+        p.change = function (pageno, cb) {
+            Http.get("api/group/member", {gid:gid,pageno:pageno}, function(r) {
+                var trs = [];
+                for(var i=0;i<r.list.length;i++) {
+                    var d = r.list[i];
+                    mdict[d.CustomerID] = d;
+                    trs.push('<tr><td>'+(i+1)+'</td>\
+                            <td>'+d.RealName+'</td>\
+                            <td>'+(d.Job?d.Job:'无')+'</td>\
+                            <td>'+d.Phone+'</td>\
+                            <td>'+d.ccount+'</td>\
+                            <td><span onclick="remove('+d.CustomerID+')" class="btn bcf7">移出组织</span></td></tr>');
+                }
+                tbd = setTBodyInnerHTML(tbd, trs.join(""));
+                cb&&cb(pageno, r.pages);
+            },null,null,true);
+        };
+        p.pageok();
+
+
+        function remove(cid) {
+            var o = mdict[cid];
+            var fstr = '<div style="width: 150px;margin: auto;" class="fitem">\
+                            <img style="width: 42px; height: 42px" class="fleft" src="'+Unit.getImgUrl(o.Head)+'" alt=""/>\
+                <div style="text-align: left; margin-left: 50px" class="info">'+o.RealName+'<br/>\
+                    <span style="margin-top: 6px; display: inline-block">'+o.Phone+'</span>\
+                </div>\
+            </div>';
+            Prompt.confirm({text:fstr+"<br/>确认移出组织?"}, function (a) {
+                if(parseInt(a)) {
+                    LoadingBox.show();
+                    Http.post("api/group/exit", {groupid:gid, customerid:cid}, function () {
+                        LoadingBox.hide();
+                        top.layer.msg("移除组织成员成功");
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000);
+                    })
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>

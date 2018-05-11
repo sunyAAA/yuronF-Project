@@ -1,0 +1,416 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>语融服</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <style>
+ 
+         select {height: 34px; line-height: 34px; margin-top: 1px; width: 8%; margin-left: 1%; border:1px solid #D9D9D9; background-color: white; min-width: 80px}
+         .oh .btn {height: 32px; line-height: 35px; width: 9%; border:1px solid #009AD0; color: #009AD0; border-radius: 5px; margin-top: 1px; position: relative; margin-left: 1%; float: left; text-align: center; min-width: 80px;}
+         .oh .btn.right {float: right}
+         .oh .btn:hover{cursor: pointer; background-color: #009AD0; color: white}
+         .date>input {display: block; width: 100%;  margin-top: 9px;}
+         .bbox {border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; padding: 25px 50px}
+
+         .bbox .btns>span {display: inline-block; width: 107px; height: 38px; text-align: center; line-height: 38px; border:1px solid #D9D9D9; border-left:none ; box-sizing: border-box;}
+         .bbox .btns>span.ok {font-weight: 600; color: white; background-color: #F7775F; border-color: #F7775F; border-right-color: #D9D9D9}
+
+        .mbtn {padding: 10px 35px; border-radius: 8px}
+        .btnrows {display: none}
+         table.base td .btn {min-width: 30px; margin-top: 3px}
+         table.base td {word-break: break-all}
+    </style>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+</head>
+<body>
+    <div style="margin-bottom:18px" class="bcw">
+        <div style="margin: 0px 40px; padding:18px 0px" class="oh">
+            <select class="fleft c73" title=""></select>
+            <span class="btnrows">
+                <div zz onclick="newCase()" class="btn">新建</div>
+                <div onclick="top.location.href='import.html?t=0&pid='+pid+'&zzid='+(zzid?zzid:'')" class="btn">导入</div>
+                <div onclick="sendCase()" class="btn">发送</div>
+                <div onclick="deleteCase()" class="btn">删除</div>
+                <div onclick="top.location.href='hidearea.html?idx=2&pid='+pid" class="btn right">隐藏区</div>
+                <div onclick="hideData(1)" class="btn right">隐藏</div>
+                <div onclick="addCaseRecord()" zz class="btn right">添加方案记录</div>
+            </span>
+            <span class="btnrows">
+                <div onclick="hideData(0)" class="btn">恢复</div>
+                <div onclick="deleteCase()" class="btn">删除</div>
+                <div onclick="pageback()" class="btn">返回</div>
+            </span>
+        </div>
+    </div>
+    <div class="bbox bcw">
+        <table class="base" id="tb" border="0" cellspacing="0">
+            <tr style="height: 32px; background-color: #FFEDE7">
+                <th>
+                    <span class="checkbox"><img src="img/cno.png">全选</span>
+                </th>
+                <th>序号</th>
+                <th style="max-width: 150px">方案名称</th>
+                <th>方案数据<br/>编号</th>
+                <th>交易结构<br/>编号</th>
+                <th>方案来源</th>
+                <th>方案类型</th>
+                <th>方案状态</th>
+                <th>方案金额<br/>（万元）</th>
+                <th>实际起租日</th>
+                <th>费用收入</th>
+                <th>费用支出</th>
+                <th style="width: 50px">备注</th>
+                <th ctime style="width: 65px">创建时间</th>
+                <th class="handle" style="border-right: 0px; width: 90px">操作</th>
+            </tr>
+        </table>
+        <div class="pager"></div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript" src="inc/layer/laydate/laydate.js" charset="utf-8"></script>
+    <script>
+
+        var tb = document.getElementById("tb");
+        var tbd = tb.getElementsByTagName('tbody')[0];
+        var pid = Unit.query("pid");
+        var hide = Unit.query("hide");
+        var imp = Unit.query("imp");
+        var btnrs = document.querySelectorAll(".btnrows");
+
+        var zzid = Unit.query("zzid");
+        var up = Unit.query("up");
+        zzDomReset(zzid);
+
+        if(imp) {
+            document.querySelector("body>div").style.display="none";
+            document.querySelector(".bbox.bcw").style.padding = "0px";
+            document.querySelector("#tb th").innerHTML="勾选";
+//            document.querySelector("table th.handle").style.display = "none";
+        } else {
+            if(hide) btnrs[1].style.display="block";
+            else btnrs[0].style.display="block";
+        }
+        if(zzid) {
+            document.querySelector("[ctime]").innerHTML = "上报时间";
+        }
+
+
+        var filterObj = {};
+
+        var ss = document.querySelector(".bcw select");
+        var op = document.createElement("OPTION");
+        ss.appendChild(op);
+        op.text = "全部分类";
+        op.value = "";
+        for(var i=0;i<casesources.length;i++) {
+            var op = document.createElement("OPTION");
+            ss.appendChild(op);
+            op.text = casesources[i].t;
+            op.value = casesources[i].i;
+        }
+        ss.onchange = function() {
+            filterObj.source = this.value;
+            p.refresh();
+        };
+
+
+        var dataDict = {};
+        var p = new Pager(document.querySelector(".pager"));
+        var sk = "";
+        p.change = function (pageno, cb) {
+            dataDict = {};
+            var hObj = {pageno:pageno,pid:pid?pid:'',hide:hide?1:0,key:sk};
+            hObj.source = filterObj.source;
+            Http.get("api/case/list", hObj, function(r) {
+                cb&&cb(pageno, r.pages);
+                var trs = [];
+                for(var i=0;i<r.list.length;i++) {
+                    var d = r.list[i];
+                    dataDict[d.pcaseid] = d;
+                    var ctype = casetypes[d.casetype];
+                    var cstatus = casestatus[d.casestate];
+                    trs.push('<tr><td>\
+                                    <span tid="'+d.pcaseid+'" class="checkbox"><img src="img/cno.png"></span>\
+                                </td>\
+                                <td>'+((p.cur-1)*10+i+1)+'</td>\
+                                <td style="max-width:150px" class="poif7" onclick="window.open(\'casedetail.html?cid='+d.pcaseid+'&pid='+pid+'\')">'+d.pcasename+'</td>\
+                                <td '+(top.location.href.indexOf('hidearea')<0?'class="poif7"':'')+' onclick="goCaseCalc()">FASJ-'+d.clacresultid+'</td>\
+                                <td '+(d.transtructid&&top.location.href.indexOf('hidearea')<0?'class="poif7" onclick="showTrans('+d.transtructid+')"':'')+'>'+(d.transtructid?'JYJG-'+d.transtructid:'')+'</td>\
+                                <td>'+(d.source?"接收":"自建")+'</td>\
+                                <td>'+(ctype?ctype.t:'')+'</td>\
+                                <td>'+(cstatus?cstatus.t:'')+'</td>\
+                                <td class="moneyc c009">'+toMoney(d.casemoney)+'</td>\
+                                <td>'+(d.rentday?Unit.time(d.rentday, 'yyyy-MM-dd'):'')+'</td>\
+                                <td class="moneyc c009">'+toMoney(d.caseincome)+'</td>\
+                                <td class="moneyc c009">'+toMoney(d.caseotcome)+'</td>\
+                                <td style="word-break: break-all">'+(d.remark?d.remark:'无')+'</td>\
+                                <td>'+Unit.time(d.subdate)+'</td>\
+                                '+'<td><span style="margin-right:2px" onclick="window.open(\'casedetail.html?cid='+d.pcaseid+'&pid='+pid+'\')" class="btn bcf7">查看详情</span>'+(imp?'':'<span style="margin-right:2px" onclick="caseRemark('+d.pcaseid+')" class="btn">备注</span>')+(imp?'':'<span onclick="editCase('+d.pcaseid+')" class="btn">编辑</span>')+'</td></tr>');
+                }
+                tbd = setTBodyInnerHTML(tbd, trs.join(""));
+                Check.init();
+
+                setIframeHeight(parent.mframe?parent.mframe:parent.id_miframe?parent.id_miframe:parent.miframe);
+            },null,null,true)
+        };
+        p.pageok();
+
+
+
+        function newCase() {
+            top.location.href = "casecreate1.html?pid="+pid;
+        }
+
+        function editCase(cid) {
+            var o = dataDict[cid];
+            if(o) {
+                top.tempCaseObj = o;
+                Prompt.openIfr('editcase.html?cid='+cid+'&editcase=1', {w:450,h:480}, function(a) {
+                    if(parseInt(a)) {
+                        top.layer.msg("编辑方案成功！");
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000);
+                    }
+                });
+            }
+        }
+
+
+        function caseRemark(cid) {
+            var o = dataDict[cid];
+            if(o) {
+                Local.save("remark", o.remark);
+                Prompt.openIfr('popinput.html?title=提示&placeholder=请输入方案备注&savelocal=1', {w:350,h:250}, function(a) {
+                    if(!(a===undefined || a===null)) {
+                        LoadingBox.show();
+                        Http.post("api/case/remark", {cid:cid, remark:a}, function () {
+                            LoadingBox.hide();
+                            top.layer.msg("方案设置备注成功");
+                            setTimeout(function () {
+                                location.reload();
+                            }, 1000);
+                        })
+                    }
+                })
+            }
+        }
+
+        function sendCase() {
+            var ids = Check.getCheckIds();
+            if(ids.length>0) {
+                var o = dataDict[ids[0]];
+                if(o) {
+                    top.tempCaseObj = o;
+                    Prompt.openIfr('sendbox.html?cid='+ids[0]+"&tempid="+o.templateid+"&pid="+pid, {w:600,h:350}, function(a) {
+                        if(a && a.c===1) {
+                            top.tempSendRecord = a;
+                            Prompt.openIfr('inputsendrecord.html', {w:450,h:280}, function(a) {
+                                if(parseInt(a)) {
+                                    top.layer.msg("保存方案记录成功！");
+                                    setTimeout(function () {
+                                        location.reload();
+                                    }, 1000);
+                                }
+                            });
+                            setTimeout(function () {
+                                top.layer.msg("发送方案成功");
+                            }, 1000);
+                        }
+                    })
+                } else
+                    top.layer.msg("数据异常，请刷新重试");
+            } else top.layer.msg("请勾选方案");
+        }
+
+        function hideData(hide) {
+            var ids = Check.getCheckIds();
+            if(ids.length>0) {
+                LoadingBox.show();
+                Http.post('api/case/hide' , {status:hide, ids:ids.join(",")}, function (a) {
+                    LoadingBox.hide();
+                    top.layer.msg("方案"+(hide?"隐藏":"恢复显示")+"成功");
+                    setTimeout(function () {
+                        if(hide) location.reload(); else pageback();
+                    }, 1000);
+
+                })
+            } else top.layer.msg("请勾选方案");
+        }
+
+        function addCaseRecord() {
+            var ids = Check.getCheckIds();
+            if(ids.length>0) {
+                var o = dataDict[ids[0]];
+                if(o) {
+                    top.tempSendRecord = null;
+                    top.tempCaseObj = o;
+                    Prompt.openIfr('inputsendrecord.html?cid='+ids[0], {w:450,h:350}, function(a) {
+                        if(parseInt(a)) {
+                            top.layer.msg("新增方案记录成功！");
+                            setTimeout(function () {
+                                location.reload();
+                            }, 1000);
+                        }
+                    });
+                }
+            } else top.layer.msg("请勾选方案");
+        }
+
+        function deleteCase() {
+            Prompt.confirm({text:"是否删除方案？"}, function (a) {
+                if(parseInt(a)) {
+                    var ids = Check.getCheckIds();
+                    if(ids.length>0) {
+                        LoadingBox.show();
+                        Http.post('api/case/remove' , {ids:ids.join(",")}, function (a) {
+                            LoadingBox.hide();
+                            top.layer.msg("方案删除成功");
+                            setTimeout(function () {
+                                location.reload();
+                            }, 1000);
+
+                        })
+                    } else top.layer.msg("请勾选方案");
+                }
+            })
+        }
+
+
+        function getCheckIds() {
+            var ids = Check.getCheckIds();
+            if(ids.length>0) {
+                return ids;
+            } else top.layer.msg("请勾选方案");
+        }
+
+        function goCaseCalc() {
+            if(parent.pois && top.location.href.indexOf('hidearea')<0) {
+                parent.pois[1].onclick();
+            }
+        }
+
+
+        function showTrans() {
+            if(parent.pois && top.location.href.indexOf('hidearea')<0) {
+                parent.pois[2].onclick();
+            }
+        }
+
+
+
+        function impData(imp, type) {
+            //type  1--从其他项目导入 2--组织导入/上报  3--好友详情点击发送方案
+            var ids = Check.getCheckIds();
+            if(ids.length>0) {
+                LoadingBox.show();
+                var url = "";
+                var hobj = {json:[]};
+                var o = dataDict[ids[0]];
+                var u = Local.user();
+                if(type===3) {
+                    if(!o) return;
+                    url = "api/case/sendn";
+                    hobj.json = [];
+                    var o1 = {filesharetarget:1, filesharetargetid:imp.send, customerid:u.customerid};
+                    var o2 = {filesharetarget:2, filesharetargetid:u.customerid, customerid:imp.send};
+                    var o3 = {filesharetarget:3, filesharetargetid:pid, customerid:u.customerid};
+                    o1.fileshareitemid = o2.fileshareitemid = o3.fileshareitemid = o.pcaseid;
+                    o1.filesharetype = o2.filesharetype = o3.filesharetype = 1;
+                    o1.templateid = o2.templateid = o3.templateid = '';
+                    o1.filesharename = o2.filesharename = o3.filesharename = o.pcasename;
+                    o3.unitname = imp.fcompany;
+                    o3.personname = imp.fname;
+                    o3.projectmoney = imp.money;
+                    hobj.json.push(o1);hobj.json.push(o2);hobj.json.push(o3);
+                    hobj.json = JSON.stringify(hobj.json);
+                    lastStep();
+                } else {
+                    url = "api/case/saveas";
+                    hobj = {caseid:ids[0],projectid:imp};
+                    if(type===1) {
+                        if(o&&o.source!=1)
+                            hobj.source=0;
+                    } else if(type===2)
+                        hobj.source= up?1:0;
+                    if(!up) {
+                        LoadingBox.show();
+                        Http.get("api/case/exist", {cname:o.pcasename, pid:imp}, function (aaa) {
+                            if(aaa) {
+                                Prompt.openIfr('popinput.html?title=提示&placeholder=请输入方案名称&value='+(o.pcasename?o.pcasename:''), {w:350,h:250}, function(name) {
+                                    if(!(name===undefined || name===null)) {
+                                        hobj.name = name;
+                                        lastStep();
+                                    }
+                                });
+                                top.layer.msg("当前方案名称已存在，请重新命名");
+                                LoadingBox.hide();
+                            } else {
+                                LoadingBox.hide();
+                                lastStep();
+                            }
+                        })
+                    } else {
+                        lastStep();
+                    }
+                }
+
+
+                function lastStep() {
+                    Http.post(url, hobj, function (a) {
+                        if(type!==3) {
+                            Http.get("api/calc/show", {crid:o.clacresultid}, function (calcData) {
+                                var shobj = {json:[{filesharetarget:5, filesharetargetid:imp, customerid:(up?top.creator:u.customerid),fileshareitemid:a,filesharetype:1,templateid:o.templateid,filesharename:o.pcasename,personname:u.realname,projectmoney:calcData?calcData.totalmoney:''}]};
+                                if(u.companyname) shobj.json[0].unitname = u.companyname;
+                                if(up) {
+                                    shobj.json.push({filesharetarget:3, filesharetargetid:pid, customerid:u.customerid,fileshareitemid:ids[0],filesharetype:1,templateid:o.templateid,filesharename:o.pcasename,projectmoney:calcData?calcData.totalmoney:''});
+                                    shobj.json.push({filesharetarget:6, filesharetargetid:imp, customerid:u.customerid,fileshareitemid:ids[0],filesharetype:1,templateid:o.templateid,filesharename:o.pcasename,projectmoney:calcData?calcData.totalmoney:''});
+                                }
+                                shobj.json = JSON.stringify(shobj.json);
+                                Http.post("api/case/sendn", shobj, function (b) {
+                                    LoadingBox.hide();
+                                    if(type==2&&up) {
+                                        top.tempSendRecord = {unitname:"",personname:"",projectmoney:calcData?calcData.totalmoney:'',rids:[b.split(",")[1]]};
+                                        Prompt.openIfr('inputsendrecord.html', {w:450,h:280}, function(a) {
+                                            top.layer.msg("方案上报成功！");
+                                            setTimeout(function () {
+                                                top.location.href = "zz.html?zid="+ Unit.query("zzid", top.location.href);
+                                            }, 1000);
+                                        });
+                                    } else top.layer.msg((type==1?"导入":"发送")+"方案成功！");
+                                })
+                            })
+                        }  else {
+                            LoadingBox.hide();
+                            top.layer.msg("发送方案成功！");
+                            top.tempSendRecord = {unitname:imp.fcompany,personname:imp.fname,projectmoney:imp.money,rids:[a.split(",")[2]]};
+                            Prompt.openIfr('inputsendrecord.html', {w:450,h:280}, function(a) {
+                                if(parseInt(a)) {
+                                    top.layer.msg("方案记录保存成功！");
+                                    setTimeout(function () {
+                                        if(top.tempfid)
+                                            top.location.href = 'hy.html?fid='+top.tempfid;
+                                        else location.reload();
+                                    }, 1000);
+                                }
+                            });
+                        }
+                    })
+                }
+            } else top.layer.msg("请勾选方案");
+        }
+
+
+        function pageback() {
+            top.location.href=(pid==-1?'lswj.html':'projdetail.html?pid='+pid);
+        }
+
+
+    </script>
+</body>
+</html>

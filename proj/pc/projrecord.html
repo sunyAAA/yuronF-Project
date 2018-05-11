@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>方案记录</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        
+        
+         select {height: 34px; line-height: 34px; margin-top: 1px; width: 8%; margin-left: 20px; border:1px solid #D9D9D9; background-color: white}
+         .oh .btn {height: 32px; line-height: 35px; width: 9%; border:1px solid #009AD0; color: #009AD0; border-radius: 5px; margin-top: 1px; position: relative; margin-left: 20px; float: left; text-align: center}
+         .oh .btn.right {float: right}
+         .oh .btn:hover{cursor: pointer; background-color: #009AD0; color: white}
+         .date>input {display: block; width: 100%;  margin-top: 9px;}
+        .bbox {border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; padding: 25px 50px}
+
+         .btns>span {display: inline-block; width: 107px; height: 38px; text-align: center; line-height: 38px; border:1px solid #D9D9D9; border-left:none ; box-sizing: border-box}
+         .btns>span.ok {font-weight: 600; color: white; background-color: #F7775F; border-color: #F7775F; border-right-color: #D9D9D9}
+
+        .newproj {width: 375px; height: 147px; border-radius: 8px; margin: auto; padding-top: 40px}
+        .newproj>.ninp {display: inline-block; width: 180px; height: 17px; border:1px solid #D9D9D9; padding: 8px 3px; overflow: hidden; margin-left: 10px; vertical-align: -65%;}
+        .newproj>.ninp>input {width: 100%; height: 100%}
+        .mbtn {padding: 10px 35px; border-radius: 8px}
+        .btnrows {display: none}
+    </style>
+</head>
+<body>
+    <div style="margin-bottom:18px" class="bcw">
+        <div style="margin: 0px 40px; padding:18px 0px" class="oh">
+            <select onchange="changeSel(this)" class="fleft c73" title="">
+                <option value="3,4">全部分类</option>
+                <option value="3">发送</option>
+                <option value="4">接收</option>
+            </select>
+            <span class="btnrows">
+                <div onclick="deleteCaseRecord()" class="btn">删除</div>
+                <div onclick="top.location.href='hidearea.html?idx=1&pid='+pid" class="btn right">隐藏区</div>
+                <div onclick="hideData(1)" class="btn right">隐藏</div>
+            </span>
+            <span class="btnrows">
+                <div onclick="hideData(0)" class="btn">恢复</div>
+                <div onclick="deleteCaseRecord()" class="btn">删除</div>
+            </span>
+        </div>
+    </div>
+    <div class="bbox bcw">
+        <table class="base" id="tb" border="0" cellspacing="0">
+            <tr style="height: 32px; background-color: #FFEDE7">
+                <th>
+                    <span class="checkbox"><img src="img/cno.png">全选</span>
+                </th>
+                <th>序号</th>
+                <th>往来分类</th>
+                <th>合作单位名称</th>
+                <th>交往人员姓名</th>
+                <!--<th>预计项目金额（万元）</th>-->
+                <th>操作时间</th>
+            </tr>
+        </table>
+        <div class="pager"></div>
+    </div>
+    <div class="newproj bcw tc hide">
+        <span class="fpx16">请输入方案名称</span>
+        <span class="ninp">
+            <input class="fpx14" type="text"/>
+        </span>
+        <div style="margin-top: 40px">
+            <span onclick="layer.close(nProjTag)" style="border:1px solid #999999; padding: 9px 35px" class="mbtn c73 poi">取消</span>
+            <span onclick="location.href='addcase.html?type=1'" style="margin-left: 85px" class="bcf7 cw mbtn poi">保存</span>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript">
+
+
+        var tb = document.getElementById("tb");
+        var tbd = tb.getElementsByTagName('tbody')[0];
+        var pid = Unit.query("pid");
+        var hide = Unit.query("hide");
+        var btnrs = document.querySelectorAll(".btnrows");
+
+        if(hide) btnrs[1].style.display="block";
+        else btnrs[0].style.display="block";
+
+        var nProjTag = null;
+        function newCase() {
+            nProjTag = layer.open({
+                area: ['auto', 'auto'],
+                type: 1,
+                shade: .3,
+                shadeClose: false,
+                closeBtn: 0,
+                title: false, //不显示标题
+                content: $('.newproj'), //捕获的元素，注意：最好该指定的元素要存放在body最外层，否则可能被其它的相对元素所影响
+                cancel: function(){}
+            });
+        }
+
+        var ftarget = '3,4';
+        function changeSel(e) {
+            ftarget = e.value;
+            p.refresh();
+        }
+
+
+
+        var p = new Pager(document.querySelector(".pager"));
+        p.change = function (pageno, cb) {
+            var hobj = {pageno:pageno,json:{filesharetarget:ftarget,filesharetype:2,filesharetargetid:pid?pid:'', status:hide?1:0}};
+            hobj.json = JSON.stringify(hobj.json);
+            Http.get("api/case/record/pro", hobj, function(r) {
+                cb&&cb(pageno, r.pages);
+                var trs = [];
+                for(var i=0;i<r.list.length;i++) {
+                    var d = r.list[i];
+                    trs.push('<tr><td>\
+                                    <span tid="'+d.fileshareid+'" class="checkbox"><img src="img/cno.png"></span>\
+                                </td>\
+                                <td>'+((p.cur-1)*10+i+1)+'</td>\
+                                <td>'+(d.fileshareitemid==pid?'发送':'接收')+'</td>\
+                                <td>'+(d.unitname?d.unitname:'')+'</td>\
+                                <td>'+(d.personname?d.personname:'')+'</td>\
+                                <td>'+Unit.time(d.subdate)+'</td></tr>');
+                }
+//            <td class="moneyc c009">'+(d.projectmoney?toMoney(d.projectmoney):'')+'</td>
+                tbd = setTBodyInnerHTML(tbd, trs.join(""));
+                Check.init();
+
+                if(parent.mframe)
+                    setIframeHeight(parent.mframe);
+                else if(parent.id_miframe)
+                    setIframeHeight(parent.id_miframe);
+            },null,null,true);
+        };
+        p.pageok();
+
+
+        function hideData(hide) {
+            var ids = Check.getCheckIds();
+            if(ids.length>0) {
+                LoadingBox.show();
+                Http.post('api/record/hide' , {hide:hide, ids:ids.join(",")}, function (a) {
+                    LoadingBox.hide();
+                    top.layer.msg("项目隐藏成功");
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+
+                })
+            } else top.layer.msg("请勾选项目");
+        }
+
+
+        function deleteCaseRecord() {
+            var ids = Check.getCheckIds();
+            if(ids.length>0) {
+                LoadingBox.show();
+                Http.post('api/case/record/remove' , {fsids:ids.join(",")}, function (a) {
+                    LoadingBox.hide();
+                    top.layer.msg("项目记录删除成功");
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+
+                })
+            } else top.layer.msg("请勾选项目记录");
+        }
+    </script>
+</body>
+</html>

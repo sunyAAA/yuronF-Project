@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>语融服</title>
+    <link href="css/style.css" rel="stylesheet" />
+    <script src="inc/jquery-1.9.1.min.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        #sharecode {width: 150px; height: 150px; margin: auto}
+    </style>
+</head>
+<body>
+<div style="margin-top: 50px" id="sharecode"></div>
+<div class="cf7 tc fpx14" id="textbox" style="margin-top: 50px"></div>
+<script src="js/comm.js"></script>
+<script src="js/dom.js"></script>
+<script type="text/javascript" src="inc/qrcode.min.js"></script>
+<script>
+
+    var cid = Unit.query("cid");
+    var upload = Unit.query("upload");
+    var sharelogin = Unit.query("sharelogin");
+    var wxpay = Unit.query("wxpay");
+    var url = "";
+    var textbox = document.getElementById("textbox");
+    var sharecode = document.getElementById("sharecode");
+    var imgtimer = null;
+
+    var u = Local.user();
+    if(cid) {
+        url = 'http://yuronfu.com/wx/casedetail.html?cid='+cid+"&wxshare=1&wxauth=1";
+        console.log(url);
+        textbox.innerHTML = "请使用微信扫描二维码分享方案给好友";
+
+    } else if(sharelogin) {
+        url = 'http://yuronfu.com/wx/index.html?share='+u.phone;
+        textbox.innerHTML = "请使用微信扫描二维码分享给好友";
+    } else if (upload) {
+        var u = Local.user();
+        var code = Math.random();
+        url = 'http://yuronfu.com/wx/mycard.html?upload='+u._token+'&code='+code;
+        textbox.innerHTML = "请使用微信扫描二维码上传名片";
+        imgtimer = setInterval(function () {
+            Http.get("api/temp/wxparser",{code:code,serviceid:1}, function (r) {
+                clearInterval(imgtimer);
+                if(r.p && r.r) {
+                    top.wxUpcard(r);
+                    Prompt.closeIfr();
+                }
+            },null,false)
+        }, 2000)
+    } else if (wxpay) {
+        var wxpayurl = Local.get("wxpay");
+        url = decodeURIComponent(wxpayurl);
+        textbox.innerHTML = "请使用微信扫描二维码支付订单";
+    }
+
+    sharecode.innerHTML = "";
+    var qrcode = new QRCode(sharecode, {
+        text: url,
+        width: 150,
+        height: 150,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+    });
+
+</script>
+</body>
+</html>

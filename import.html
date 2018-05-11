@@ -1,0 +1,298 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>导入</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .box {height: 100%; border-radius: 8px; overflow: hidden}
+        .box .item {overflow: hidden; padding-left: 11px}
+        .box .item>img {width: 24px; height: auto; margin: 16px}
+        .box .item>span {line-height: 56px}
+        .ctbox {overflow-y: scroll; overflow-x: hidden; transition-duration: .3s}
+        .ctbox>div {line-height: 50px; padding-left: 70px; font-size: 13px}
+        .ctbox>div:hover {cursor: pointer; background-color: #F7775F; color: white}
+        .ctbox>div.itemok {background-color: #F7775F; color: white}
+
+        .topbox {padding: 17px; border-top-left-radius: 8px; border-top-right-radius: 8px; margin-bottom: 17.5px}
+        .btmbox {border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; padding: 25px 50px; min-height: 478px}
+
+        .hsearch {height: 34px; width: 30%}
+        .hsearch .inpbox {width: 100%; height: 100%; border: 1px solid #D9D9D9}
+        .hsearch .inpbox .fright {width: 44px; height: 32px; display: inline-block; line-height: 32px; margin-top: 1px; margin-right: 1px; background-color: #D9D9D9}
+        .hsearch .inpbox .inp {margin-right: 46px; margin-left: 15px; padding-top: 10px}
+        .topbox select {height: 34px; line-height: 34px; margin-top: 1px; width: 10%; margin-left: 20px; border:1px solid #D9D9D9; background-color: white}
+        .topbox .btn {height: 32px; line-height: 35px; width: 10%; border-radius: 5px; position: relative; margin-left: 20px; text-align: center; border:1px solid #009AD0; color: #009AD0}
+        .topbox .btn:hover{cursor: pointer; background-color: #009AD0; color: white}
+    </style>
+</head>
+<body>
+<script type="text/javascript">
+    setNav();
+</script>
+    <div class="bg">
+        <div class="content oh">
+            <div style="width: 240px; height: 613px" class="fleft">
+                <div class="box bcw">
+                    <div onclick="backPage()" idx="0" class="item poi">
+                        <img class="fleft" src="img/fh.png" alt=""/>
+                        <span class="fpx14">返回</span>
+                    </div>
+                    <div id="temp" onclick="getList(0, -1, this)" idx="1" class="item poi">
+                        <img class="fleft" src="img/lsq.png" alt=""/>
+                        <span class="fpx14">临时区</span>
+                    </div>
+                    <div class="item">
+                        <img style="width: 22px; margin-left: 17px" class="fleft" src="img/mxm1.png" alt=""/>
+                        <span class="fpx14">我的项目</span>
+                    </div>
+                    <div style="height: 195px" id="proj" class="ctbox"></div>
+                    <div zz class="item">
+                        <img style="width: 22px; margin-left: 17px" class="fleft" src="img/mzz.png" alt=""/>
+                        <span class="fpx14">我的组织</span>
+                    </div>
+                    <div zz style="height: 195px" id="org" class="ctbox"></div>
+                </div>
+            </div>
+            <div style="margin-left: 252px; min-height: 613px">
+                <div class="topbox bcw oh">
+                    <select onchange="changeSel(this)" class="fleft c73" title="">
+                        <option value="">全部来源</option>
+                        <option value="0">自建</option>
+                        <option value="1">接收</option>
+                    </select>
+                    <div onclick="importData()" class="btn fleft">导入</div>
+                    <div class="hsearch fright">
+                        <div class="inpbox fleft">
+                            <span onclick="impSearch(this)" class="fright tc fpx14 c73 poi">搜索</span>
+                            <div class="inp">
+                                <input class="w100" type="text" placeholder="输入关键字进行搜索"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="btmbox bcw oh">
+                    <iframe frameborder="0" id="mframe" style="height: 500px"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript">
+
+        var pid = parseInt(Unit.query("pid"));
+        var zzid = parseInt(Unit.query("zzid"));
+        var share = Unit.query("share");
+        var send = Unit.query("send");
+        var fname = Unit.query("fname");
+        var fcompany = Unit.query("fcompany");
+        var up = Unit.query("up");
+        var is = document.querySelectorAll(".box .item.poi");
+        var proj = document.getElementById("proj");
+        var org = document.getElementById("org");
+        var temp = document.getElementById("temp");
+        var mframe = document.getElementById("mframe");
+        var type = parseInt(Unit.query("t"));
+        var creator = Unit.query("creator");
+        var addrecord = Unit.query("addrecord");
+        var sbtn = document.querySelector(".topbox .btn");
+        var subwin = mframe.contentWindow;
+        if(share) {
+            if(pid!=-1) {
+                temp.style.display = "none";
+            }
+            top.document.title = "请选择方案";
+            sbtn.innerHTML = document.title = "确认选择";
+        } else {
+            if(pid==-1)
+                temp.style.display = "none";
+        }
+
+        for(var i=0;i<is.length;i++) {
+            is[i].onmouseover = function () {
+                select(1, this);
+            };
+            is[i].onmouseout = function () {
+                select(0, this);
+            };
+        }
+        if(type===1 || type===2)
+            document.querySelector(".hsearch").style.display="none";
+
+        function changeSel(e) {
+            subwin.filterObj&&(subwin.filterObj.source = e.value);
+            subwin.p&&subwin.p.refresh();
+        }
+
+        function select(s, e, t) {
+            if(s) {
+                var img = e.querySelector("img");
+                if(img.src.indexOf("ok")<0) {
+                    img.src = img.src.replace(".png", "ok.png");
+                    e.querySelector("span").className = "fpx14 cw";
+                    e.className = "item poi bcf7";
+                }
+            } else {
+                if(!e.getAttribute("s")) {
+                    var img = e.querySelector("img");
+                    img.src = img.src.replace("ok.png", ".png");
+                    e.querySelector("span").className = "fpx14";
+                    e.className = "item poi";
+                }
+            }
+        }
+
+        function getProj() {
+            Http.get("api/project/list", {pageno:1, pagesize:999999}, function (r) {
+                if(r.length>0) {
+                    var os = [];
+                    for(var i=0;i<r.length;i++) {
+                        if((pid==r[i].projectid && !share) || (share && pid!=r[i].projectid))
+                            continue;
+                        os.push('<div onclick="getList(1, '+r[i].projectid+', this)">'+r[i].projectname+'</div>')
+                    }
+                    proj.innerHTML = os.join("");
+                    if(pid==-1 || share)
+                        getList(1, r[0].projectid, document.querySelector("#proj>div"));
+                }
+
+
+                if((zzid&&up) || send || share) {
+                    var zzs = document.querySelectorAll("[zz]");
+                    getPreviousElement(zzs[0]).style.height = '420px';
+                    for(var i=0;i<zzs.length;i++) {
+                        zzs[i].style.display="none";
+                    }
+                    if(up)
+                        sbtn.innerHTML = document.title = "上报方案";
+                    else if(send)
+                        sbtn.innerHTML = document.title = "发送";
+                    else if(share) {
+                        sbtn.innerHTML = document.title = "确认选择";
+
+                    }
+                } else getOrg();
+            })
+        }
+
+        function getOrg() {
+            Http.get("api/group/list", {type:1,pageno:1, pagesize:999999}, function (r) {
+                if(r.length>0) {
+                    var os = [];
+                    for(var i=0;i<r.length;i++) {
+                        if(zzid && zzid==r[i].groupfid)
+                            continue;
+                        os.push('<div onclick="getList(2, '+r[i].projectid+', this,'+r[i].groupfid+')">'+r[i].groupname+'</div>')
+                    }
+                    org.innerHTML = os.join("");
+                    if(document.querySelectorAll("#proj>div").length<=0&&pid==-1)
+                        getList(1, r[0].projectid, document.querySelector("#org>div"), r[0].groupfid);
+                }
+            })
+        }
+
+
+        var urls = ['caselist.html', 'casedata.html', 'transstructure.html'];
+        function getList(t, pid, e, zzid) {
+            Local.del("page");
+            var itok = document.querySelector(".itemok");
+            if(itok)
+                itok.className = "";
+            if(t===0) {
+                select(1, temp);
+                temp.setAttribute("s", "1");
+            } else {
+                temp.removeAttribute("s");
+                select(0, temp);
+                e.className = "itemok";
+            }
+            mframe.src = urls[type]+"?imp=1&pid="+(pid?pid:'')+"&up="+(up?up:'')+"&zzid="+(zzid?zzid:'');
+        }
+
+
+        if(!(share && pid==-1)) {
+            getProj();
+            if(pid!=-1 && !share)
+                getList(0,-1,temp);
+        } else {
+
+            getNextElement(temp).style.display=getPreviousElement(org).style.display="none";
+            getList(0,-1,temp);
+        }
+
+
+        function backPage() {
+            var burl = "projdetail.html?pid="+pid;
+            if(zzid) burl = "zz.html";
+            else if(send) burl = "hy.html";
+            else if(share) {
+                if(pid==-1)
+                    burl = "lswj.html";
+                else
+                    burl = "projdetail.html?pid="+pid;
+            } else {
+                if(pid==-1)
+                    burl = "lswj.html";
+            }
+            location.href = burl;
+        }
+
+        var fid = Unit.query("fid");
+        if(fid)
+            top.tempfid = fid;
+        function importData() {
+            var t = 1;
+            var sid = pid;
+            if(zzid) {
+                t = 2;
+                sid = pid;
+            } else if (send) {
+                t = 3;
+                sid = send;
+            }
+            if(share) {
+                var ids = subwin.getCheckIds();
+                if(ids && ids.length>0) {
+                    top.tempSendRecord = null;
+                    top.tempCaseObj = subwin.dataDict[ids[0]];
+                    Prompt.openIfr('inputsendrecord.html?cid='+ids[0], {w:450,h:350}, function(a) {
+                        if(parseInt(a)) {
+                            top.layer.msg("保存方案记录成功！");
+                            setTimeout(function () {
+                                location.reload();
+                            }, 1000);
+                        }
+                    });
+                }
+            } else {
+                if(t==3) {
+                    var ids = subwin.getCheckIds();
+                    if(ids && ids.length>0) {
+                        top.tempCaseObj = subwin.dataDict[ids[0]];
+                        LoadingBox.show();
+                        Http.get("api/calc/show", {crid:top.tempCaseObj.clacresultid}, function (r) {
+                            LoadingBox.hide();
+                            subwin.impData({fcompany:fcompany,fname:fname,send:sid,money:r.totalmoney}, t);
+                        })
+                    } else top.layer.msg("请勾选方案");
+                } else {
+                    subwin.impData(sid, t);
+                }
+            }
+        }
+
+
+        function impSearch(e) {
+            var inp = getNextElement(e).querySelector("input");
+            subwin.sk = inp.value;
+            subwin.p.refresh()
+        }
+
+    </script>
+</body>
+</html>

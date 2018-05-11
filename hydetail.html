@@ -1,0 +1,173 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>好友详情</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <script type="text/javascript" src="js/friend.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        
+        .topbox {padding: 15.6px 25px; border-top-left-radius: 8px; border-top-right-radius: 8px}
+        .hsearch {height: 34px; width: 30%}
+        .hsearch .inpbox {width: 100%; height: 100%; border: 1px solid #D9D9D9}
+        .hsearch .inpbox .fright {width: 44px; height: 32px; display: inline-block; line-height: 32px; margin-top: 1px; margin-right: 1px; background-color: #D9D9D9}
+        .hsearch .inpbox .inp {margin-right: 46px; margin-left: 5px; padding-top: 10px}
+        .topbox select {height: 34px; line-height: 34px; margin-top: 1px; width: 12%; margin-left: 20px; border:1px solid #D9D9D9; background-color: white}
+        .topbox .btn {height: 32px; line-height: 35px; width: 10%; border:1px solid #009AD0; border-radius: 5px; margin-top: 1px; position: relative; margin-left: 20px; text-align: center;  color: #009AD0}
+        .topbox .btn:hover{cursor: pointer; background-color: #009AD0; color: white}
+
+        .btmbox {margin-top: 12px; padding: 15.6px 25px; height: 250px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px}
+        .leftbox .icon>img {height: auto}
+
+
+        .infobox {padding: 29px 56px; border-radius: 8px; position: relative}
+        .infobox .face {width: 75px; height: 75px; float: left}
+        .infobox .tt {width: 40px; display: inline-block; font-size: 13px}
+        .infobox .ct {min-width: 140px; display: inline-block; font-size: 13px}
+        .edit>span {display: inline-block; width: 10px; height: 10px; vertical-align: -8%}
+        .infobox .btns {position: absolute;right: 56px; top: 29px}
+        .btns>span {width: 91px; height: 29px; line-height: 29px; display: inline-block; border-radius: 5px; margin-top: 10px}
+        .btns>span.gray {box-sizing: border-box; border:1px solid #999999}
+
+        .uicon {width: 15px; height: 15px; margin-left: 3px; display: inline-block; vertical-align: -10%}
+
+        .popbox {width: 255px; padding: 32px 62px; margin: auto; min-height: 120px}
+        .popbox .face {width: 63px; height: 63px; border-radius: 31.5px; overflow: hidden}
+        .popbox .ct {margin-left: 70px}
+        .pop2 .inp {border: 1px solid #D9D9D9; height: 23px; padding: 9px 10px 0px 10px}
+        .pop2 .inp>input {width: 100%}
+        .recommand>span{line-height: 23px;  border-radius: 5px;  border: 1px solid #b3b3b3;  background-color: #eee;  color: #03aae4;  margin: auto; white-space: nowrap; display:inline-block; padding: 0px 2px}
+    </style>
+</head>
+<body>
+    <div class="infobox bcw">
+        <div class="oh" style="margin-bottom: 10px">
+            <div class="face fleft">
+                <img f="friendheader" alt=""/>
+            </div>
+            <div style="margin-left: 100px; margin-top: 28px">
+                <span class="tt c80">职位</span>
+                <span f="friendjob" style="max-width: 150px" class="ct">&nbsp;</span>
+                <span class="tt c80">公司</span>
+                <span f="friendcompany" style="display: inline-block; max-width: 190px" class="fpx13">&nbsp;</span>
+                <div style="margin-top: 10px;margin-right: 100px;">
+                    <span class="tt c80">电话</span>
+                    <span f="friendphone" class="ct">&nbsp;</span>
+                    <span class="tt c80">备注</span>
+                    <span style="display: inline-block; max-width: 150px" class="fpx13">
+                        <span f="friendremark" >&nbsp;</span>
+                        <span onclick="editremark()" style="margin-left: 5px" class="edit cf7 poi">编辑<span><img src="img/edit.png" alt=""/></span></span>
+                    </span>
+                </div>
+            </div>
+            <div class="btns">
+                <span onclick="delfriend()" class="bcf7 cw tc poi">删除好友</span><br/>
+                <span onclick="sendCase()" class="bc009 cw tc poi">发送方案</span>
+            </div>
+        </div>
+        <div style="margin-left: -50px; width: 175px; text-align: center">
+            <span f="friendname" class="fpx14">&nbsp;</span>
+            <span class="uicon">
+                <img id="vip" alt=""/>
+            </span>
+            <span class="uicon">
+                <img id="sex" alt=""/>
+            </span>
+        </div>
+    </div>
+    <div style="margin-top: 15px">
+        <iframe frameborder="0" id="mframe"></iframe>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript">
+
+        var fid = Unit.query("fid");
+        var sex = document.getElementById("sex");
+        var vip = document.getElementById("vip");
+        var mframe = document.getElementById("mframe");
+     
+        function pageload() {
+            configfriend();
+        }
+
+        function sendCase() {
+            top.location.href='import.html?send='+fdetail.friendcustomerid+'&t=0&fname='+fdetail.friendname+"&fcompany="+(fdetail.friendcompany?fdetail.friendcompany:'')+'&fid='+fdetail.friendid;
+        }
+    
+
+        function delfriend() {
+            Prompt.confirm({text:'确认删除好友？'}, function (a) {
+                if(parseInt(a)) {
+                    LoadingBox.show();
+                    Http.post("api/friend/remove",{friendid:fid}, function(){
+                        top.location.href = top.location.href.split("?")[0];
+                    })
+                }
+            })
+        }
+
+        function editremark() {
+            Prompt.openIfr('popinput.html?title=提示&placeholder=请输入好友备注', {w:350,h:250}, function(a) {
+                if(!(a===undefined || a===null)) {
+                    LoadingBox.show();
+                    Http.post("api/friend/remark", {friendid:fid, nickname:a}, function () {
+                        LoadingBox.hide();
+                        top.layer.msg("设置备注成功");
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000);
+                    })
+                }
+            })
+        }
+
+        var fdetail = null;
+        function configfriend() {
+
+            Http.get("api/friend/show", {friendid:fid}, function(r) {
+                fdetail = r;
+                var fs = document.querySelectorAll("[f]");
+                for(var i=0;i<fs.length;i++) {
+                    var p = fs[i].getAttribute("f");
+                    if(p === "friendheader") fs[i].src = Unit.getImgUrl(r[p]);
+                    else fs[i].innerHTML = r[p]&&r[p]!='null'&&r[p]!='undefined'?r[p]:"无";
+                }
+
+                if(parseInt(r.friendsex)===1) sex.src = "img/male.png";
+                else if(parseInt(r.friendsex)===2) sex.src = "img/famale.png";
+                else sex.parentNode.style.display = "none";
+                r.friendlevel = parseInt(r.friendlevel);
+                if(r.friendlevel==0)
+                    vip.parentNode.style.display="none";
+                else if(r.friendlevel==1)
+                    vip.src = "img/gv.png";
+                else if(r.friendlevel==2)
+                    vip.src = "img/v.png";
+                var u = Local.user();
+                var ct = new Date().getTime();
+                if(u.level==2&&(ct<u.vipterm)&&r.status==1&&r.friendlevel==0) {
+                    var rec = document.createElement("DIV");
+                    rec.innerHTML = "<span class='poi'>推荐获取专业资格</span>";
+                    rec.className = "recommand";
+                    sex.parentNode.parentNode.appendChild(rec);
+                    rec.onclick = function () {
+                        LoadingBox.show();
+                        Http.post("api/customer/recommend", {customerid:fdetail.friendid}, function () {
+                            rec.parentNode.removeChild(rec);
+                            LoadingBox.hide();
+                            top.layer.msg("推荐好友成功！");
+                        })
+                    }
+                }
+
+                mframe.src = "hyrecordlist.html?fcid="+fdetail.friendcustomerid;
+            })
+        }
+    </script>
+</body>
+</html>

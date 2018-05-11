@@ -1,0 +1,194 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>语融服</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .info {border-top-left-radius: 8px; border-top-right-radius: 8px; padding: 15px 25px; margin-bottom: 12px}
+        .info .icon {display: inline-block; width: 20px; height: 20px; vertical-align: -25%;}
+
+        .tbox {margin-bottom: 17.5px; overflow: hidden}
+        .tbox select {height: 34px; line-height: 34px; margin-top: 1px; width: 8%; border:1px solid #D9D9D9; background-color: white}
+        .tbox .btn {height: 32px; line-height: 35px; width: 9%; border:1px solid #009AD0; color: #009AD0; border-radius: 5px; margin-top: 1px; position: relative; margin-left: 20px; float: left; text-align: center}
+        .tbox .btn.right {float: right}
+        .tbox .btn:hover{cursor: pointer; background-color: #009AD0; color: white}
+        .tbox .date>input {display: block; width: 100%;  margin-top: 9px;}
+        .bbox {border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; padding: 25px 50px}
+
+        .tbox .btns>span {display: inline-block; width: 107px; height: 38px; text-align: center; line-height: 38px; border:1px solid #D9D9D9; border-left:none ; box-sizing: border-box; float: left}
+        .tbox .btns>span.ok {font-weight: 600; color: white; background-color: #F7775F; border-color: #F7775F; border-right-color: #D9D9D9}
+
+        .newproj {width: 375px; height: 147px; border-radius: 8px; margin: auto; padding-top: 40px}
+        .mbtn {padding: 10px 35px; border-radius: 8px}
+    </style>
+</head>
+<body>
+<script type="text/javascript">
+    setNav();
+</script>
+    <div class="bg">
+        <div class="content oh">
+            <div class="info bcw fpx14">
+                <span class="icon">
+                    <img src="img/scan.png" alt=""/>
+                </span>
+                <span id="typett"></span>
+            </div>
+            <div class="bbox bcw">
+                <div class="oh tbox">
+                    <select class="fleft c73" title="">
+                        <option>全部类型</option>
+                        <option>大类</option>
+                        <option>小类</option>
+                    </select>
+                    <div onclick="handle(0)" class="btn">新建</div>
+                    <div onclick="handle(1)" class="btn">完成</div>
+                    <div onclick="handle(2)" class="btn right">返回上一步</div>
+                    <div onclick="handle(3)" class="btn right">取消</div>
+                </div>
+                <table class="base" id="tb" border="0" cellspacing="0">
+                    <tr style="height: 32px; background-color: #FFEDE7">
+                        <th>
+                            <span class="checkbox">&nbsp;&nbsp;全选</span>
+                        </th>
+                        <th>序号</th>
+                        <th>项目名称</th>
+                        <th>项目金额</th>
+                        <th>项目地址</th>
+                        <th>类型</th>
+                        <th>项目阶段</th>
+                        <th>立项时间</th>
+                        <th style="border-right: 0px">操作</th>
+                    </tr>
+                </table>
+                <div class="pager"></div>
+            </div>
+        </div>
+    </div>
+    <div class="newproj bcw tc hide">
+        <span style="font-weight: 800; margin-top: 40px" class="fpx18">新建成功！</span>
+        <div style="margin-top: 40px">
+            <span onclick="location.href = 'caselist.html';" class="bcf7 cw mbtn poi">确定</span>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript" src="inc/layer/laydate/laydate.js" charset="utf-8"></script>
+    <script type="text/javascript">
+
+        var type = parseInt(Comm.query("type"));
+        var typett = document.getElementById("typett");
+        var tt = "交易结构";
+        if(type===1) {
+            tt = "方案数据";
+            var bts = document.querySelectorAll(".tbox>.btn");
+            bts[1].innerHTML = "下一步";
+            bts[2].style.display="none";
+        }
+        typett.innerHTML = "选择" + tt;
+        document.title = typett.innerHTML;
+
+        var finishTag = null;
+        function handle(t) {
+            switch (t) {
+                case 0:
+                    break;
+                case 1:
+                    if(type===1)
+                        location.href = 'addcase.html?type=2';
+                    else
+                        finishTag = layer.open({
+                            area: ['auto', 'auto'],
+                            type: 1,
+                            shade: .3,
+                            shadeClose: false,
+                            closeBtn: 0,
+                            title: false,
+                            content: $('.newproj'),
+                            cancel: function(){}
+                        });
+                    break;
+                case 2:
+                    location.href = 'addcase.html?type=1';
+                    break;
+                case 3:
+                    location.href = 'caselist.html';
+                    break;
+            }
+        }
+
+
+        var tb = document.getElementById("tb");
+
+        var Check = {
+            tc:document.querySelector("table th .checkbox"),
+            cs:document.querySelectorAll("table td .checkbox"),
+            init:function () {
+                Check.tc.onclick = function () {
+                    var cl = Check.ifCheckAll();
+                    Check.tc.className = cl ? "checkbox" : "checkbox ok";
+                    Check.checkAll(!cl);
+                };
+                for(var i=0;i<Check.cs.length;i++)
+                    Check.cs[i].onclick = function () {
+                        this.className = this.className.indexOf("ok")>-1 ? "checkbox" : "checkbox ok";
+                        if(Check.ifCheckAll())
+                            Check.tc.className = "checkbox ok";
+                        else
+                            Check.tc.className = "checkbox";
+                    }
+            },
+            ifCheckAll:function () {
+                for(var i=0;i<Check.cs.length;i++)
+                    if(Check.cs[i].className.indexOf('ok')<=1)
+                        return false;
+                return true;
+            },
+            checkAll:function (c) {
+                for(var i=0;i<Check.cs.length;i++)
+                    Check.cs[i].className = c ? "checkbox ok" : "checkbox";
+            }
+        };
+        Check.init();
+
+
+        var bs = document.querySelectorAll(".manage .poi");
+        for(var i=0;i<bs.length;i++) {
+            bs[i].onclick = function () {
+                for(var j=0;j<bs.length;j++)
+                    bs[j].className = "poi"
+                this.className = "poi ok";
+            }
+        }
+
+        var p = new Pager(document.querySelector(".pager"));
+        p.change = function (pageno, cb) {
+            //执行操作／首次也会响应方法
+            for(var i=tb.rows.length-1;i>0;i--)
+                tb.deleteRow(i);
+            for(var i=0;i<6;i++) {
+                var tr = document.createElement("TR");
+                tr.innerHTML = '<td>\
+                                <span class="checkbox"></span>\
+                            </td>\
+                            <td>'+(i+1)+'</td>\
+                            <td>共有房产抵押贷款</td>\
+                            <td><span style="color: #5D83CA">150 万元</span></td>\
+                            <td>四川省成都市高新区</td>\
+                            <td>租赁</td>\
+                            <td>前期准备</td>\
+                            <td>2017-09-18 9:00</td>\
+                            <td><span class="btn">查看详情</span></td>';
+                tb.appendChild(tr);
+            }
+            cb&&cb(1, 20);
+        };
+        p.pageok();
+    </script>
+</body>
+</html>

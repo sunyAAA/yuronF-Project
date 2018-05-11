@@ -1,0 +1,410 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>工作台</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .leftbox {width: 26%;}
+        .rightbox {margin-left: 26%}
+        .rightbox>div {margin-left: 12.5px}
+
+        .user {height: 215px; border-radius: 8px; padding-top: 30px}
+        .friends {height: 410px; border-radius: 8px; margin-top: 11.5px; overflow-y: scroll}
+        .msg {height: 235px; border-radius: 8px; padding: 0px 20px}
+        .proj {height: 420px; border-radius: 8px; padding: 0px 20px; margin-top: 11.5px; overflow-y: auto;}
+        .user .face {width: 91px; height: 91px; margin: auto; border-radius: 45.5px; overflow: hidden}
+        .user .name>span {display: inline-block}
+        .user .name>span>span {display: inline-block; height: 20px; float: left; line-height: 20px}
+        .user .name .uicon { width: 20px; height: 20px; margin-left: 10px}
+        .friends .tt {padding: 0px 13px; height: 48px; line-height: 47px; position: relative}
+        .friends .tt:hover {cursor: pointer; background-color: #f1f1f1}
+        .friends .icon.arrow {height: 9px; width: auto; float: right; margin-top: 19px}
+        .friends .ct {height: 0px; transition-duration: .2s; overflow: hidden}
+        .friends .fitem {margin-left: 18.5px; margin-top: 13px}
+        .friends .fitem>img {width: 32px; height: 32px}
+        .friends .fitem .info {margin-left: 40px}
+        .friends .fitem .info>span {color: #FA6841}
+
+
+        .icon {width: auto;  height: 18px;  float: left;  margin-top: 13px;  margin-right: 10px;}
+        .mtt {height: 47.5px; line-height: 47.5px}
+        .mtt .icon {margin-top: 15px; margin-right: 8px}
+
+        .mitem {height: 58px; border-bottom: 1px dashed #d9d9d9}
+        .mitem.read .fpx13, .mitem.read .fpx12{color:#b7b7b7}
+        .mitem .fpx13 {line-height: 32px}
+
+        .hsearch {height: 34px; width: 28%}
+        .inpbox {width: 100%; height: 100%; border: 1px solid #D9D9D9}
+        .inpbox .fright {width: 44px; height: 32px; display: inline-block; line-height: 32px; margin-top: 1px; margin-right: 1px; background-color: #D9D9D9}
+        .inpbox .inp {margin-right: 46px; margin-left: 5px; padding-top: 10px}
+        .proj select {height: 34px; line-height: 34px; margin-top: 1px; width: 100px; margin-left: 12px; border:1px solid #D9D9D9; background-color: white}
+        .proj .date {height: 32px; line-height: 35px; width: 110px; border:1px solid #D9D9D9; border-radius: 5px; margin-top: 1px; position: relative}
+        .proj .date>img {width: auto; height: 16px; margin-top: 8px; margin-left: 15px; margin-right: 5px}
+        .proj .date>input {display: block;  margin-left: 35px;  width: 70px;  margin-top: 9px;}
+        .del {width: 18px; height: 18px; display: inline-block; margin-top: 8px}
+    </style>
+</head>
+<body>
+<script type="text/javascript">
+    setNav();
+</script>
+    <div class="bg">
+        <div class="content oh">
+            <div class="leftbox fleft">
+                <div class="user bcw">
+                    <div class="face">
+                        <img onerror="this.src='img/error.png';this.onerror=null" u="head" alt=""/>
+                    </div>
+                    <div style="margin-top: 28px; line-height: 32px" class="tc name oh">
+                        <span id="vips">
+                            <span onclick="top.location.href='personal.html'" class="poif7" style="font-weight: 600; font-size: 16px" u="realname"></span>
+                            <span class="uicon">
+                                <img src="img/gv.png">
+                            </span>
+                            <span onclick="sharePC()" class="uicon poi">
+                                <img src="img/fx.png">
+                            </span>
+                        </span>
+                    </div>
+                    <div style="margin-top: 13px; margin-bottom: 10px" u="companyname" class="tc c9"></div>
+                    <div class="tc hide" id="upbtn">
+                        <span onclick="showUploadCard();" style="padding: 5px 10px; border-radius: 5px; margin-top: 5px" class="bcf7 cw poi">上传名片</span>
+                    </div>
+                </div>
+                <div class="friends bcw">
+                    <div id="tt1" onclick="show(this, 0)" class="tt">
+                        <img class="icon" src="img/wdzz.png" alt=""/>
+                        <span class="fpx13" style="font-weight: 600">我的组织</span>（<span num="org">0</span>）
+                        <img class="icon arrow" src="img/downa.png" alt=""/>
+                        <div class="linebox"></div>
+                    </div>
+                    <div class="ct"></div>
+                    <div id="tt2" onclick="show(this, 1)" class="tt">
+                        <img class="icon" src="img/wdhy.png" alt=""/>
+                        <span class="fpx13" style="font-weight: 600">我的好友</span>（<span num="fri">0</span>）
+                        <img class="icon arrow" src="img/downa.png" alt=""/>
+                        <div class="linebox"></div>
+                    </div>
+                    <div class="ct"></div>
+                </div>
+            </div>
+            <div class="rightbox">
+                <div>
+                    <div class="msg bcw">
+                        <div class="mtt bline">
+                            <img style="height: 20px; margin-top: 13px" class="icon" src="img/mxx.png" alt=""/>
+                            <span class="fpx15" style="font-weight: 600">最新消息</span>
+                            <span onclick="location.href='msg.html'" class="fright cf7 poi">查看更多>></span>
+                        </div>
+                        <div id="msgbox"></div>
+                    </div>
+                    <div class="proj bcw">
+                        <div class="mtt">
+                            <img style="margin-top: 14px" class="icon" src="img/mxm.png" alt=""/>
+                            <span class="fpx15" style="font-weight: 600">我的项目</span>
+                            <span onclick="location.href='xmgl.html'" class="fright cf7 poi">查看更多>></span>
+                        </div>
+                        <div style="height: 36px">
+                            <div class="hsearch fleft">
+                                <div class="inpbox fleft">
+                                    <span onclick="search(this)" class="fright tc fpx14 c73 poi">搜索</span>
+                                    <div class="inp">
+                                        <input class="w100" type="text" placeholder="输入项目关键字"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <select style="margin-left: 18px" class="fleft c73" title=""></select>
+                            <select class="fleft c73" title=""></select>
+                            <div style="margin-left: 3.5%" class="fright date c73">
+                                <img class="fleft" src="img/et.png" alt=""/>
+                                <input class="c73" title="" type="text" placeholder="结束时间" onkeydown="return false"  id="edate"/>
+                            </div>
+                            <div class="fright date c73">
+                                <img class="fleft" src="img/st.png" alt=""/>
+                                <input class="c73" placeholder="开始时间" title="" type="text" onkeydown="return false"  id="sdate"/>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15.5px">
+                            <table class="base" id="tb" border="0" cellspacing="0">
+                                <tr style="height: 32px; background-color: #FFEDE7">
+                                    <th>项目名称</th>
+                                    <th>项目金额（万元）</th>
+                                    <th>项目地址</th>
+                                    <th>项目类型</th>
+                                    <th>项目阶段</th>
+                                    <th>立项时间</th>
+                                    <th style="border-right: 0px">操作</th>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript" src="inc/layer/laytpl.js"></script>
+    <script type="text/javascript" src="inc/layer/laydate/laydate.js" charset="utf-8"></script>
+    <script type="text/javascript" src="inc/area.js"></script>
+    <script type="text/javascript">
+
+        var tt1 = document.getElementById("tt1");
+        var tt2 = document.getElementById("tt2");
+        function show(e, t) {
+            if(t===0) {
+                if(parseInt(orgno.innerHTML)>0) {
+                    if(getNextElement(tt1).clientHeight>0) {
+                        setState(0,-1,'downa',-1);
+                    } else {
+//                        if(getNextElement(tt2).clientHeight>0)
+//                            setState(-1,0,-1,'downa');
+                        setState('auto',-1,'upa',-1);
+                    }
+                } else layer.msg("当前没有更多组织了");
+            } else if(t===1) {
+                if(parseInt(fno.innerHTML)>0) {
+                    if(getNextElement(tt2).clientHeight>0) {
+                        setState(-1,0,-1,'downa');
+                    } else {
+//                        if(getNextElement(tt1).clientHeight>0)
+//                            setState(0,-1,'downa',-1);
+                        setState(-1,'auto',-1,'upa');
+                    }
+                } else layer.msg("当前没有更多好友了");
+            }
+        }
+
+        function setState(h1, h2, img1, img2) {
+            if(h1!==-1)
+                getNextElement(tt1).style.height=h1==='auto'?'auto':(h1+"px");
+            if(img1!==-1)
+                tt1.querySelector("img.arrow").src = 'img/'+img1+'.png';
+            if(h2!==-1)
+                getNextElement(tt2).style.height=h2==='auto'?'auto':(h2+"px");
+            if(img2!==-1)
+                tt2.querySelector("img.arrow").src = 'img/'+img2+'.png';
+        }
+
+        var u = Local.user();
+        var upbtn = document.getElementById("upbtn");
+
+        function showUploadCard() {
+            Prompt.openIfr('upcard.html', {w:575,h:570}, function(a) {
+                if(a) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                }
+            });
+        }
+
+        function pageload() {
+
+            getorg();
+            getfriends();
+            getMsg();
+        }
+
+        var lboxs = document.querySelectorAll(".friends .ct");
+        var orgno = document.querySelector('[num="org"]');
+        var fno = document.querySelector('[num="fri"]');
+
+        function getorg() {
+            Http.get("api/group/list", {type:3,pageno:1, pagesize:999999}, function (r) {
+                orgno.innerHTML = r.length;
+                if(r.length>0) {
+                    var os = [];
+                    for(var i=0;i<r.length;i++) {
+                        os.push('<div onclick="window.open(\'zz.html?zid='+r[i].groupfid+'\')" class="fitem poi">\
+                    <img onerror="this.src=\'img/error.png\';this.onerror=null" class="fleft" src="'+Unit.getImgUrl(r[i].groupheader)+'" alt=""/>\
+                    <div style="min-height: 32px" class="info">'+r[i].groupname+'</div>\
+                    </div>');
+                    }
+                    lboxs[0].innerHTML = os.join("");
+                }
+            })
+        }
+
+        function getfriends() {
+            Http.get("api/friend/list", {pageno:1,pagesize:999999,key:''}, function (r) {
+                fno.innerHTML = r.length;
+                if(r.length>0) {
+                    var fs = [];
+                    for(var i=0;i<r.length;i++) {
+                        fs.push('<div onclick="window.open(\'hy.html?fid='+r[i].friendid+'\')" class="fitem poi">\
+                                    <img onerror="this.src=\'img/error.png\';this.onerror=null" class="fleft" src="'+Unit.getImgUrl(r[i].friendheader)+'" alt=""/>\
+                                    <div class="info">'+r[i].friendname+(r[i].friendremark?'('+r[i].friendremark+')':'')+'<br/>\
+                                        <span>'+r[i].friendphone+'</span>\
+                                    </div>\
+                                </div>')
+                    }
+                    lboxs[1].innerHTML = fs.join("");
+                }
+            })
+        }
+
+        
+        var msgText = {0:'查看详情',1:'查看详情',2:'立即查看', 3:'查看详情'};
+        var msgDict = {};
+        function getMsg() {
+            Http.get("api/message/list", {pageno:1,pagesize:3,type:''}, function (r) {
+                if(r.length>0) {
+                    var ms = [];
+                    for(var i=0;i<r.length;i++) {
+                        msgDict[r[i].messageid] = r[i];
+
+                        var cts = r[i].messagecontext;
+                        if(cts&&cts.toString().length>35) {
+                            cts = cts.slice(0,35)+"...";
+                        }
+                        ms.push('<div class="mitem '+(r[i].isread?'read':'')+'">\
+                                    <div class="fpx13">【'+r[i].messagetitle+'】<span onclick="delMsg('+r[i].messageid+')" class="fright del poi"><img src="img/ljx.png"></span></div>\
+                                    <div class="fpx12">'+cts+'<span onclick="msgDetail('+r[i].messageid+', this)" class="cf7 poi">&nbsp;'+msgText[r[i].messagetype]+'</span>'+'<span class="fright c9">'+Unit.time(r[i].messagedate)+'</span></div>\
+                                </div>')
+                    }
+                    document.getElementById("msgbox").innerHTML = ms.join("");
+                }
+            })
+        }
+
+        function delMsg(mid) {
+            LoadingBox.show();
+            Http.post("api/message/del", {messageids:mid}, function () {
+                LoadingBox.hide();
+                top.layer.msg("删除消息成功");
+                setTimeout(function () {
+                    location.reload();
+                },1000);
+            })
+        }
+
+        function msgDetail(mid, e) {
+            if(e.parentNode.parentNode.className.indexOf("read")<0) {
+                Http.post("api/message/read", {messageid:mid}, function() {
+                    e.parentNode.parentNode.className = e.parentNode.parentNode.className + " read";
+                });
+            }
+            var m = msgDict[mid];
+            Prompt.openIfr('msgdetail.html?mid='+mid, {w:450,h:m.messagetype===1?360:250,o:m,sc:true,sd:.5}, function (a) {
+                location.reload();
+            });
+        }
+
+
+        var sdate = document.getElementById("sdate");
+        var edate = document.getElementById("edate");
+        var stempdate = null;
+        laydate.render({elem: '#sdate',done: function(a, date, endDate){
+            var btime = Date.parse(a.replace(/-/g,  "/"));
+            if(searchObj.etime && btime>=searchObj.etime) {
+                layer.msg("选择时间不能大于结束时间");
+                if(stempdate)sdate.value = stempdate;
+                else sdate.value = "";
+                return false;
+            }
+            stempdate = a;
+            searchObj.btime = btime;
+            getData();
+        }});
+        var etempdate = null;
+        laydate.render({elem: '#edate',done: function(a, date, endDate){
+            var etime = Date.parse(a.replace(/-/g,  "/"))+24*3600000;
+            if(searchObj.btime && etime<=searchObj.btime) {
+                layer.msg("选择时间不能小于开始时间");
+                if(etempdate)edate.value = etempdate;
+                else edate.value = "";
+                return false;
+            }
+            etempdate = a;
+            searchObj.etime = etime;
+            getData();
+        }});
+
+
+        var tb = document.getElementById("tb");
+        var tbd = tb.getElementsByTagName('tbody')[0];
+        var searchObj = {key:'',type:'',status:'',btime:'',etime:'',pageno:1,pagesize:6};
+        function getData() {
+            Http.get("api/project/list",searchObj, function(r) {
+                var trs = [];
+                for(var i=0;i<r.length;i++) {
+                    var d = r[i];
+                    var t = projtypes[d.projecttype]?projtypes[d.projecttype].t:"未知";
+                    var s = projstages[d.projectstage]?projstages[d.projectstage].t:"未知";
+                    trs.push('<tr><td style="max-width:100px; word-break:break-all">'+d.projectname+'</td>\
+                                <td class="moneyc"><span style="color: #5D83CA">'+toMoney(d.projectmoney)+'</span></td>\
+                                <td>'+Area.getFullName(d.projectaddress)+'</td>\
+                                <td>'+t+'</td>\
+                                <td>'+s+'</td>\
+                                <td>'+Unit.time(d.subdate)+'</td>\
+                                <td><span onclick="window.open(\'projdetail.html?pid='+d.projectid+'\')" class="btn">查看详情</span></td></tr>');
+                }
+                tbd = setTBodyInnerHTML(tbd, trs.join(""));
+            });
+        }
+        Area.init(function(){
+            getData();
+        });
+
+        +function () {
+            var filterselect = document.querySelectorAll(".proj select");
+            var op = document.createElement("OPTION");
+            filterselect[0].appendChild(op);
+            op.value= "";
+            op.text = "全部阶段";
+            for(var i=0;i<projstages.length;i++) {
+                var op = document.createElement("OPTION");
+                filterselect[0].appendChild(op);
+                op.value= projstages[i].i;
+                op.text = projstages[i].t;
+            }
+            filterselect[0].onchange = function() {searchObj.status = filterselect[0].value;getData();};
+
+
+            var op = document.createElement("OPTION");
+            filterselect[1].appendChild(op);
+            op.value= "";
+            op.text = "全部类型";
+            for(var i=0;i<projtypes.length;i++) {
+                var op = document.createElement("OPTION");
+                filterselect[1].appendChild(op);
+                op.value= projtypes[i].i;
+                op.text = projtypes[i].t;
+            }
+            filterselect[1].onchange = function() {searchObj.type = filterselect[1].value;getData();};
+
+        }();
+
+        function search(e) {
+            var inp = getNextElement(e).querySelector("input");
+            searchObj.key = inp.value;
+            getData();
+        }
+
+
+        Http.get("api/customer/info",{},function (r) {
+            if(r) {
+                Local.user(r);
+                u = Local.user();
+                if(!u.companyname)
+                    upbtn.style.display="block";
+                if(!u.companyname && !Local.get('upcard')) {
+                    Local.save('upcard','1');
+                    showUploadCard();
+                }
+                cload();
+            }
+        });
+
+
+
+    </script>
+</body>
+</html>

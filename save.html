@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>保存</title>
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        body {padding: 30px 65px}
+        .hsearch {height: 34px; margin-bottom: 12.5px}
+        .hsearch .inpbox {width: 100%; height: 100%; border: 1px solid #D9D9D9}
+        .hsearch .inpbox .fright {width: 44px; height: 32px; display: inline-block; line-height: 32px; margin-top: 1px; margin-right: 1px; background-color: #D9D9D9}
+        .hsearch .inpbox .inp {margin-right: 46px; margin-left: 5px; padding-top: 10px}
+        .listbox {border: 1px solid #D9D9D9; height: 225px; overflow-x: hidden; overflow-y: scroll}
+        .listbox .tt {height: 40px; line-height: 40px; padding-left: 15px; font-size: 14px}
+        .listbox .tt .ticon {width: 19px; height: 19px; margin-right: 5px; vertical-align: -12%}
+        .listbox .row {height: 40px; line-height: 40px; margin-bottom: 5px; padding-left: 44px}
+        .selectok {background-color: #F7775F; color: white}
+        .selectok:hover {color: white!important}
+        .poi:hover, .listbox .row:hover {cursor: pointer; color: #F7775F}
+        .btmbox {margin-top: 20px; margin-left: -50px; width: 350px;}
+        .btmbox .btn {padding: 10px 40px; border:1px solid #D9D9D9; border-radius: 10px}
+        .btmbox .btn.bcf7 {border-color: #F7775F; margin-left: 30px; color: white}
+    </style>
+</head>
+<body>
+    <div class="hsearch">
+        <div class="inpbox fleft">
+            <span onclick="search()" class="fright tc fpx14 c73 poi">搜索</span>
+            <div class="inp">
+                <input id="searchInp" class="w100" type="text" placeholder="输入项目名称"/>
+            </div>
+        </div>
+    </div>
+    <div class="listbox">
+        <div onclick="newProj()" class="tt poi">
+            <img class="ticon" style="height: auto" src="img/xjxm.png" />
+            新建项目
+        </div>
+        <div data="-1" onclick="select(this)" class="tt poi">
+            <img class="ticon" src="img/lsq.png" />
+            临时区
+        </div>
+        <div class="tt">
+            <img class="ticon" style="width: 17px; height: auto" src="img/zz1.png" />
+            我的项目
+        </div>
+        <div id="listbox"></div>
+    </div>
+    <div class="btmbox tc">
+        <span class="btn poi" onclick="end()">取消</span>
+        <span class="btn bcf7 poi" onclick="end(1)">确认</span>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript">
+
+        var searchInp = document.getElementById("searchInp"); 
+        var listbox = document.getElementById("listbox");
+        var imp = Unit.query("imp");
+
+        function getList(k) {
+            LoadingBox.show();
+            Http.get("api/project/list", {key:k?k:'', pagesize:999999, pageno:1}, function(r) {
+                LoadingBox.hide();
+                var es = [];
+                for(var i=0;i<r.length;i++) {
+                    es.push('<div data="'+r[i].projectid+'" onclick="select(this);" class="row">'+r[i].projectname+'</div>');
+                }
+                listbox.innerHTML = es.join("");
+            })
+        }
+
+        getList();
+
+        function search() {
+            getList(searchInp.value);
+        }
+
+
+        function end(a) {
+            if(!a) {
+                Prompt.closeIfr();
+                return;
+            }
+            var sok = document.querySelector(".selectok");
+            if(!sok) {
+                top.layer.msg("请选择保存项目位置");
+                return;
+            }
+            Prompt.closeIfr(parseInt(sok.getAttribute("data")));
+        }
+
+        function newProj() {
+            Prompt.openIfr('newproj.html?reload=0', {w:540,h:415}, function(a) {
+                if(a) {
+                    getList();
+                }
+            });
+        }
+
+        function select(e) {
+            var sok = document.querySelector(".selectok");
+            if(sok) {
+                sok.className = sok.className.replace(" selectok","");
+                var img = sok.querySelector("img");
+                if(img && img.src.indexOf("ok.png")>-1)
+                    img.src = img.src.replace("ok.png", ".png");
+            }
+            e.className = e.className + " selectok";
+            var nimg = e.querySelector("img");
+            if(nimg && nimg.src.indexOf("ok.png")<0)
+                nimg.src = nimg.src.replace(".png", "ok.png");
+
+        }
+    </script>
+</body>
+</html>

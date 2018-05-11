@@ -1,0 +1,219 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>语融服</title>
+    <link href="css/style.css" rel="stylesheet" />
+    <script src="inc/jquery-1.9.1.min.js"></script>
+    <script src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .box {padding: 40px 20px; height: 300px}
+        .leftbox {float: left; height: 350px; width: 260px}
+        .rightbox {margin-left: 40px; height: 100%}
+        .flist {height: 270px; overflow-x: hidden; overflow-y: scroll; border-right: 1px solid #d9d9d9}
+        .fitem {margin-top: 13px}
+        .fitem>img {width: 32px; height: 32px}
+        .fitem .info {margin-left: 40px; margin-right: 80px}
+        .fitem .info>span {color: #FA6841}
+        .fitem .okbox {width: 30px; height: 30px; margin-right: 25px}
+        .row {height: 34px; line-height: 34px; font-size: 16px; margin-bottom: 19px}
+        .row .ct {margin-left: 120px; margin-right: 40px; border:1px solid #D9D9D9; box-sizing: border-box; height: 100%; padding:7px}
+        .row .ct>input {width: 100%; height: 18px; line-height: 18px}
+        .row .ct>select {border: none; width: 100%; height: 100%}
+        .btmbox {margin-top: 20px; margin-right: 40px}
+        .btmbox .btn {padding: 8px 32px; border:1px solid #D9D9D9; border-radius: 8px}
+        .btmbox .btn.bcf7 {border-color: #F7775F; margin-left: 50px; color: white}
+
+        .selfriends {display: inline-block;  width: 28px;  height: 28px;  text-align: center;  border-radius: 17px; color: white;  font-size: 20px;  line-height: 27px; margin-top: 3px; margin-right: 40px;}
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="tc fpx18" style="margin-bottom: 20px">填写方案记录</div>
+        <div class="rightbox">
+            <div class="row">
+                <span class="fleft">合作单位名称</span>
+                <div class="ct">
+                    <input name="unitname" type="text" placeholder="请输入合作单位名称" />
+                </div>
+            </div>
+            <div class="row">
+                <span class="fleft">交往人员姓名</span>
+                <span class="fright selfriends poi" onclick="selectFriends()"><img src="img/addfriend.png"></span>
+                <div style="margin-right: 80px" class="ct">
+                    <input name="personname" type="text" placeholder="请输入交往人员姓名" />
+                </div>
+            </div>
+            <!--<div class="row">-->
+                <!--<span class="fleft">项目金额（万元）</span>-->
+                <!--<div class="ct">-->
+                    <!--<input name="projectmoney" type="number" placeholder="请输入项目金额（万元）" />-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="row">-->
+                <!--<span class="fleft">方案状态</span>-->
+                <!--<div style="padding: 0px" class="ct">-->
+                    <!--<select id="stateSel">-->
+                        <!--<option value="1">洽谈中</option>-->
+                        <!--<option value="2">已确认</option>-->
+                        <!--<option value="3">终止</option>-->
+                        <!--<option value="4">完成</option>-->
+                    <!--</select>-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="row">-->
+                <!--<span class="fleft">实际起租日</span>-->
+                <!--<div class="ct">-->
+                    <!--<input id="sdate" name="leasedate" type="text" placeholder="请输入实际起租日" />-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="row">-->
+                <!--<span class="fleft">费用收入</span>-->
+                <!--<div class="ct">-->
+                    <!--<input name="projectincome" type="number" placeholder="请输入费用收入" />-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="row">-->
+                <!--<span class="fleft">费用支出</span>-->
+                <!--<div class="ct">-->
+                    <!--<input name="projectused" type="number" placeholder="费用支出" />-->
+                <!--</div>-->
+            <!--</div>-->
+            <div class="row hide">
+                <span class="fleft">记录时间</span>
+                <div class="ct">
+                    <input id="subdate" name="subdate" type="text" placeholder="请输入记录时间" />
+                </div>
+            </div>
+            <div class="btmbox">
+                <span class="btn poi fleft" onclick="Prompt.closeIfr()">取消</span>
+                <span class="btn bcf7 poi fright" onclick="sure()">保存</span>
+            </div>
+        </div>
+    </div>
+    <script src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript" src="inc/layer/laydate/laydate.js" charset="utf-8"></script>
+    <script>
+
+//        var sdate = document.getElementById("sdate");
+//        laydate.render({elem: '#sdate',done: function(a, date, endDate){
+//            var btime = Date.parse(a.replace(/-/g,  "/"));
+//            sdate.setAttribute("data", btime);
+//        }});
+
+
+        var rids = Unit.query('rids');
+        var cid = Unit.query("cid");
+        var rs = document.querySelectorAll(".rightbox>.row");
+
+        if(cid) {
+            var subdate = document.getElementById("subdate");
+            subdate.parentNode.parentNode.style.display="block";
+            laydate.render({elem: '#subdate',type:"datetime", ready:function(){
+                var dt = document.querySelector(".layui-laydate");
+                if(dt) dt.style.top = '16px';
+            },done: function(a, date, endDate){
+                var btime = a?Date.parse(a.replace(/-/g,  "/")):'';
+                subdate.setAttribute("data", btime);
+            }});
+        }
+
+        var stateSel = document.getElementById("stateSel");
+
+        var tobj = null;
+        if(top.tempSendRecord) {
+            tobj = top.tempSendRecord;
+            if(top.tempSendRecord.rids.length>1){
+                rs[0].style.display="none";
+                rs[1].style.display="none";
+            }
+        } else if (top.Prompt.tempObj)
+            tobj = top.Prompt.tempObj;
+        if(tobj) {
+            rids = tobj.fileshareid;
+            var inps = document.querySelectorAll('input[name]');
+            for(var i=0;i<inps.length;i++) {
+                var p = inps[i].getAttribute("name");
+                if(p=="leasedate") {
+                    if(tobj[p]) {
+                        inps[i].setAttribute("data", tobj[p]);
+                        inps[i].value = Unit.time(tobj[p],'yyyy-MM-dd');
+                    } else inps[i].value="";
+                    continue;
+                }
+                inps[i].value = tobj[p];
+            }
+            if(tobj.casestatus)
+                stateSel.value = casestatus[tobj.casestatus].i;
+        }
+
+        function sure() {
+            if(cid) {
+                if(!top.tempCaseObj) return;
+                LoadingBox.show();
+                userPrivilege(function () {
+                    Http.post("api/case/sendn", {json:JSON.stringify([{filesharetarget:3, filesharetargetid:top.tempCaseObj.projectid, customerid:u.customerid, fileshareitemid:top.tempCaseObj.pcaseid, filesharetype:1, templateid:privilege?top.tempCaseObj.templateid:-2, filesharename:top.tempCaseObj.pcasename}])}, function (r) {
+                        sureOk(r);
+                    })
+                })
+            } else {
+                LoadingBox.show();
+                sureOk(tobj.rids?tobj.rids.join(","):tobj.fileshareid);
+            }
+
+
+        }
+
+        function selectFriends(e) {
+            Prompt.openIfr('invitebox.html?select=1',{w:328,h:350,sc:true,sd:.5}, function (a) {
+                if(a && a.friendid) {
+                    document.querySelector("[name='personname']").value = a.friendname;
+                }
+            });
+        }
+
+        function sureOk(fsid) {
+            var obj = {};
+            var inps = document.querySelectorAll('input[name]');
+            for(var i=0;i<inps.length;i++) {
+                var p = inps[i].getAttribute("name");
+                if(p=="leasedate" || p=="subdate") {
+                    obj[p] = inps[i].getAttribute("data");
+                    continue;
+                }
+                obj[p] = inps[i].value;
+            }
+            var errMsg = null;
+//            var op = stateSel.options[stateSel.selectedIndex];
+//            if(op) obj.casestatus = op.value;
+//            else errMsg = "请选择方案状态";
+
+//            if(!obj.leasedate)
+//                errMsg = "请选择起租日期";
+
+            if(errMsg) {
+                top.layer.msg(errMsg);
+                LoadingBox.hide();
+                return;
+            }
+            if(fsid)
+                obj.fsids = fsid;
+            for(var i in obj) {
+                if(obj.hasOwnProperty(i)) {
+                    if(!obj[i]) delete obj[i];
+                }
+            }
+            obj.leasedate = 0;
+            obj.casestatus = 0;
+            Http.post("api/case/record/mdy", obj, function () {
+                LoadingBox.hide();
+                Prompt.closeIfr(1);
+            })
+        }
+
+
+    </script>
+</body>
+</html>

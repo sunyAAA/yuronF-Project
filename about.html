@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>关于我们</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .icon {width: auto;  height: 18px;  float: left;  margin-top: 13px;  margin-right: 10px;}
+        .mtt {height: 47.5px; line-height: 47.5px; margin: 0px 20px; border-bottom: 1px dashed #d9d9d9}
+        .mtt .icon {margin-top: 15px; margin-right: 8px}
+        .box {height: 100%; border-radius: 8px; overflow: hidden}
+        .box .item {overflow: hidden; padding-left: 11px}
+        .box .item>img {width: 24px; height: 24px; margin: 16px}
+        .box .item>span {line-height: 56px}
+        textarea {resize: none; width: 80%; height: 200px; margin-left: 10%; margin-top: 50px; font-size: 16px; padding: 1%; box-sizing: border-box}
+        .btn {display: inline-block; margin-top:50px; border-radius: 8px; width: 120px; height: 40px; line-height: 40px; text-align: center; margin-left: 10%}
+    </style>
+</head>
+<body>
+<script type="text/javascript">
+    setNav();
+
+    
+</script>
+    <div class="bg">
+        <div class="content oh">
+            <div style="width: 240px; height: 613px" class="fleft">
+                <div class="box bcw">
+                    <div onclick="location.href = 'about.html?idx=0'" class="item poi">
+                        <img class="fleft" src="img/ab0.png" alt=""/>
+                        <span class="fpx14">产品介绍</span>
+                    </div>
+                    <div onclick="location.href = 'about.html?idx=1'" class="item poi">
+                        <img class="fleft" src="img/ab1.png" alt=""/>
+                        <span class="fpx14">帮助说明</span>
+                    </div>
+                    <div onclick="location.href = 'about.html?idx=2'" class="item poi">
+                        <img class="fleft" src="img/ab2.png" alt=""/>
+                        <span class="fpx14">意见反馈</span>
+                    </div>
+                    <div onclick="location.href = 'about.html?idx=3'" class="item poi">
+                        <img class="fleft" src="img/ab3.png" alt=""/>
+                        <span class="fpx14">关于我们</span>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-left: 252px; min-height: 613px">
+                <div class="box bcw">
+                    <div class="mtt">
+                        <img style="height: 20px; margin-top: 13px" class="icon" src="img/mxm.png" alt=""/>
+                        <span class="fpx14" style="font-weight: 600"></span>
+                    </div>
+                    <div class="hide" style="min-height: 565px" id="box2">
+                        <textarea maxlength="300" id="textV" placeholder="请输入您的宝贵意见" rows="" cols=""></textarea>
+                        <span onclick="submit()" class="bcf7 cw btn">提交</span>
+                    </div>
+                    <div class="hide">
+                        <iframe style="min-height: 565px" frameborder="0" id="mframe"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript">
+
+        var idx = parseInt(Unit.query("idx"));
+        isNaN(idx)&&(idx=0);
+        var mframe = document.getElementById("mframe");
+
+        var is = document.querySelectorAll(".box .item");
+        is[idx].querySelector("img").src = 'img/ab'+idx+'ok.png';
+        var ispan = is[idx].querySelector("span");
+        ispan.className="fpx14 cw";
+        is[idx].className = "item bcf7";
+        is[idx].onclick = null;
+        document.querySelector(".box .mtt>span").innerHTML = ispan.innerHTML;
+
+
+        var box = document.getElementById("box2");
+        if(idx==2)
+            box.style.display="block";
+        else {
+            getNextElement(box).style.display="block";
+            mframe.src = "article.html?aid=" + (idx==0?21:(idx==1?20:19));
+        }
+
+        var u = Local.user();
+        var textV = document.getElementById("textV");
+        function submit() {
+            if(textV.value.toString().length<10) {
+                layer.msg("反馈意见不能小于10个字");
+                return;
+            }
+            LoadingBox.show();
+            Http.post("api/feedback/save", {phone:u.loginname,customerid:u.customerid,message:textV.value}, function () {
+                LoadingBox.hide();
+                layer.msg("意见反馈成功，感谢您的使用");
+            })
+        }
+    </script>
+</body>
+</html>
