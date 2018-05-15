@@ -56,8 +56,8 @@
                 </th>
                 <th>序号</th>
                 <th style="max-width: 150px">方案名称</th>
-                <th>方案数据<br/>序号</th>
-                <th>交易结构<br/>序号</th>
+                <th>数据简称</th>
+                <th>结构简称</th>
                 <th>方案来源</th>
                 <th>方案类型</th>
                 <th>方案状态</th>
@@ -139,13 +139,20 @@
                     d.pcasenameStr = d.pcasename;
                     if(d.pcasename.length>10)
                         d.pcasenameStr = d.pcasename.slice(0, 10) + "...";
+                        var sjtitle = d.calcResult.calctitle || ''
+                        var jgtitle='';
+                        if(d.hasOwnProperty('tranStruct')){
+                            if(d.tranStruct){
+                                jgtitle = d.tranStruct.trantitle
+                            }   
+                        }
                     trs.push('<tr><td>\
                                     <span tid="'+d.pcaseid+'" class="checkbox"><img src="img/cno.png"></span>\
                                 </td>\
                                 <td>'+((p.cur-1)*10+i+1)+'</td>\
                                 <td tid="'+d.pcaseid+'" style="max-width:150px" class="poif7 ignore" onclick="window.open(\'casedetail.html?cid='+d.pcaseid+'&pid='+pid+'\')">'+d.pcasenameStr+'</td>\
-                                <td '+(top.location.href.indexOf('hidearea')<0?'class="poif7"':'')+' onclick="goCaseCalc('+d.clacresultid+')">FASJ-'+d.clacresultid+'</td>\
-                                <td '+(d.transtructid&&top.location.href.indexOf('hidearea')<0?'class="poif7" onclick="showTrans('+d.transtructid+')"':'')+'>'+(d.transtructid?'JYJG-'+d.transtructid:'')+'</td>\
+                                <td '+(top.location.href.indexOf('hidearea')<0?'class="poif7"':'')+' onclick="goCaseCalc('+d.clacresultid+')">'+sjtitle+'</td>\
+                                <td '+(d.transtructid&&top.location.href.indexOf('hidearea')<0?'class="poif7" onclick="showTrans('+d.transtructid+')"':'')+'>'+jgtitle+'</td>\
                                 <td>'+(d.source?"接收":"自建")+'</td>\
                                 <td>'+(ctype?ctype.t:'')+'</td>\
                                 <td>'+(cstatus?cstatus.t:'')+'</td>\
@@ -291,7 +298,7 @@
         }
 
         function deleteCase() {
-            Prompt.confirm({text:"<p style='font-size:14px'>与方案相关联的“方案数据”、“交易结构”“方案记录”一并删除，删除后不可恢复！（删除后，系统内不保留数据）</p>"}, function (a) {
+            Prompt.confirm({text:"<p style='font-size:14px'>与方案相关联的“方案数据”、“交易结构”、“方案记录”一并删除，删除后不可恢复！（删除后，系统内不保留数据）</p>"}, function (a) {
                 if(parseInt(a)) {
                     var ids = Check.getCheckIds();
                     if(ids.length>0) {
@@ -320,14 +327,14 @@
         function goCaseCalc(id) {
             console.log('555')
             if(parent.pois && top.location.href.indexOf('hidearea')<0) {
-                parent.pois[1].onclick(id);
+                parent.pois[1].onclick(event,id);
             }
         }
 
 
         function showTrans(id) {
             if(parent.pois && top.location.href.indexOf('hidearea')<0) {
-                parent.pois[2].onclick(id);
+                parent.pois[2].onclick(event,id);
             }
         }
 

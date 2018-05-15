@@ -127,7 +127,7 @@ function change_showpopwindow(c,v){
 		if(c=='F'){
 			setCanEditEditer(false);
 			setChangeState(true);
-			setEdit('B_,C_,D_,I_',false);
+			setEdit('B_,C_,D_,J_',false);
 			setEdit('F_',true);
 			change_showpopwindowButton(true);
 		}

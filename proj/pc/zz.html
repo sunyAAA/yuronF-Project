@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>组织</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <script type="text/javascript" src="js/zz.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .box {height: 100%; border-radius: 8px; overflow: hidden}
+        .box .item {overflow: hidden; padding-left: 11px}
+        .box .item>img {width: 24px; height: auto; margin: 16px}
+        .box .item>span {line-height: 56px}
+        .ctbox {overflow-y: scroll; overflow-x: hidden; transition-duration: .3s}
+        .ctbox>div {line-height: 50px; padding-left: 70px; font-size: 13px}
+        .ctbox>.ok {background-color: #F7775F; color: white}
+        .ctbox>div:hover {cursor: pointer; background-color: #F7775F; color: white}
+
+        .topbox {padding: 30px 28px; border-radius: 8px}
+        .topbox .logo {width: 65px; height: 65px; box-sizing: border-box; border:1px solid #D9D9D9; font-size: 40px; line-height: 63px; text-align: center; color: #D9D9D9}
+        .topbox>div {margin-top: 15px}
+        .inp {height: 30px; border:1px solid #D9D9D9; width: 85%; padding: 3px 10px}
+        .inp>input {width: 100%; height: 100%; font-size: 14px}
+
+        .btmbox {padding: 20px 28px; border-radius: 8px}
+        .fbox {width: 282px; height: 205px; overflow-y: scroll; overflow-x: hidden; margin-top: 0px}
+        .fitem {margin-top: 13px}
+        .fitem>img {width: 32px; height: 32px}
+        .fitem .info {margin-left: 40px}
+        .fitem .info>span {color: #FA6841}
+        .choose {height: 155px; overflow-y: scroll; overflow-x: hidden; margin-top: 20px; width: 260px; padding-right: 20px}
+        .choose .fitem .info {margin-right: 30px}
+        .choose .del {float: right; width: 20px; height: 20px; border-radius: 10px; overflow: hidden; margin-top: 6px}
+        .btmbox .btn {padding: 10px 37px; border:1px solid #D9D9D9; border-radius: 10px}
+        .btmbox .btn.bcf7 {border-color: #F7775F; margin-left: 20px}
+
+
+        
+        .fbox {width: 282px; height: 205px; overflow-y: scroll; overflow-x: hidden; margin-top: 0px}
+        .fitem {margin-top: 13px}
+        .fitem>img {width: 32px; height: 32px}
+        .fitem .info {margin-left: 40px}
+        .fitem .info>span {color: #FA6841}
+        .choose {height: 155px; overflow-y: scroll; overflow-x: hidden; margin-top: 20px; width: 260px; padding-right: 20px}
+        .choose .fitem .info {margin-right: 30px}
+        .choose .del {float: right; width: 20px; height: 20px; border-radius: 10px; overflow: hidden; margin-top: 6px}
+        .layui-layer-rim {border-color: transparent!important}
+
+        .box .item>.larrow {width: 14px; height: 7px;margin-top: 25px;}
+    </style>
+</head>
+<body>
+<script type="text/javascript">
+    setNav();
+</script>
+    <div class="bg">
+        <div class="content oh">
+            <script type="text/javascript" >zzLeftBox()</script>
+            <div style="margin-left: 252px; overflow:hidden; min-height: 690px">
+                <iframe frameborder="0" style="min-height: 690px" id="ctframe"></iframe>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript">
+
+        var zid = Unit.query("zid");
+
+        
+        var ctframe = document.getElementById("ctframe");
+        function pageload() {
+            zzload();
+        }
+    </script>
+</body>
+</html>

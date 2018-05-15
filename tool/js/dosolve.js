@@ -15,6 +15,7 @@ function dosolveResult_change(o){
 }
 //执行单变量求解
 function dosolveResult(){
+	if(!event_showvip())return;
 	if(pageData.data.length>0){
 		showresultmovevalue(null);
 		var a=g('mbg');
@@ -123,9 +124,11 @@ function dosolveResult_click(e){
 				var stp=1;if(o.id.indexOf('E')==0)stp=2;
 				if(o.id.indexOf('C_')==0)
 					g('sov_'+pageData.solveType).value='还款收入第'+o.id.split('_')[1]+'期';
-				else
-					g('sov_'+pageData.solveType).value=g(String.fromCharCode(o.id.charCodeAt(0)-stp)
-					+o.id.substr(1)).innerHTML.split('<')[0]+(stp==2?'占比':'');
+				else{
+					x=String.fromCharCode(o.id.charCodeAt(0)-stp)+o.id.substr(1);
+					g('sov_'+pageData.solveType).value=g(x).innerHTML.split('<')[0]+(stp==2?'占比':'');
+					
+				}
 				dosolveResult_1(0);
 				if(g('sov_value').value=='')g('sov_value').focus();
 				return;
@@ -293,18 +296,20 @@ function dosolveResult_run(target,forward,opObj,opkey,step,optype,result,deep,la
 	var newr=0;
 	if(pageData[target]==null||isNaN(pageData[target])){
 		times++;
-		//deep=0;
 		newr=0;
 	}
 	else{
-		//console.log(pageData[target]+'!');
-		//newr=F2(pageData[target],10);
 		newr=F2(pageData[target],10);
 		if(!isNaN(newr)){
 			if(lastresult==pageData[target]){
 				times++;
+				var l=result.toString().split('.');
+				if(l.length==2)
+					l=l[1].length;
+				else
+					l=2;
 				//兼容尾数
-				if(times>2&&F2(newr,6)==result){
+				if(times>2&&F2(newr,l)==result){
 					newr=result;
 				}
 			}
@@ -312,7 +317,6 @@ function dosolveResult_run(target,forward,opObj,opkey,step,optype,result,deep,la
 				times=0;
 		}
 	}
-	
 	if(newr==result){
 		console.log('成功了');
 		pageData.inpType=change_back.data.inpType;

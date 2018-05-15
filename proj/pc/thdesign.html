@@ -1,0 +1,257 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>设计表头</title>
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+
+    <link rel="stylesheet" href="inc/jquery-ui.min.css">
+
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        body {padding: 31px 40px}
+        .btmbox .btn {padding: 10px 35px; border:1px solid #D9D9D9; border-radius: 10px}
+        .btmbox .btn.bcf7 {border-color: #F7775F; margin-right: 30px; color: white}
+        .xscroll {overflow-x: scroll; overflow-y: hidden; margin-top: 30px; padding-top: 20px}
+        table th {min-width: 40px; position: relative}
+        table th>div {position: absolute; top: 0px; width: 100%}
+        .del {display: inline-block; width: 22px; height: 22px; border-radius: 11px; line-height: 24px; overflow: hidden; color: white!important; background-color: #009AD0; margin-right: 10px}
+        .del:hover {cursor: pointer}
+        th .del {margin-top: -20px; float: none; margin-left: auto; margin-right: auto}
+        .delbox {background-color: #cecece!important}
+        .moveth {background-color: rgb(255, 237, 231);  line-height: 32px;  position: absolute;  z-index: 99; min-width:100px}
+        #sortbox {display: none; position: absolute;  z-index: 99;  width: 100%; top: 0px ;  left: 0px; background-color: white}
+        #sortable {background-color: white;  padding: 25px}
+        #sortable li {line-height: 30px;  text-align: left;  font-size: 16px; float: left; background-color: #F7775F; margin: 7px; color: white; padding: 2px 8px}
+        .moneyc {color: #5D83CA}
+    </style>
+</head>
+<body>
+    <div style="height: 40px" class="btmbox tl">
+        <span class="btn bcf7 poi" onclick="end(1)">保存</span>
+        <span style="margin-right:30px" class="btn poi" onclick="end()">返回</span>
+        <span class="btn poi" onclick="editSort()">编辑顺序</span>
+    </div>
+    <div class="cf7">点击✕隐藏表头，点击✓恢复显示</div>
+    <div class="xscroll">
+        <table class="base" id="tb" border="0" cellspacing="0">
+            <tr style="height: 32px; background-color: #FFEDE7">
+                <th style="width: 40px">
+                    <span class="checkbox"><img src="img/cno.png">全选</span>
+                </th>
+                <th style="width: 40px">
+                    序号
+                </th>
+                <th style="min-width: 50px"><div><span class="del">✕</span></div><span class="ttt" idx="0">项目总额<br/>（万元）</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="1">是否<br/>等期</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="2">是否<br/>等额</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="3">年利率</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="4">期限<br/>（年）</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="5">年还款<br/>次数</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="6">总还款<br/>次数</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="7">期限<br/>（月）</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="8">资产<br/>余值</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="9">残值<br/>收入</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="10">保证金<br/>比例</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="11">起租<br/>日</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="12">首付款<br/>金额</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="13">保证金<br/>金额</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="14">服务费<br/>比例</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="15">咨询费<br/>比例</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="16">保险<br/>收入</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="17">其他<br/>收入</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="18">其他<br/>支出</span></th>
+                <th style="min-width: 50px"><div><span class="del">✕</span></div><span class="ttt" idx="19">非利息<br/>收入合计</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="20">利息<br/>总额</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="21">等额<br/>本息</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="22">还款<br/>总额</span></th>
+                <th style="min-width: 50px"><div><span class="del">✕</span></div><span class="ttt" idx="23">总收益额</span></th>
+                <th style="min-width: 50px"><div><span class="del">✕</span></div><span class="ttt" idx="24">当年<br/>总收益额</span></th>
+                <th style="min-width: 50px"><div><span class="del">✕</span></div><span class="ttt" idx="25">总负担率<br/>（年）</span></th>
+                <th style="min-width: 50px"><div><span class="del">✕</span></div><span class="ttt" idx="26">平面利率<br/>（年）</span></th>
+                <th style="min-width: 50px"><div><span class="del">✕</span></div><span class="ttt" idx="27">资金占用<br/>（月）</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="28">IRR</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="29">XIRR</span></th>
+                <th style="min-width: 60px"><div><span class="del">✕</span></div><span class="ttt" idx="30">未回收成本<br/>末期余额</span></th>
+                <th style="min-width: 50px"><div><span class="del">✕</span></div><span class="ttt" idx="31">现金流<br/>税收调整</span></th>
+                <th style="min-width: 50px"><div><span class="del">✕</span></div><span class="ttt" idx="32">税率<br/>调整</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="33">调整<br/>现金流</span></th>
+                <th style="min-width: 50px"><div><span class="del">✕</span></div><span class="ttt" idx="34">存续XIRR</span></th>
+                <th style="min-width: 80px"><div><span class="del">✕</span></div><span class="ttt" idx="35">IRR<br/>（逐月贴现）</span></th>
+                <th style="min-width: 85px"><div><span class="del">✕</span></div><span class="ttt" idx="36">IRR<br/>（最大公约月）</span></th>
+                <th style="min-width: 85px"><div><span class="del">✕</span></div><span class="ttt" idx="37">IRR<br/>（实际间隔月）</span></th>
+                <th style="min-width: 85px"><div><span class="del">✕</span></div><span class="ttt" idx="38">IRR<br/>（实际间隔天）</span></th>
+                <th><div><span class="del">✕</span></div><span class="ttt" idx="39">备注</span></th>
+            </tr>
+        </table>
+    </div>
+    <div id="sortbox" style="height: 100%" class="bcw">
+        <ul id="sortable"></ul>
+        <div style="clear: both"></div>
+        <div style="height: 40px; margin-top: 30px" class="btmbox tc">
+            <span style="margin-right:30px" class="btn poi" onclick="sortbox.style.display='none'">取消</span>
+            <span class="btn bcf7 poi" onclick="sureSort()">确认</span>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/jquery-ui.min.js"></script>
+    <script type="text/javascript">
+
+        var btb = document.getElementById("tb");
+        var tbd = btb.getElementsByTagName('tbody')[0];
+        var desNo = Local.get("designNos");
+        !desNo&&(desNo={});
+
+        var trs = [];
+        for(var i=0;i<5;i++) {
+            trs.push('<tr><td>\
+                            <span class="checkbox"><img src="img/cno.png"></span>\
+                        </td>\
+                        <td>'+(i+1)+'</td>\
+                        <td class="moneyc">'+toMoney(23432)+'</td>\
+                        <td>是</td>\
+                        <td>否</td>\
+                        <td>9.1%</td>\
+                        <td>5</td>\
+                        <td>6</td>\
+                        <td>30</td>\
+                        <td>60</td>\
+                        <td class="moneyc">'+toMoney(3211)+'</td>\
+                        <td class="moneyc">'+toMoney(234)+'</td>\
+                        <td>1.2%</td>\
+                        <td>2015-12-22</td>\
+                        <td class="moneyc">'+toMoney(234)+'</td>\
+                        <td class="moneyc">'+toMoney(2342)+'</td>\
+                        <td>1.5%</td>\
+                        <td>1.5%</td>\
+                        <td class="moneyc">'+toMoney(3324)+'</td>\
+                        <td class="moneyc">'+toMoney(432)+'</td>\
+                        <td class="moneyc">'+toMoney(3224)+'</td>\
+                        <td class="moneyc">'+toMoney(232)+'</td>\
+                        <td class="moneyc">'+toMoney(324)+'</td>\
+                        <td>是</td>\
+                        <td class="moneyc">'+toMoney(432)+'</td>\
+                        <td class="moneyc">'+toMoney(543)+'</td>\
+                        <td class="moneyc">'+toMoney(321)+'</td>\
+                        <td>1.5%</td>\
+                        <td>1.5%</td>\
+                        <td>20</td>\
+                        <td>1.5%</td>\
+                        <td>1.5%</td>\
+                        <td class="moneyc">'+toMoney(432)+'</td>\
+                        <td class="moneyc">'+toMoney(123)+'</td>\
+                        <td>1.5%</td>\
+                        <td class="moneyc">'+toMoney(432)+'</td>\
+                        <td>1.5%</td>\
+                        <td>1.5%</td>\
+                        <td>1.5%</td>\
+                        <td>1.5%</td>\
+                        <td>1.5%</td>\
+                        <td>备注</td>\
+                        </tr>');
+        }
+        tbd = setTBodyInnerHTML(tbd, trs.join(""));
+        var dels = document.querySelectorAll(".del");
+        for(var i=0;i<dels.length;i++) {
+            dels[i].setAttribute("idx", i+2);
+            dels[i].onclick = function(p) {
+                var hide = p===1;
+                if(!hide) {
+                    if(this.innerHTML === "✕") {
+                        this.innerHTML = "✓";
+                        this.setAttribute("disable", "1");
+                    } else {
+                        this.innerHTML = "✕";
+                        this.removeAttribute("disable");
+                    }
+                }
+                var idx = -1;
+                for(var i=0;i<btb.rows.length;i++) {
+                    for(var j=0;j<btb.rows[i].cells.length;j++) {
+                        var cell = btb.rows[i].cells[j];
+                        var change = false;
+                        if(i>0) {
+                            if(j===idx) change = true;
+                        } else {
+                            if(this.parentNode.parentNode == btb.rows[i].cells[j]) {
+                                idx = j;
+                                change = true;
+                            }
+                        }
+                        
+                        if(hide) {
+                            if(change)
+                                cell.style.display='none';
+                        } else {
+                            if(change)
+                                cell.className=cell.className.indexOf("delbox")>-1?cell.className.replace(" delbox",""):cell.className+" delbox";
+                        }
+                    }
+                }
+            }
+        }
+
+        
+        userPrivilege(function () {
+            var undict = {26:1,29:1,30:1,31:1,32:1,33:1,34:1,35:1,36:1,37:1,38:1,39:1,40:1};
+            var ths = btb.querySelectorAll("th .del");
+            for(var i=0;i<ths.length;i++) {
+                if(!privilege && undict[i+2]) {
+                    ths[i].onclick(1);
+                } else 
+                    if(desNo[i+2])ths[i].onclick();
+            }
+
+            resetTableSort();
+        })
+
+        function end(a) {
+            if(a) {
+                var dis = document.querySelectorAll('.del[disable="1"]');
+                var designNos = {};
+                for(var i=0;i<dis.length;i++)
+                    designNos[dis[i].getAttribute("idx")] = 1;
+                Local.save('designNos', designNos);
+            }
+            if(Local.get("eidtIdx")) {
+                Local.del("eidtIdx");
+                top.miframe.contentWindow.location.reload();
+            }
+            Prompt.closeIfr(a);
+        }
+
+
+        var sortbox = document.getElementById("sortbox");
+        var sortul = document.getElementById("sortable");
+        function editSort() {
+            sortbox.style.display="block";
+            sortul.innerHTML = "";
+            var ths = document.querySelectorAll("th");
+            for(var i=0;i<ths.length;i++) {
+                if(i>1) {
+                    var l = document.createElement("LI");
+                    var ttt = ths[i].querySelector(".ttt");
+                    l.innerHTML = ttt.innerHTML.replace(/<\/?[^>]*>/g,'');
+                    l.idx = ttt.getAttribute("idx");
+                    if(ths[i].style.display=="none") l.style.display="none";
+                    sortul.appendChild(l);
+                }
+            }
+        }
+        $("#sortable").sortable();
+
+        function sureSort() {
+            var lis = sortul.querySelectorAll("li");
+            var idxs = [];
+            for(var i=0;i<lis.length;i++) {
+                idxs.push(lis[i].idx);
+            }
+            Local.save("eidtIdx", "1");
+            Local.save("designIdx", idxs.join(","));
+            location.reload();
+        }
+    </script>
+</body>
+</html>

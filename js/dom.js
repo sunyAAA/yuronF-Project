@@ -19,10 +19,10 @@ if(self == top) {
                     <span onclick="location.href=\'msg.html\'">消息<span style="color: #999999;" num="msg">0</span></span>\
                     <div class="fright" style="width:40px">\
                         <div class="v">\
-                            <img style="width: 15px; height: auto" src="img/gvip.png" alt=""/>\
+                            <img style="width: 15px; height: auto" src="img/v.png" alt=""/>\
                         </div>\
                         <div class="v" id="honTop">\
-                            </div>\
+                        </div>\
                     </div>\
                     <span onclick="location.href=\'personal.html\'" style="margin-left: 5px" u="realname" class="fpx14 name"></span>\
                     <div class="fright">\

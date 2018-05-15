@@ -1,134 +1,149 @@
 //注册基础事件
-function regEvent(){
-	$('td').on('blur',function(){
-		var isdate=false,s;
-		if(this.id.indexOf('B_')==0||this.id=='B9'){
-			isdate=true;
-			s=new Date(this.innerHTML.replace(/\//g,'-'));
-			if(isNaN(s)){
-				if(this.id=='B9'){
-					this.innerHTML=getDefaultDate();
-					s=new Date(this.innerHTML);
-				}
-				else{
-					this.innerHTML='';
-					s=-1;
-				}
+function event_reg(ids){
+	var o,tag='INPUT';
+	for(var i=0;i<ids.length;i++){
+		if(o=g(ids[i])){
+			if(o.tagName==tag){
+				o.onkeydown=event_keydonw;
+				o.onblur=event_blur;
+				o.onfocus=event_focus;
+			}
+		}
+	}
+	g('inp_start').onkeyup=change_esc;
+	g('inp_step').onkeyup=change_esc;
+	Select.reg('changeTypeButton');
+	Select.reg('changeCostButton');
+	g('mbg').style.height=document.body.offsetHeight+'px';
+}
+function event_showvip(){
+	if(top.u&&top.u.level!=2){
+		if(top.u.level==0)
+			alert('您尚未认证专业资格');
+		else
+			alert('请升级为专业会员');
+		return false;
+	}
+	return true;
+}
+function event_IntervalUnit(o){
+	setIntervalUnit(Number(o.value));
+	if(pageData.data.length>0){
+		calcExt();
+	}
+}
+function event_tax(o){
+	var i=Number(o.value);
+	if(isNaN(i)||i>=TaxObj.length)
+		i=0;
+	pageData.taxType=i;
+	if(pageData.data.length>0){
+		calcExt();
+	}
+}
+function event_taxswitch(o){
+	pageData.haveTax=o.value=='2'?1:0;
+	g('taxType').disabled=!pageData.haveTax;
+	if(pageData.haveTax)			
+		pageData.haveTax.value=1;
+	calcExt();
+}
+function event_import(){
+	if(pageData.data.length==0||(pageData.data.length>0&&confirm('批量导入会清除您当前工作表'))){
+		g('impbox').className='show';
+		g('mbg').className='show';
+	}
+}
+function event_calc_click(o){
+	var v=o.getAttribute('v'),tag,r;
+	if(!v)return;
+	tag='s'+v;
+	g('I'+v).innerHTML='-';
+	if(pageData.data.length>0){
+		calcIRR(Number(v));
+	}
+	o.style.display='none';
+}
+function event_focus(e){
+	this.setAttribute('val',this.value);
+	this.select&&this.select();
+	//autoSelect(this);
+}
+function event_blur(e){
+	var isdate=false,s;
+	if(this.id.indexOf('B_')==0||this.id=='B9'){
+		isdate=true;
+		s=new Date(this.value.replace(/\//g,'-'));
+		if(isNaN(s)){
+			if(this.id=='B9'){
+				this.value=getDefaultDate();
+				s=new Date(this.value);
 			}
 			else{
-				this.innerHTML=cnDate(s);
-				s=s.getTime();
+				this.value='';
+				s=-1;
 			}
 		}
 		else{
-			s=I(this.id);
-			var type=this.getAttribute('type');
-			if(s==0&&$(this).html()!='0'){
-				H(this.id,0);
-			}
-			else if(type=='per'){
-				if(this.innerHTML.indexOf('%')==-1)
-					s/=100;
-				H(this.id,s);
-				s=this.innerHTML;
-			}
-			else{
-				H(this.id,s);
-			}
+			this.value=cnDate(s);
+			s=s.getTime();
 		}
-		var o=$(this).attr('value').replace(/,/g,'');
-		if(isdate){
-			if(s==-1){
-				this.innerHTML=o;
-				return;
-			}
-			if(cnDate(D(s))==o)
-				return;
+	}
+	else{
+		s=I(this.id);
+		var type=this.getAttribute('inptype');
+		if(s==0&&this.value!='0'){
+			H(this.id,0);
 		}
-		//末期余额调整
-		if(this.id=='I1'){
-			changeEvent_I1(this,o,s);
+		else if(type=='per'){
+			if(this.value.indexOf('%')==-1)
+				s/=100;
+			H(this.id,s);
+			s=this.value;
+		}
+		else{
+			H(this.id,s);
+		}
+	}
+	var o=this.getAttribute('val').replace(/,/g,'');
+	if(isdate){
+		if(s==-1){
+			this.value=o;
 			return;
 		}
-		if(s+o!='0'&&s.toString()!=o){
-			changeEvent(this,o,s,isdate);
-		}
-	}).on('focus',function(){
-		$(this).attr('value',$(this).html());
-		autoSelect(this);
-	}).on('keydown',function(e){
-		if(e.keyCode==13||(e.keyCode>=37&&e.keyCode<=40)){
-			if ( e && e.stopPropagation )
-				e.stopPropagation();
-			else
-				window.event.cancelBubble = true;
-			autogoNext(this,e.keyCode);
-			return false;
-		}
-	});
-	g('inp_start').onkeyup=change_esc;
-	g('inp_step').onkeyup=change_esc;
-	$('#impbutton').click(function(){
-		if(pageData.data.length==0||(pageData.data.length>0&&confirm('批量导入会清除您当前工作表'))){
-			g('impbox').className='show';
-			g('mbg').className='show';
-		}
-	});
-	$('.calc').click(function(){
-		var v=$(this).attr('v'),tag,r;
-		if(!v)return;
-		tag='s'+v;
-		//r=pageData.IRRobj[tag]= pageData.IRRobj[tag]==0?1:0;
-		//$(this).val(r==1?'隐藏':'显示');
-		g('I'+v).innerHTML='-';
-		//if(r==1){
-			if(pageData.data.length>0){
-				calcIRR(Number(v));
-			}
-		//}
-	});
-	g('taxType').onchange=function(){
-		var i=Number(this.value);
-		
-		if(isNaN(i)||i>=TaxObj.length)
-			i=0;
-		pageData.taxType=i;
-		if(pageData.data.length>0){
-			calcExt();
-		}
+		if(cnDate(D(s))==o)
+			return;
 	}
-	g('taxswitch').onchange=function(){
-		pageData.haveTax=this.value=='2'?1:0;
-		g('taxType').disabled=!pageData.haveTax;
-		if(pageData.haveTax)
-			pageData.haveTax.value=1;
-		calcExt();
+	//末期余额调整
+	if(this.id=='I1'){
+		changeEvent_I1(this,o,s);
+		return;
 	}
-	g('IntervalUnit').onchange=function(){
-		setIntervalUnit(Number(this.value));
-		if(pageData.data.length>0){
-			calcExt();
-		}
-		
+	if(s+o!='0'&&s.toString()!=o){
+		event_changeEvent(this,o,s,isdate);
 	}
-	//
-	Select.reg('changeTypeButton');
-	Select.reg('changeCostButton');
-	//
-	//g('I1').setAttribute('contenteditable','false');
-	//g('I1').className='readonly';
+}
+function event_keydonw(e){
+	if(e.keyCode==13||(e.keyCode>=37&&e.keyCode<=40)){
+		if ( e && e.stopPropagation )
+			e.stopPropagation();
+		else
+		window.event.cancelBubble = true;
+		event_autogoNext(this,e.keyCode);
+		return false;
+	}
 }
 //输入值发生变化
-function changeEvent(obj,oldv,newv,isdate){
-	if(isdate&&new Date(oldv).getTime()==newv)
+function event_changeEvent(obj,oldv,newv,isdate){
+	if((isdate&&new Date(oldv).getTime()==newv)||(oldv==newv&&!isdate)){
+		obj.value=oldv;
 		return;
-	if(oldv==newv&&!isdate)
-		return;
+	}
 	var temp=0,len=pageData.data.length;
 	if(obj.id=='B4'){
 		if(newv<1||newv>12||12%newv>0){
 			alert('请输入能被12整除的数字');
-			obj.innerHTML='';
+			obj.value='';
 			obj.focus();
 			return;
 		}
@@ -140,7 +155,7 @@ function changeEvent(obj,oldv,newv,isdate){
 	temp=getIdNumber(obj.id,'B',pageData.maxLine);
 	if(temp>0){
 		if(temp<5&&newv==0){
-			obj.innerHTML=oldv;
+			obj.value=oldv;
 		}
 		else
 			changeEventB(temp,obj,newv);
@@ -174,18 +189,18 @@ function changeEvent(obj,oldv,newv,isdate){
 	temp=getIdNumber(obj.id,'D_',len);
 	if(temp>0){
 		if(!isInt(newv)){
-			obj.innerHTML=oldv;
+			obj.value=oldv;
 			alert('请输有效的整数');
 			return;
 		}
 		if(pageData.IntervalUnit==1&&(newv<0||newv>36)){
-			obj.innerHTML=oldv;
+			obj.value=oldv;
 			alert('请输入1-36之间的数值');
 			return;
 		}
 		var maxdays=1096;
 		if(pageData.IntervalUnit==2&&(newv<1||newv>maxdays)){
-			obj.innerHTML=oldv;
+			obj.value=oldv;
 			alert('请输入1-'+maxdays+'之间的数值');
 			return;
 		}
@@ -193,14 +208,17 @@ function changeEvent(obj,oldv,newv,isdate){
 		return;
 	}
 	//现金流调整
-	if(obj.id=='I_0'){
-		pageData.cashAdjustment=newv;
+	if(obj.id=='J_0'){
+		pageData.selfCash=newv;
 		calcExt();
+		H(obj.id,newv);
+		//obj.value=newv;
 		return;
 	}
-	temp=getIdNumber(obj.id,'I_',len);
+	//现金流调整
+	temp=getIdNumber(obj.id,'J_',len);
 	if(temp>0){
-		changeEvent_I(temp-1,newv,len);
+		changeEvent_J(temp-1,newv,len);
 		return;
 	}
 }
@@ -261,7 +279,7 @@ function changeEventB(temp,obj,newv){
 function changeEvent_B(i,newv,len,oldv,obj,b9){
 	if(i>len&&pageData.data.length>0){H('B_'+(i+1),'');return;}
 	if(pageData.start<0){
-		obj.innerHTML='';
+		obj.value='';
 		alert('请先设置起租日');
 		return;
 	}
@@ -275,23 +293,23 @@ function changeEvent_B(i,newv,len,oldv,obj,b9){
 			last=D(pageData.data[i-1].B);
 		}
 		else{
-			if(g('B_'+i).innerHTML==''){
-				obj.innerHTML='';
+			if(g('B_'+i).value==''){
+				obj.value='';
 				alert('请先设置上期日期');
 				return;
 			}
-			last=D(g('B_'+i).innerHTML);
+			last=D(g('B_'+i).value);
 		}
 	}
 	a=Math.floor((cur.getTime()-last.getTime())/TimeSpanDay);
 	if(a<=0&&oldv!=0){
 		alert('新日期必须大于上期');
-		obj.innerHTML=oldv;
+		obj.value=oldv;
 		return;
 	}
 	if(a>360){
 		alert('与上期间隔不能大于360天');
-		obj.innerHTML=oldv;
+		obj.value=oldv;
 		return;
 	}
 	if(i<len){
@@ -464,9 +482,9 @@ function changeEventE(j,newv){
 		calcExt();
 	}
 }
-function changeEvent_I(j,newv,len){
+function changeEvent_J(j,newv,len){
 	if(pageData.data.length>j){
-		pageData.data[j].I1=newv;
+		pageData.data[j].J=newv;
 		calcExt();
 	}
 }
@@ -628,7 +646,7 @@ function autoSelect(obj){
     }
 }
 //自动转到下一列输入,对象方向
-function autogoNext(obj,dict){
+function event_autogoNext(obj,dict){
 	autoFormat(obj);
 	obj.blur();
 	//up38 left37 down13-40 right39 
@@ -646,15 +664,19 @@ function autogoNext(obj,dict){
 			case 39:ck++;break;
 		}
 		id=String.fromCharCode(ck)+id+ind;
-		if(id=g(id))
-			id.focus();
+		if(id=g(id)){
+			//id.focus();
+			//this.blur();
+			id.select&&id.select();
+			//id.focus();
+		}
 	}
 }
 //自动格式化
 function autoFormat(obj){
-	var inp=Number(obj.innerHTML);
+	var inp=Number(obj.value);
 	if(!isNaN(inp)){
-		if(obj.getAttribute('type')=='per')
+		if(obj.getAttribute('inptype')=='per')
 			inp/=100;
 		H(obj.id,inp);
 	}
@@ -787,7 +809,9 @@ function fillFormatLong(v){
 	}
 	if(r){
 		r*=100;
-		g(v).innerHTML=r.toFixed(getLongLength(v))+'%';
+		r=r.toFixed(getLongLength(v))+'%';
+		var o=g(v);
+		T_val(o,r);
 	}
 }
 //获取位数
@@ -827,9 +851,9 @@ function showresultmove(){
 //显示移动层
 function showresultmovevalue(v){
 	if(v!=null){
-		var p=getPosition('td2.1'),o=g('showresult');
+		var p=getPosition('C_0'),o=g('showresult');
 		o.style.top=p.y+'px';
-		o.style.left=(p.x+g('td2.1').offsetWidth)+'px';
+		o.style.left=(p.x+g('C_0').offsetWidth)+'px';
 		showresultmove();
 		g('showresult_out').innerHTML=v.toFixed(2);
 	}

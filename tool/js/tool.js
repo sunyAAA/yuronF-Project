@@ -48,6 +48,7 @@ function cnDate(v) {
 }
 //获取元素位置
 function getPosition(o){
+	console.log(o);
 	o=g(o);
 	return{ x:o.getBoundingClientRect().left+document.documentElement.scrollLeft,
 	y :o.getBoundingClientRect().top+document.documentElement.scrollTop};
@@ -100,7 +101,7 @@ function D(v){
 // type 1输入日期B，2输入间隔时段（天、月），value实际值
 function calcBD(ind,type,value){
 	var s={B:'',spy:0,spd:0,D1:0};
-	var last=D(ind==0?g('B9').innerHTML:pageData.data[ind-1].B);
+	var last=D(ind==0?g('B9').value:pageData.data[ind-1].B);
 	var cur;
 	if(type==1){
 		cur=D(value);
@@ -129,17 +130,8 @@ function isInt(v){
 	return v==parseInt(v);
 	//return v==Math.round(v);
 }
-//错误数据报警
-function showError(id){
-	var ecss='errorResult',id='#'+id;
-	if($(id).html().indexOf('.')==-1)
-		$(id).removeClass(ecss);
-	else
-		$(id).addClass(ecss);
-}
-
 //填充html
-function H(o,h,showerror,mustshow){
+function H(o,h,serror,mustshow){
 	if(o=g(o)){
 		h=(h==0||h)?h:'';
 		if(typeof(h)==NumberType){
@@ -149,7 +141,7 @@ function H(o,h,showerror,mustshow){
 				//h=(h==0&&!o.getAttribute('hd'))?h:'';
 			}
 			else{
-				switch(o.getAttribute('type')){
+				switch(o.getAttribute('inptype')){
 					case 'int':h=Math.round(h).toLocaleString();
 						break;
 					case 'float':
@@ -172,14 +164,19 @@ function H(o,h,showerror,mustshow){
 				}
 			}
 		}
-		o.innerHTML=h;
-		if(showerror)
-			showError(o.id);
+		T_val(o,h);
+		if(serror){
+			showError(o.id,T_val(o).indexOf('.')>-1);
+		}
 	}
+}
+function T_val(o,v){
+	var att=o.tagName=='INPUT'?'value':'innerHTML';
+	if(v==null)return o[att];o[att]=v;
 }
 //获取用户输入
 function I(id){
-	var s=g(id).innerHTML.replace(/,/g,'').replace(/\s/g,''),b=1;
+	var s=T_val(g(id)).replace(/,/g,'').replace(/\s/g,''),b=1;
 	if(s){
 		if(s.indexOf('%')==s.length-1){
 			b=100;
@@ -216,31 +213,6 @@ function F2(v,l){
 function differenceMonth(last,cur){
 	return (cur.getFullYear()*12+cur.getMonth())-(last.getFullYear()*12+last.getMonth());
 }
-//初始化用户表单
-function initTable(){
-	var tb=g('workspace'),tr,ac=64,tds,cs;
-	var letters='ABCDEFGHIJKLMNOPQRST'.split('');
-	for (var i=1;i<=pageData.maxLine;i++){
-		tr=document.createElement('TR');
-		tds=[];
-		cs='';
-		for(var j=1;j<=9;j++){
-			switch(j){
-				case 1:cs='text';break;
-				case 2:
-				case 4:cs='center';break;
-				case 7:
-				case 8:cs='readonly';break;
-				default:cs='';break;
-			}
-			tds.push('<td hd="1" '+(j>2&&j!=4?' type="float"':'')+' class="'+cs+'" id="'+String.fromCharCode(ac+j)+'_'+i+'">'+(j==1?i:'')+'</td>');
-		}
-		tr.innerHTML=tds.join('');
-		tb.appendChild(tr);
-	}
-	regEvent();
-	g('mbg').style.height=document.body.offsetHeight+'px';
-}
 //格式化日期
 function FixedNumber(x,l){
 	return Number(x.toFixed(l));
@@ -248,6 +220,8 @@ function FixedNumber(x,l){
 //导入数据
 function doimport(calcLate){
 	var B1=I('B1'),B2=I('B2'),B3,B4,per,B7;
+	if(I('B9')=='')
+		H('B9',getDefaultDate());
 	var type=1,total=0,ms=0;
 	var data=[],a,t,total=0;
 	for (var i=1;i<=pageData.maxLine;i++){
@@ -341,16 +315,27 @@ function calcimprotinp(v){
 	}
 	return null;
 }
-//设置专业版还是普通版
+function T_vipdiv(o,w,h){
+	var div=document.createElement('DIV');
+	div.className='vipface';
+	div.onclick=event_showvip;
+	div.style.height=h+'px';
+	div.style.width=w+'px';
+	o.appendChild(div)
+	return div;
+}
+//设置专业版还是普通版vip会员
 function setProfessional(isp){
-	var s='FGHI',css=isp?'table-cell':'none',id;
-	for(var i=0;i<s.length;i++){
-		for (var j=1;j<=9;j++){
-			id=s.charAt(i)+j;
-			if(j>=6&&i==3)
-				id+='1';
-			g(id).style.display=css;
-		}
+	if(!isp){
+		var o=g('I1'),h,w;
+		h=o.offsetHeight;
+		w=o.offsetWidth;
+		T_vipdiv(g('headbox'),w*2,h*6);
+		var t=T_vipdiv(g('headbox'),w*4,h*3);
+		t.style.top=(h*6)+'px';
+		o=g('J_0');
+		t=T_vipdiv(g('listbox'),o.offsetWidth*6+g('D_1').offsetWidth,o.offsetHeight*(pageData.maxLine+2));
+		g('listbox').className="relative";
 	}
 }
 //设置调整工具显示状态
@@ -361,7 +346,7 @@ function setChangeState(disable){
 	g('solveResult').className=disable?'hide':'button';
 }
 function resumewindow(ncls){
-	setEdit('B_,C_,D_,I_',true);
+	setEdit('B_,C_,D_,J_',true);
 	setEdit('F_',false);
 	setCanEditEditer(true);
 	setChangeState(false);

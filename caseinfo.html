@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>语融服</title>
@@ -8,25 +9,118 @@
     <script src="js/dom.js"></script>
     <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
     <style type="text/css">
-        .box1 {height: 48.5px; border-top-left-radius: 8px; border-top-right-radius: 8px; padding: 0px 40px; padding-top: 16.5px; margin-bottom: 12.5px}
-        .box1 select {width: 125px; height: 32px; line-height: 32px}
-        .box1 .btn {width: 90px; height: 32px; line-height: 32px; border-radius: 5px; border: 1px solid #009AD0; display: inline-block; text-align: center; color: #009AD0; margin-left: 12.5px}
-        .box1 .btn:hover {background-color: #009AD0; color: white; cursor: pointer}
-        .box2 {padding: 20px 56px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; margin-bottom: 12.5px}
-        .box2 .title {line-height: 25px; margin-bottom: 19px}
-        .box2 .title .fright>img {width: 13px; height: 13px; margin-right: 5px; vertical-align: -10%}
-        .box2 table {width: 100%;border-collapse: collapse; margin-bottom: 15px}
-        .box2 table td {width: 25%; height: 45px}
-        .box3 {padding: 20px 56px; border-radius: 8px}
-        .c009 {color: #009AD0}
-        .casein {display: none!important}
-        .calcin {display: none!important}
-        .transInp {width: 90%; height: 35px; line-height: 35px; margin-left: 5%}
-        .transInp>input {height: 100%; line-height: 35px; width: 80%}
-        .addbtn {display: inline-block; width: 22px; height: 22px; border-radius: 11px; line-height: 24px; overflow: hidden; color: white; background-color: #009AD0; text-align: center; margin-top: 7.5px}
-        #tb1 {text-align: center;}
+        .box1 {
+            height: 48.5px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            padding: 0px 40px;
+            padding-top: 16.5px;
+            margin-bottom: 12.5px
+        }
+
+        .box1 select {
+            width: 125px;
+            height: 32px;
+            line-height: 32px
+        }
+
+        .box1 .btn {
+            width: 90px;
+            height: 32px;
+            line-height: 32px;
+            border-radius: 5px;
+            border: 1px solid #009AD0;
+            display: inline-block;
+            text-align: center;
+            color: #009AD0;
+            margin-left: 12.5px
+        }
+
+        .box1 .btn:hover {
+            background-color: #009AD0;
+            color: white;
+            cursor: pointer
+        }
+
+        .box2 {
+            padding: 20px 56px;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            margin-bottom: 12.5px
+        }
+
+        .box2 .title {
+            line-height: 25px;
+            margin-bottom: 19px
+        }
+
+        .box2 .title .fright>img {
+            width: 13px;
+            height: 13px;
+            margin-right: 5px;
+            vertical-align: -10%
+        }
+
+        .box2 table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px
+        }
+
+        .box2 table td {
+            width: 25%;
+            height: 45px
+        }
+
+        .box3 {
+            padding: 80px 56px;
+            border-radius: 8px
+        }
+
+        .c009 {
+            color: #009AD0
+        }
+
+        .casein {
+            display: none !important
+        }
+
+        .calcin {
+            display: none !important
+        }
+
+        .transInp {
+            width: 90%;
+            height: 35px;
+            line-height: 35px;
+            margin-left: 5%
+        }
+
+        .transInp>input {
+            height: 100%;
+            line-height: 35px;
+            width: 80%
+        }
+
+        .addbtn {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            border-radius: 11px;
+            line-height: 24px;
+            overflow: hidden;
+            color: white;
+            background-color: #009AD0;
+            text-align: center;
+            margin-top: 7.5px
+        }
+
+        #tb1 {
+            text-align: center;
+        }
     </style>
 </head>
+
 <body>
     <div class="box1 bcw">
         <select calc id="tempSelect" class="casein" onchange="selectChange()"></select>
@@ -38,56 +132,72 @@
         <span onclick="calcDetail()" class="btn casein fright">查看测算表</span>
         <span calc onclick="goEditModel()" style="width: 110px" class="btn fright modify">编辑模版</span>
     </div>
-    <div class="box2 bcw" id='topBox'>
-        <div class="title">
-            <span class="fpx20">资金方案</span>
-            <span style="margin-left:100px" class="fright"><img src="img/danwei.png" />单位：元（人民币）</span>
-            <!--<span class="fright"><img src="img/et.png" />制表时间：<span id="maketime"></span></span>-->
+    <div id="printWrapper" style="width: 100%;padding-bottom: 40px">
+        <div class="box2 bcw" id='topBox'>
+            <div id="box-title" style="text-align:center;display: none;">
+                <h1 class="fpx20" >资金方案</h1>
+            </div>
+            <div class="title">
+                <span class="fpx20" id="hideTitle">资金方案</span>
+                <span style="margin-left:100px" class="fright">
+                    <img src="img/danwei.png" />单位：元（人民币）</span>
+                <!--<span class="fright"><img src="img/et.png" />制表时间：<span id="maketime"></span></span>-->
+            </div>
+            <div>
+                <table id="tb1" border="1" cellspacing="0" style="background: #fff"></table>
+            </div>
         </div>
-        <div><table id="tb1" border="1" cellspacing="0"></table></div>
-    </div>
-    <div class="box3 bcw">
-        <span class="fpx20">具体还款方案</span>
-        <div><table id="tb2" class="base"></table></div>
-        <div style="margin-top: 20px">
-            <span style="max-width: 56%; display: inline-block" class="c9">（以上条款和条件为参考性条款，所有内容需经公司信用评估程序最终批准后，并签署合同后正式生效）</span>
-            <span class="fright c9">请在右侧盖章以示接受上述方案， 盖章确认_______________________</span>
+        <div class="box3 bcw">
+            <span class="fpx20">具体还款方案</span>
+            <div>
+                <table id="tb2" class="base"></table>
+            </div>
+            <div style="margin-top: 20px">
+                <span style="max-width: 56%; display: inline-block" class="c9">（以上条款和条件为参考性条款，所有内容需经公司信用评估程序最终批准后，并签署合同后正式生效）</span>
+                <span class="fright c9">请在右侧盖章以示接受上述方案， 盖章确认_______________________</span>
+            </div>
+            <div style="text-align: center;width: 100%;border-top: 1px dashed transparent;margin-top: 40px;padding-top: 10px;">
+                <span class="c9">语融服，专属于您的金融方案管家</span>
+            </div>
         </div>
     </div>
     <script type="text/javascript" src="js/comm.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@7/dist/polyfill.min.js"></script>
     <script type="text/javascript" src="inc/html2canvas.js"></script>
     <script type="text/javascript" src="inc/jsPdf.debug.js"></script>
-
     <script type="text/javascript">
 
         var tb1 = document.getElementById("tb1");
         var tb2 = document.getElementById("tb2");
-//        var maketime = document.getElementById("maketime");
+        //        var maketime = document.getElementById("maketime");
         var tid = parseInt(Unit.query("tid"));
         var cid = parseInt(Unit.query("cid"));
+        var pid = parseInt(Unit.query("pid"));
         var tempSelect = document.getElementById("tempSelect");
         var friend = Unit.query("friend");
         var calc = top.Unit.query("calc");
         var CID = -1;
-        if(cid) {
+        var caseName = '默认方案'
+        var hasST = false;
+        var level = Local.user().level;
+        if (cid) {
             var cs = document.querySelectorAll(".casein");
-            for(var i=0;i<cs.length;i++)
+            for (var i = 0; i < cs.length; i++)
                 cs[i].className = cs[i].className.replace("casein", "");
-            document.querySelector(".modify").style.display="none";
+            document.querySelector(".modify").style.display = "none";
         }
-        if(friend) {
+        if (friend) {
             var fs = document.querySelectorAll("[friends]");
-            for(var i=0;i<fs.length;i++)
-                fs[i].style.display='none';
+            for (var i = 0; i < fs.length; i++)
+                fs[i].style.display = 'none';
         }
-        if(calc) {
+        if (calc) {
             var cs = document.querySelectorAll("[calc]");
-            for(var i=0;i<cs.length;i++) {
+            for (var i = 0; i < cs.length; i++) {
                 cs[i].className = cs[i].className.replace("casein", "");
                 cs[i].className = cs[i].className.replace("calcin", "");
             }
-            top.document.querySelector(".manage").style.display="none";
+            top.document.querySelector(".manage").style.display = "none";
         }
         var calcObj = null;
         var calcData = null;
@@ -95,11 +205,11 @@
 
         var tempTransObj = -1;
         function selectChange() {
-            if(calc) {
-                if(tempTransObj==-1) {
+            if (calc) {
+                if (tempTransObj == -1) {
                     tempTransObj = null;
                     var tto = Local.get("tempTransObj");
-                    if(tto)
+                    if (tto)
                         tempTransObj = tto;
                 } else {
                     tempTransObj = getBaseTransObj();
@@ -107,13 +217,13 @@
             }
 
             nDict = {};
-            if(tempSelect.value==-2) {
-                nDict = {0:1,1:1,2:1,3:1,4:1,24:1,25:1};
+            if (tempSelect.value == -2) {
+                nDict = { 0: 1, 1: 1, 2: 1, 3: 1, 4: 1, 24: 1, 25: 1 };
                 setModel();
-            } else if (tempSelect.value>0 || tempSelect.value===0) {
+            } else if (tempSelect.value > 0 || tempSelect.value === 0) {
                 var op = tempSelect.options[tempSelect.selectedIndex];
-                if(op) {
-                    setModel(op.getAttribute("data"),op.getAttribute("config"));
+                if (op) {
+                    setModel(op.getAttribute("data"), op.getAttribute("config"));
                 }
             } else {
                 setModel();
@@ -122,90 +232,92 @@
 
         function goEditModel() {
             Local.save("tempTransObj", tempTransObj);
-            top.location.href = 'modelcreate.html?tid='+(calc?tempSelect.value:tid)+(calc?"&calc=1":"");
+            top.location.href = 'modelcreate.html?tid=' + (calc ? tempSelect.value : tid) + (calc ? "&calc=1" : "");
         }
 
         var nDict = {};
         var curCase = null;
         userPrivilege(function () {
-            if(tid<=0 && !calc) {
-                if(tid===-2) {
-                    nDict = {0:1,1:1,2:1,3:1,4:1,24:1,25:1};
+            if (tid <= 0 && !calc) {
+                if (tid === -2) {
+                    nDict = { 0: 1, 1: 1, 2: 1, 3: 1, 4: 1, 24: 1, 25: 1 };
                 }
                 calcRes = [];
                 var t = new Date().getTime();
-                for(var i=0;i<10;i++) {
-                    calcRes.push({b:t,c:12222000.85,e:2000.85,f:12222000.85})
+                for (var i = 0; i < 10; i++) {
+                    calcRes.push({ b: t, c: 12222000.85, e: 2000.85, f: 12222000.85 })
                 }
                 configTable();
             } else {
-                if(cid || calc) {
+                if (cid || calc) {
                     LoadingBox.show();
                     var selectVal = -1;
-                    if(tid==-2) selectVal = -2;
-                    Http.get("api/template/list", {tids:'', key:'', pageno:1, pagesize:999999}, function(l) {
+                    if (tid == -2) selectVal = -2;
+                    Http.get("api/template/list", { tids: '', key: '', pageno: 1, pagesize: 999999 }, function (l) {
                         //权限处理
-                        if(privilege) {
+                        if (privilege) {
                             var op0 = document.createElement("OPTION");
                             tempSelect.appendChild(op0);
                             op0.text = "标准方案模版";
                             op0.value = -1;
-                            op0.setAttribute("data",'-1');
+                            op0.setAttribute("data", '-1');
                         }
                         var op = document.createElement("OPTION");
                         tempSelect.appendChild(op);
                         op.text = "简单方案模版";
                         op.value = -2;
-                        op.setAttribute("data",'-2');
-                        for(var i=0;i<l.length;i++) {
+                        op.setAttribute("data", '-2');
+                        for (var i = 0; i < l.length; i++) {
                             // if(tid==l[i].templateid) selectVal = l[i].templateid;
                             var op = document.createElement("OPTION");
                             tempSelect.appendChild(op);
                             op.text = l[i].templatename;
                             op.value = l[i].templateid;
-                            op.setAttribute("data",l[i].hidefields);
-                            op.setAttribute("config",l[i].config);
+                            op.setAttribute("data", l[i].hidefields);
+                            op.setAttribute("config", l[i].config);
                         }
                         //权限处理
-                        if(!privilege) {
-                            document.querySelector(".modify.btn").style.display="none";
+                        if (!privilege) {
+                            document.querySelector(".modify.btn").style.display = "none";
                             // selectVal = -2;
                         }
                         selectVal = -2;
-                        if(cid) {
-                            Http.get("api/case/show", {cid:cid}, function (r) {
-//                                maketime.innerHTML = Unit.time(r.subdate);
+                        if (cid) {
+                            Http.get("api/case/show", { cid: cid }, function (r) {
+                                //                                maketime.innerHTML = Unit.time(r.subdate);
                                 curCase = r;
+                                caseName = r.pcasename
                                 CID = r.clacresultid
                                 tempSelect.value = selectVal
                                 // if(curCase.templateid)
                                 //     tempSelect.value = curCase.templateid;
                                 top.tempCaseObj = r;
-                                if(!r)return;
-                                Http.get("api/struct/show", {tsid:r.transtructid}, function (r1) {
-                                    if(r1) {
+                                if (!r) return;
+                                Http.get("api/struct/show", { tsid: r.transtructid }, function (r1) {
+                                    if (r1) {
+                                        hasST = true
                                         var rn = decodeURIComponent(r1.rentname);
                                         var ln = decodeURIComponent(r1.leasename);
                                         var gt = decodeURIComponent(r1.guarantor);
                                         var rns = rn.split(";");
-                                        caseModel.base[0]=[];
-                                        for(var i=0;i<rns.length;i++) {
-                                            caseModel.base[0].push({n:"融资方"+(rns.length>1?(i+1):''), c:rns[i], s:1, t:1})
+                                        caseModel.base[0] = [];
+                                        for (var i = 0; i < rns.length; i++) {
+                                            caseModel.base[0].push({ n: "融资方" + (rns.length > 1 ? (i + 1) : ''), c: rns[i], s: 1, t: 1 })
                                         }
-                                        caseModel.base[1]=[];
+                                        caseModel.base[1] = [];
                                         var lns = ln.split(";");
-                                        for(var i=0;i<lns.length;i++) {
-                                            caseModel.base[1].push({n:"出资方"+(lns.length>1?(i+1):''), c:lns[i], s:1, t:1})
+                                        for (var i = 0; i < lns.length; i++) {
+                                            caseModel.base[1].push({ n: "出资方" + (lns.length > 1 ? (i + 1) : ''), c: lns[i], s: 1, t: 1 })
                                         }
-                                        caseModel.base[2]=[];
+                                        caseModel.base[2] = [];
                                         var gts = gt.split(";");
-                                        for(var i=0;i<gts.length;i++) {
-                                            caseModel.base[2].push({n:"担保人"+(gts.length>1?(i+1):''), c:gts[i], s:1, t:1})
+                                        for (var i = 0; i < gts.length; i++) {
+                                            caseModel.base[2].push({ n: "担保人" + (gts.length > 1 ? (i + 1) : ''), c: gts[i], s: 1, t: 1 })
                                         }
                                         caseModel.base[3].c = r1.things;
                                         caseModel.base[4].c = r1.credit;
                                     }
-                                    Http.get("api/calc/show", {crid:r.clacresultid}, function (r2) {
+                                    Http.get("api/calc/show", { crid: r.clacresultid }, function (r2) {
                                         LoadingBox.hide();
                                         calcData = r2;
                                         calcRes = r2.app;
@@ -223,19 +335,19 @@
                                 calcData = JSON.parse(obj.json);
                                 calcRes = JSON.parse(obj.ajson);
                                 configCalcData();
-                            } catch (e) {}
+                            } catch (e) { }
                         }
                     })
                 } else if (tid) {
                     LoadingBox.show();
-                    Http.get("api/template/show", {tid:tid}, function(r) {
+                    Http.get("api/template/show", { tid: tid }, function (r) {
                         LoadingBox.hide();
                         calcRes = [];
                         var t = new Date().getTime();
-                        for(var i=0;i<10;i++) {
-                            calcRes.push({b:t+i*30*24*60*60*1000,c:12256002.55,e:32000.85,f:12224001.70})
+                        for (var i = 0; i < 10; i++) {
+                            calcRes.push({ b: t + i * 30 * 24 * 60 * 60 * 1000, c: 12256002.55, e: 32000.85, f: 12224001.70 })
                         }
-                        if(r) setModel(r.hidefields, r.config);
+                        if (r) setModel(r.hidefields, r.config);
                     })
                 }
             }
@@ -255,31 +367,30 @@
             caseModel.base[14].c = toMoney(calcData.zixunfeishouru);
             caseModel.base[15].c = toMoney(calcData.canzhishouru);
             caseModel.base[16].c = toMoney(calcData.baoxianshouru);
-            caseModel.base[17].c = calcData.qizuri?'<div class="tc">'+Unit.time(calcData.qizuri, 'yyyy-MM-dd')+'</div>':'';
+            caseModel.base[17].c = calcData.qizuri ? '<div class="tc">' + Unit.time(calcData.qizuri, 'yyyy-MM-dd') + '</div>' : '';
             caseModel.base[18].c = radioNumber(calcData.yearburdenrate);
             caseModel.base[19].c = '';
             caseModel.base[20].c = radioNumber(calcData.pingmianlilv);
 
             //获取测算结果列表后设置数据
             selectChange();
-
         }
 
 
         function setModel(hfs, config) {
-            if(hfs) {
+            if (hfs) {
                 var sIds = hfs.split(",");
                 var sDict = {};
-                for(var i=0;i<sIds.length;i++) {
+                for (var i = 0; i < sIds.length; i++) {
                     sDict[sIds[i]] = 1;
                 }
 
-                for(var i=0;i<26;i++) {
-                    if(!sDict[i]) nDict[i] = 1;
+                for (var i = 0; i < 26; i++) {
+                    if (!sDict[i]) nDict[i] = 1;
                 }
-                for(var i in nDict) {
-                    if(i > 4 && i < 19) {
-                        nDict[19]=1;
+                for (var i in nDict) {
+                    if (i > 4 && i < 19) {
+                        nDict[19] = 1;
                         break;
                     }
                 }
@@ -287,30 +398,30 @@
 
             configTable();
             fixStyle()
-            
-            if(calc) {
+
+            if (calc) {
                 var tds = document.querySelectorAll("td[colspan='3']");
-                for(var i=0;i<tds.length;i++) {
+                for (var i = 0; i < tds.length; i++) {
                     var addbtn = tds[i].getAttribute("addbtn");
-                    tds[i].innerHTML = '<div class="transInp">'+(addbtn?'<span onclick="addrow(this)" class="fright addbtn poi">＋</span>':'')+'<input maxlength="20" '+(addbtn?'':'style="margin-right: 22px;"')+' placeholder="请输入'+getPreviousElement(tds[i]).innerHTML+'" type="text" /></div>';
+                    tds[i].innerHTML = '<div class="transInp">' + (addbtn ? '<span onclick="addrow(this)" class="fright addbtn poi">＋</span>' : '') + '<input maxlength="20" ' + (addbtn ? '' : 'style="margin-right: 22px;"') + ' placeholder="请输入' + getPreviousElement(tds[i]).innerHTML + '" type="text" /></div>';
                 }
             }
 
             setIframeHeight(parent.mframe);
 
-            if(tempTransObj && calc) {
+            if (tempTransObj && calc) {
                 var t0 = document.querySelector("[trans='0']");
                 var t1 = document.querySelector("[trans='1']");
                 var t2 = document.querySelector("[trans='2']");
-                if(tempTransObj.Things)
+                if (tempTransObj.Things)
                     getNextElement(t2).querySelector("input").value = tempTransObj.Things;
-                if(tempTransObj.Credit)
+                if (tempTransObj.Credit)
                     getNextElement(getNextElement(t2)).querySelector("input").value = tempTransObj.Credit;
 
                 var rs = tempTransObj.RentName.split(";");
-                for(var i=0;i<rs.length;i++) {
+                for (var i = 0; i < rs.length; i++) {
                     var data = decodeURIComponent(rs[i]);
-                    if(i===0)
+                    if (i === 0)
                         t0.querySelector("input").value = data;
                     else {
                         var span = t0.querySelector("span.addbtn");
@@ -320,9 +431,9 @@
                 }
 
                 var ls = tempTransObj.LeaseName.split(";");
-                for(var i=0;i<ls.length;i++) {
+                for (var i = 0; i < ls.length; i++) {
                     var data = decodeURIComponent(ls[i]);
-                    if(i===0)
+                    if (i === 0)
                         t1.querySelector("input").value = data;
                     else {
                         var span = t1.querySelector("span.addbtn");
@@ -332,9 +443,9 @@
                 }
 
                 var gs = tempTransObj.Guarantor.split(";");
-                for(var i=0;i<gs.length;i++) {
+                for (var i = 0; i < gs.length; i++) {
                     var data = decodeURIComponent(gs[i]);
-                    if(i===0)
+                    if (i === 0)
                         t2.querySelector("input").value = data;
                     else {
                         var span = t2.querySelector("span.addbtn");
@@ -345,12 +456,12 @@
             }
 
 
-            if(config) {
+            if (config) {
                 var dict = JSON.parse(config);
                 var tds = tb1.querySelectorAll("td");
-                for(var i=0;i<tds.length;i++) {
+                for (var i = 0; i < tds.length; i++) {
                     var seltext = dict[tds[i].innerHTML];
-                    if(seltext)
+                    if (seltext)
                         tds[i].innerHTML = seltext;
                 }
             }
@@ -361,23 +472,23 @@
             var tbd = e.parentNode.parentNode.parentNode.parentNode;
             var tr = e.parentNode.parentNode.parentNode;
             var trans = parseInt(tr.getAttribute("trans"));
-            if(trans<5) {
+            if (trans < 5) {
                 var ntr = document.createElement("TR");
                 ntr.style.display = tr.style.display;
                 ntr.innerHTML = tr.innerHTML;
-                var addrows = document.querySelectorAll("[addrow='"+trans+"']");
+                var addrows = document.querySelectorAll("[addrow='" + trans + "']");
                 ntr.setAttribute("addrow", trans);
-                var aft = document.querySelector("[trans='"+(trans+1)+"']");
+                var aft = document.querySelector("[trans='" + (trans + 1) + "']");
                 tbd.insertBefore(ntr, aft);
                 var trtt = ntr.querySelector("td");
-                trtt.innerHTML = trtt.innerHTML.substr(0,3) + (addrows.length+2);
+                trtt.innerHTML = trtt.innerHTML.substr(0, 3) + (addrows.length + 2);
                 var btn = ntr.querySelector(".addbtn");
                 btn.innerHTML = "✕";
                 btn.onclick = function () {
                     ntr.parentNode.removeChild(ntr);
                 };
                 var data = e.getAttribute("data");
-                if(data) ntr.querySelector("input").value = data;
+                if (data) ntr.querySelector("input").value = data;
 
                 setIframeHeight(parent.mframe);
             }
@@ -390,36 +501,36 @@
             var tidx = 0;
             var idIdx = 0;
 
-            for(var i=0;i<caseModel.base.length;i++) {
-                if(caseModel.base[i].t) {
-                    if(caseModel.base[i].t===1) {
-                        topes.push('<tr style="display: '+(nDict[idIdx]?'none':'')+'" '+(i===3?'trans="3"':"")+'>\
-                                <td>'+caseModel.base[i].n+'</td>\
-                                <td class="tc" colspan="3">'+caseModel.base[i].c+'</td>\
+            for (var i = 0; i < caseModel.base.length; i++) {
+                if (caseModel.base[i].t) {
+                    if (caseModel.base[i].t === 1) {
+                        topes.push('<tr style="display: ' + (nDict[idIdx] ? 'none' : '') + '" ' + (i === 3 ? 'trans="3"' : "") + '>\
+                                <td>'+ caseModel.base[i].n + '</td>\
+                                <td class="tc" colspan="3">'+ caseModel.base[i].c + '</td>\
                             </tr>');
-                    } else if(caseModel.base[i].t===2) {
-                        if(tidx===0) {
-                            if(!nDict[idIdx]) {
+                    } else if (caseModel.base[i].t === 2) {
+                        if (tidx === 0) {
+                            if (!nDict[idIdx]) {
                                 topes.push('<tr>\
-                                <td>'+caseModel.base[i].n+'</td>\
-                                <td class="moneyc c009">'+caseModel.base[i].c+'</td>');
+                                <td>'+ caseModel.base[i].n + '</td>\
+                                <td class="moneyc c009">'+ caseModel.base[i].c + '</td>');
                                 tidx++;
                             }
-                        } else if(tidx===1) {
-                            if(!nDict[idIdx]) {
-                                var moneyt = caseModel.base[i].n=="服务费收入" || caseModel.base[i].n=="咨询费收入" || caseModel.base[i].n=="保险收入";
-                                topes.push('<td>'+caseModel.base[i].n+'</td>\
-                                <td class="tc '+(moneyt?'moneyc c009':'')+'">'+caseModel.base[i].c+'</td>\
+                        } else if (tidx === 1) {
+                            if (!nDict[idIdx]) {
+                                var moneyt = caseModel.base[i].n == "服务费收入" || caseModel.base[i].n == "咨询费收入" || caseModel.base[i].n == "保险收入";
+                                topes.push('<td>' + caseModel.base[i].n + '</td>\
+                                <td class="tc '+ (moneyt ? 'moneyc c009' : '') + '">' + caseModel.base[i].c + '</td>\
                             </tr>');
-                                tidx=0;
+                                tidx = 0;
                             }
                         }
                     }
-                } else if (caseModel.base[i].length>0) {
-                    for(var j=0;j<caseModel.base[i].length;j++) {
-                        topes.push('<tr style="display: '+(nDict[idIdx]?'none':'')+';" trans="'+i+'">\
-                                <td>'+caseModel.base[i][j].n+'</td>\
-                                <td class="tc" colspan="3" addbtn="1">'+caseModel.base[i][j].c+'</td>\
+                } else if (caseModel.base[i].length > 0) {
+                    for (var j = 0; j < caseModel.base[i].length; j++) {
+                        topes.push('<tr style="display: ' + (nDict[idIdx] ? 'none' : '') + ';" trans="' + i + '">\
+                                <td>'+ caseModel.base[i][j].n + '</td>\
+                                <td class="tc" colspan="3" addbtn="1">'+ caseModel.base[i][j].c + '</td>\
                             </tr>');
                     }
                 }
@@ -427,49 +538,49 @@
             }
 
             var tbp1 = tb1.parentNode;
-            tb1.parentNode.innerHTML = '<table class="tc" id="tb1" border="1" cellspacing="0">'+topes.join("")+'</table>';
+            tb1.parentNode.innerHTML = '<table style="text-algin:center" id="tb1" border="1" cellspacing="0">' + topes.join("") + '</table>';
             tb1 = tbp1.querySelector("table");
 
 
             var bes = ['<tr style="height: 32px;background-color: #FFEDE7;">'];
             var ebDict = {};
-            for(var i=0;i<caseModel.detail.length;i++) {
-                if(!nDict[idIdx]) {
-                    bes.push('<th>'+caseModel.detail[i].n+'</th>');
-                    ebDict[i]=1;
+            for (var i = 0; i < caseModel.detail.length; i++) {
+                if (!nDict[idIdx]) {
+                    bes.push('<th>' + caseModel.detail[i].n + '</th>');
+                    ebDict[i] = 1;
                 }
                 idIdx++;
             }
             bes.push('</tr>');
-            for(var i=0;i<calcRes.length;i++) {
-                var row = (ebDict[0]?'<td>'+(i+1)+'</td>':'') +
-                    (ebDict[1]?'<td>'+Unit.time(calcRes[i].b, 'yyyy-MM-dd')+'</td>':'') +
-                    (ebDict[2]?'<td class="c009 moneyc">'+toMoney(calcRes[i].c)+'</td>':'') +
-                    (ebDict[3]?'<td class="c009 moneyc">'+toMoney(calcRes[i].e)+'</td>':'') +
-                    (ebDict[4]?'<td class="c009 moneyc">'+toMoney(calcRes[i].f)+'</td>':'');
-                bes.push('<tr>'+row+'</tr>')
+            for (var i = 0; i < calcRes.length; i++) {
+                var row = (ebDict[0] ? '<td>' + (i + 1) + '</td>' : '') +
+                    (ebDict[1] ? '<td>' + Unit.time(calcRes[i].b, 'yyyy-MM-dd') + '</td>' : '') +
+                    (ebDict[2] ? '<td class="c009 moneyc">' + toMoney(calcRes[i].c) + '</td>' : '') +
+                    (ebDict[3] ? '<td class="c009 moneyc">' + toMoney(calcRes[i].e) + '</td>' : '') +
+                    (ebDict[4] ? '<td class="c009 moneyc">' + toMoney(calcRes[i].f) + '</td>' : '');
+                bes.push('<tr>' + row + '</tr>')
             }
             var tbp2 = tb2.parentNode;
-            tbp2.innerHTML = '<table id="tb2" class="base tc">'+bes.join("")+'</table>';
+            tbp2.innerHTML = '<table id="tb2" class="base tc">' + bes.join("") + '</table>';
             tb2 = tbp2.querySelector("table");
 
 
-            if(parent.resetIfrHeight)
+            if (parent.resetIfrHeight)
                 parent.resetIfrHeight();
         }
 
 
 
         function sendCase() {
-            Prompt.openIfr('sendbox.html?cid='+(cid?cid:'-1')+'&tempid='+tempSelect.value+(calc?'':'&detail=1'), {w:600,h:350}, function(a) {
-                if(a && a.c===1) {
+            Prompt.openIfr('sendbox.html?cid=' + (cid ? cid : '-1') + '&tempid=' + tempSelect.value + (calc ? '' : '&detail=1') + '&pid=' + pid, { w: 600, h: 350 }, function (a) {
+                if (a && a.c === 1) {
                     top.tempSendRecord = a;
-                    Prompt.openIfr('inputsendrecord.html?fids='+a.fids+"&rids="+a.rids, {w:450,h:280}, function(a) {
-                        if(parseInt(a)) 
-                            top.layer.msg("保存方案记录成功！");
-                        if(calc)
-                            goPage();
-                    });
+                    // Prompt.openIfr('inputsendrecord.html?fids='+a.fids+"&rids="+a.rids, {w:450,h:280}, function(a) {
+                    //     if(parseInt(a)) 
+                    //         top.layer.msg("保存方案记录成功！");
+                    //     if(calc)
+                    //         goPage();
+                    // });
                     setTimeout(function () {
                         top.layer.msg("发送方案成功");
                     }, 1000);
@@ -478,40 +589,40 @@
         }
 
         function goPage() {
-            !savePid&&(savePid=-1);
+            !savePid && (savePid = -1);
             setTimeout(function () {
-                if(parseInt(savePid)===-1)
+                if (parseInt(savePid) === -1)
                     top.location.href = 'lswj.html';
                 else if (cid)
-                    top.location.href = 'casedetail.html?cid='+cid+'&pid='+Unit.query("pid", top.location.href);
+                    top.location.href = 'casedetail.html?cid=' + cid + '&pid=' + Unit.query("pid", top.location.href);
                 else {
-                    top.location.href = 'projdetail.html?pid='+savePid;
+                    top.location.href = 'projdetail.html?pid=' + savePid;
                 }
-            },1000);
+            }, 1000);
         }
 
 
         function shareCase() {
-            if(!cid) {
+            if (!cid) {
                 saveCase(-1, function (a) {
-                    top.location.href = 'casedetail.html?cid='+a+'&pid=-1&wxshare=1';
+                    top.location.href = 'casedetail.html?cid=' + a + '&pid=-1&wxshare=1';
                 })
             } else {
-                Prompt.openIfr('casesharecode.html?cid='+cid+'&tid='+tempSelect.value, {w:400,h:352,sc:true,sd:.3})
+                Prompt.openIfr('casesharecode.html?cid=' + cid + '&tid=' + tempSelect.value, { w: 400, h: 352, sc: true, sd: .3 })
             }
         }
 
 
 
-        var wxshare = Unit.query("wxshare",top.location.href);
-        if(wxshare) {
+        var wxshare = Unit.query("wxshare", top.location.href);
+        if (wxshare) {
             setTimeout(function () {
                 shareCase();
-            },1000);
+            }, 1000);
         }
 
         function cancelEvent() {
-            history.go(-1);location.reload()
+            history.go(-1); location.reload()
         }
 
 
@@ -520,28 +631,28 @@
             var saveObj = getBaseTransObj();
             saveObj.Remark = "";
             Local.save("tempTrans", saveObj);
-            if(pid === -1) {
+            if (pid === -1) {
                 saveObj.ProjectID = -1;
                 calcData.projectid = -1;
                 calcObj.json = JSON.stringify(calcData);
-                saveData(saveObj, calcObj, -1, '新建方案'+Unit.time(new Date().getTime(), 'yyyy-MM-dd HH:mm:ss'), cb);
+                saveData(saveObj, calcObj, -1, '新建方案' + Unit.time(new Date().getTime(), 'yyyy-MM-dd HH:mm:ss'), cb);
             } else {
-                Prompt.openIfr('popinput.html?title=提示&placeholder=请输入方案名称', {w:350,h:250}, function (name) {
-                    if(!(name===undefined || name===null)) {
-                        Prompt.openIfr('save.html', {w:380,h:370}, function(a) {
-                            if(parseInt(a)) {
+                Prompt.openIfr('popinput.html?title=提示&placeholder=请输入方案名称', { w: 350, h: 250 }, function (name) {
+                    if (!(name === undefined || name === null)) {
+                        Prompt.openIfr('save.html', { w: 380, h: 370 }, function (a) {
+                            if (parseInt(a)) {
                                 savePid = a;
                                 saveObj.ProjectID = a;
                                 calcData.projectid = a;
                                 calcObj.json = JSON.stringify(calcData);
                                 saveData(saveObj, calcObj, a, name, function (r) {
                                     var u = Local.user();
-                                    var shobj = {json:[{filesharetarget:5, filesharetargetid:savePid?savePid:-1, customerid:u.customerid,fileshareitemid:r,filesharetype:1,templateid:tempSelect.value,filesharename:name,personname:u.realname,projectmoney:calcData.totalmoney,unitname:u.companyname?u.companyname:''}]};
+                                    var shobj = { json: [{ filesharetarget: 5, filesharetargetid: savePid ? savePid : -1, customerid: u.customerid, fileshareitemid: r, filesharetype: 1, templateid: tempSelect.value, filesharename: name, personname: u.realname, projectmoney: calcData.totalmoney, unitname: u.companyname ? u.companyname : '' }] };
                                     shobj.json = JSON.stringify(shobj.json);
                                     Http.post("api/case/sendn", shobj, function (b) {
                                         LoadingBox.hide();
-                                        top.tempCaseObj = {pcaseid:r};
-                                        Prompt.openIfr('editcase.html?cid='+r+'&editcase=1', {w:450,h:480}, function(a) {
+                                        top.tempCaseObj = { pcaseid: r };
+                                        Prompt.openIfr('editcase.html?cid=' + r + '&editcase=1', { w: 450, h: 480 }, function (a) {
                                             goPage();
                                         });
                                         top.layer.msg("保存成功！");
@@ -557,21 +668,21 @@
 
         function getBaseTransObj() {
             var saveObj = {};
-            var ks = ['RentName','LeaseName','Guarantor'];
-            for(var i=0;i<3;i++) {
-                var t = document.querySelector("[trans='"+i+"']");
-                if(!t) break;
+            var ks = ['RentName', 'LeaseName', 'Guarantor'];
+            for (var i = 0; i < 3; i++) {
+                var t = document.querySelector("[trans='" + i + "']");
+                if (!t) break;
                 saveObj[ks[i]] = [];
-                var adds = document.querySelectorAll("[addrow='"+i+"']");
-                for(var j=0;j<adds.length+1;j++) {
-                    if(j===0) {
+                var adds = document.querySelectorAll("[addrow='" + i + "']");
+                for (var j = 0; j < adds.length + 1; j++) {
+                    if (j === 0) {
                         var inp = t.querySelector("input");
-                        if(inp.value.toString().length>0) {
+                        if (inp.value.toString().length > 0) {
                             saveObj[ks[i]].push(encodeURIComponent(inp.value));
                         }
                     } else {
-                        var inp = adds[j-1].querySelector("input");
-                        if(inp.value.toString().length>0) {
+                        var inp = adds[j - 1].querySelector("input");
+                        if (inp.value.toString().length > 0) {
                             saveObj[ks[i]].push(encodeURIComponent(inp.value));
                         }
                     }
@@ -579,44 +690,44 @@
                 saveObj[ks[i]] = saveObj[ks[i]].join(";");
             }
             var tr = document.querySelector("[trans='3']");
-            if(tr) {
+            if (tr) {
                 var inp1 = tr.querySelector("input");
-                if(inp1.value.toString().length>0) {
+                if (inp1.value.toString().length > 0) {
                     saveObj.Things = inp1.value;
                 }
                 var inp2 = getNextElement(tr).querySelector("input");
-                if(inp2.value.toString().length>0) {
+                if (inp2.value.toString().length > 0) {
                     saveObj.Credit = inp2.value;
                 }
             }
-            !saveObj.RentName&&(saveObj.RentName="");
-            !saveObj.LeaseName&&(saveObj.LeaseName="");
-            !saveObj.Guarantor&&(saveObj.Guarantor="");
-            !saveObj.Things&&(saveObj.Things="");
-            !saveObj.Credit&&(saveObj.Credit="");
+            !saveObj.RentName && (saveObj.RentName = "");
+            !saveObj.LeaseName && (saveObj.LeaseName = "");
+            !saveObj.Guarantor && (saveObj.Guarantor = "");
+            !saveObj.Things && (saveObj.Things = "");
+            !saveObj.Credit && (saveObj.Credit = "");
             return saveObj;
         }
 
         function saveData(trans, calc, pid, name, cb) {
             LoadingBox.show();
             var saveTrans = false;
-            if(trans) {
-                var ks = ['RentName','LeaseName','Guarantor','Things','Credit'];
-                for(var i=0;i<ks.length;i++) {
-                    if(typeof trans[ks[i]]==="object") {
-                        if(trans[ks[i]].length>0) {
+            if (trans) {
+                var ks = ['RentName', 'LeaseName', 'Guarantor', 'Things', 'Credit'];
+                for (var i = 0; i < ks.length; i++) {
+                    if (typeof trans[ks[i]] === "object") {
+                        if (trans[ks[i]].length > 0) {
                             saveTrans = true;
                             break;
                         }
                     } else {
-                        if(trans[ks[i]]) {
+                        if (trans[ks[i]]) {
                             saveTrans = true;
                             break;
                         }
                     }
                 }
             }
-            if(saveTrans) {
+            if (saveTrans) {
                 Http.post("api/struct/save", trans, function (a) {
                     savebase(a);
                 })
@@ -625,12 +736,12 @@
 
 
             function savebase(a) {
-                Http.post("api/calc/save",calc,function(b) {
-                    top.tempCaseObj = {clacresultid:b,transtructid:a,pcasename:name,casename:name,projectid:pid,templateid:tempSelect.value,casestate:'',casemoney:'',rentday:'',caseincome:'',caseotcome:'',casetype:''};
+                Http.post("api/calc/save", calc, function (b) {
+                    top.tempCaseObj = { clacresultid: b, transtructid: a, pcasename: name, casename: name, projectid: pid, templateid: tempSelect.value, casestate: '', casemoney: '', rentday: '', caseincome: '', caseotcome: '', casetype: '' };
                     Http.post("api/case/save", top.tempCaseObj, function (c) {
                         LoadingBox.hide();
                         top.tempCaseObj.pcaseid = c;
-                        cb&&cb(c);
+                        cb && cb(c);
                     })
                 })
             }
@@ -640,69 +751,98 @@
 
 
         function calcDetail() {
-            window.open('csb.html?calcid='+CID);
+            window.open('csb.html?calcid=' + CID);
         }
         // setTimeout(() => {
         //     var selectTemp = document.getElementById('tempSelect');
         //     selectTemp.value = curCase.templateid;       
         // }, 1000);
 
-        function fixStyle(){
-            var str ='项目总额首付款金额保证金金额还款总额利息总额服务费收入咨询费收入残值收入保险收入'
+        function fixStyle() {
+            var str = '项目总额首付款金额保证金金额还款总额利息总额服务费收入咨询费收入残值收入保险收入'
             var tds = document.getElementsByTagName('td')
-            for(var i = 0 ; i<tds.length ;i++) {
+            for (var i = 0; i < tds.length; i++) {
                 var item = tds[i];
-                if(item.className == "moneyc c009" ||item.className == "tc" ||item.className == "tc " ||item.className == "tc moneyc c009"){
-                    if(str.indexOf(getPreviousElement(item).innerHTML) != -1) {
+                if (item.className == "moneyc c009" || item.className == "tc" || item.className == "tc " || item.className == "tc moneyc c009") {
+                    if (str.indexOf(getPreviousElement(item).innerHTML) != -1) {
                         item.style = 'text-align:right;color: #009AD0;'
-                        if(getPreviousElement(item).className='tc'){
+                        if (getPreviousElement(item).className = 'tc') {
                             item.style = 'text-align:right;color: #009AD0;padding-right: 15px'
                         }
-                    }else{
+                    } else {
                         item.style = 'text-align:center!important;color:#000;'
                     }
                 }
             }
         }
 
-        function toPDF(){
-                // top.layer.msg("功能开发中");
-                // return
-                var cntElem = document.getElementById('topBox');
+        function toPDF() {
+            // top.layer.msg("功能开发中");
+            // return
+            // $('#printWrapper').wordExport();
+            // return
+            var t1 = document.getElementById('box-title');
+            var t2 = document.getElementById('hideTitle');
+            t1.style.display = 'block';
+            t2.style.display = 'none';
+            var cntElem = document.getElementById('printWrapper');
 
-                var shareContent = cntElem;//需要截图的包裹的（原生的）DOM 对象
-                var width = shareContent.offsetWidth; //获取dom 宽度
-                var height = shareContent.offsetHeight; //获取dom 高度
-                var canvas = document.createElement("canvas"); //创建一个canvas节点
-                var scale = 2; //定义任意放大倍数 支持小数
-                canvas.width = width * scale; //定义canvas 宽度 * 缩放
-                canvas.height = height * scale; //定义canvas高度 *缩放
-                canvas.getContext("2d").scale(scale, scale); //获取context,设置scale 
-                var opts = {
-                    scale: scale, // 添加的scale 参数
-                    canvas: canvas, //自定义 canvas
-                    // logging: true, //日志开关，便于查看html2canvas的内部执行流程
-                    width: width, //dom 原始宽度
-                    height: height,
-                    useCORS: true // 【重要】开启跨域配置
-                };
-                console.log(height)
-          html2canvas(shareContent, opts).then(function(canvas) {
-                  
-                  //返回图片dataURL，参数：图片格式和清晰度(0-1)
-                  var pageData = canvas.toDataURL('image/jpeg', 1.0);
-                  //方向默认竖直，尺寸ponits，格式a4[595.28,841.89]
-                  var pdf = new jsPDF('', 'pt', 'a4');
+            var shareContent = cntElem;//需要截图的包裹的（原生的）DOM 对象
+            var width = shareContent.offsetWidth; //获取dom 宽度
+            var height = shareContent.offsetHeight; //获取dom 高度
+            var canvas = document.createElement("canvas"); //创建一个canvas节点
+            var scale = 2; //定义任意放大倍数 支持小数
+            canvas.width = width * scale; //定义canvas 宽度 * 缩放
+            canvas.height = height * scale; //定义canvas高度 *缩放
+            canvas.getContext("2d").scale(scale, scale); //获取context,设置scale 
+            var opts = {
+                scale: scale, // 添加的scale 参数
+                canvas: canvas, //自定义 canvas
+                // logging: true, //日志开关，便于查看html2canvas的内部执行流程
+                width: width, //dom 原始宽度
+                height: height,
+                useCORS: true, // 【重要】开启跨域配置
+                background: '#fff'
+            };
+            console.log(height)
+            html2canvas(shareContent, opts).then(function (canvas) {
 
-                  //addImage后两个参数控制添加图片的尺寸，此处将页面高度按照a4纸宽高比列进行压缩
-                  pdf.addImage(pageData, 'JPEG', 0, 0, 595.28, 592.28/canvas.width * canvas.height );
+                var pageData = canvas.toDataURL('image/jpeg', 1.0);
+                //注①
+                var pdf = new jsPDF('', 'pt', [canvas.width, canvas.height]);
+                //有两个高度需要区分，一个是html页面的实际高度，和生成pdf的页面高度(841.89)
+                //当内容未超过pdf一页显示的范围，无需分页
+                // if(leftHeight < pageHeight) {
+                pdf.addImage(pageData, 'JPEG', 20, 20, canvas.width, canvas.height);
+                // } else {
+                //     while(leftHeight > 0) {
+                //         //arg3-->距离左边距;arg4-->距离上边距;arg5-->宽度;arg6-->高度
+                //         pdf.addImage(pageData, 'JPEG', 0, position,imgWidth, imgHeight)
+                //         leftHeight -= pageHeight;
+                //         position -= 841.89;
+                //         //避免添加空白页
+                //         if(leftHeight > 0) {
+                //             //注②
+                //             pdf.addPage();
+                //         }
+                //     }
+                // }
+                pdf.save(caseName +'.pdf');
+                t2.style.display = 'block';
+                t1.style.display = 'none';
+                setTimeout(() => {
+                    top.location.reload()
+                }, 1000);
+            })
+        }
 
-                  pdf.save('stone.pdf');
-
-              })
-          }
-      
-        
+        setTimeout(() => {
+            if (level > 1 && hasST) {
+                tempSelect.value = -1
+                selectChange()
+            }
+        }, 17);
     </script>
 </body>
+
 </html>

@@ -42,6 +42,7 @@
                 <table class="base" id="tb" border="0" cellspacing="0">
                     <tr style="height: 32px; background-color: #FFEDE7">
                         <th>&nbsp;&nbsp;</th>
+                        <th>数据简称</th>
                         <th>项目总额</th>
                         <th>是否<br/>等期</th>
                         <th>是否<br/>等额</th>
@@ -102,8 +103,10 @@
                 var trs = [];
                 for(var i=0;i<r.list.length;i++) {
                     var d = r.list[i];
+                    var sjjc = d.calctitle || ''
                     var html = '<tr><td style="width:50px">\
                                     <span money="'+d.totalmoney+'" cid='+d.calcresultid+' class="checkbox radio"><img src="img/crno.png"></span>\
+                                    <td style="max-width:100px;overflow:hidden;">'+sjjc+'</td>\
                                     <td class="moneyc c009">'+toMoney(d.totalmoney)+'</td>\
                     <td>'+(d.equaldate?'是':'否')+'</td>\
                     <td>'+(d.equalmonth?'是':'否')+'</td>\

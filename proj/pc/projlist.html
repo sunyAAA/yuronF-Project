@@ -1,0 +1,280 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>语融服</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <style>
+        .tbox {border-top-left-radius: 8px; border-top-right-radius: 8px; margin-bottom: 17.5px; padding-top: 16px; padding-left: 3%; padding-right: 3%; overflow: hidden; padding-bottom: 16px}
+        .hsearch {height: 34px; width: 20%}
+        .hsearch .inpbox {width: 100%; height: 100%; border: 1px solid #D9D9D9}
+        .hsearch .inpbox .fright {width: 44px; height: 32px; display: inline-block; line-height: 32px; margin-top: 1px; margin-right: 1px; background-color: #D9D9D9}
+        .hsearch .inpbox .inp {margin-right: 46px; margin-left: 5px; padding-top: 10px}
+        .tbox select {height: 34px; line-height: 34px; margin-top: 1px; width: 8%; margin-left: 1.5%; border:1px solid #D9D9D9; background-color: white}
+        .tbox .date,.tbox .btn {height: 32px; line-height: 35px; width: 7.5%; border:1px solid #D9D9D9; border-radius: 5px; margin-top: 1px; position: relative; margin-left: 1.5%; float: left}
+        .tbox .btn {width: 80px; text-align: center; border:1px solid #009AD0; color: #009AD0; float: right; margin-left: 1%}
+        .tbox .btn:hover{cursor: pointer; background-color: #009AD0; color: white}
+        .tbox .date>input {display: block; width: 100%;  margin-top: 9px;}
+        .bbox {border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; padding: 25px 50px}
+        .btnrows {display: none}
+        .ignore {position: relative; padding: 11px 0px}
+        .ignoreText {  position: absolute;  background-color: white;  padding: 5px;  line-height: 1.2;  border-radius: 8px;  overflow: hidden;  border: 1px solid #d9d9d9;  top: 100%;  left: -120px; min-width: 200px;  z-index: 2;}
+    </style>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+</head>
+<body>
+    <div class="tbox bcw">
+        <div class="hsearch fleft">
+            <div class="inpbox fleft">
+                <span onclick="search(this)" class="fright tc fpx14 c73 poi">搜索</span>
+                <div class="inp">
+                    <input class="w100" type="text" placeholder="输入项目关键字"/>
+                </div>
+            </div>
+        </div>
+        <select class="fleft c73" title=""></select>
+        <select class="fleft c73" title=""></select>
+        <div class="date c73">
+            <input id="sdate" class="c73 tc" placeholder="开始日期" title="" type="text" onkeydown="return false"/>
+        </div>
+        <div class="date c73">
+            <input id="edate" class="c73 tc" title="" type="text" placeholder="截止日期" onkeydown="return false"/>
+        </div>
+        <span class="btnrows">
+            <div onclick="top.location.href='hidearea.html?idx=0'" class="btn">隐藏区</div>
+            <div onclick="hideData(1)" class="btn">隐藏</div>
+            <div onclick="delProj()" class="btn">删除</div>
+            <div onclick="sendProj()" class="btn">发送</div>
+            <div onclick="newProj()" class="btn">新建</div>
+        </span>
+        <span class="btnrows">
+            <div onclick="delProj()" style="width:9%" class="btn">删除</div>
+            <div onclick="hideData(0)" style="width:9%" class="btn">恢复</div>
+            <div onclick="pageback()" style="width:9%" class="btn">返回</div>
+        </span>
+    </div>
+    <div class="bbox bcw">
+        <table class="base" id="tb" border="0" cellspacing="0">
+            <tr style="height: 32px; background-color: #FFEDE7">
+                <th>
+                    <span class="checkbox"><img src="img/cno.png">全选</span>
+                </th>
+                <th>序号</th>
+                <th style="min-width: 160px">项目名称</th>
+                <th style="width: 10.5%">项目金额（万元）</th>
+                <th>项目地址</th>
+                <th>项目类型</th>
+                <th>项目阶段</th>
+                <th style="width: 100px">立项时间</th>
+                <th style="border-right: 0px">操作</th>
+            </tr>
+        </table>
+        <div class="pager"></div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript" src="inc/layer/laydate/laydate.js" charset="utf-8"></script>
+    <script type="text/javascript" src="inc/area.js"></script>
+    <script>
+
+        var hide = Unit.query("hide");
+        var btnrs = document.querySelectorAll(".btnrows");
+        if(hide) btnrs[1].style.display="block";
+        else btnrs[0].style.display="block";
+
+
+
+        var filterselect = document.querySelectorAll(".tbox select");
+
+
+        var op = document.createElement("OPTION");
+        filterselect[0].appendChild(op);
+        op.text = "全部阶段";
+        op.value = "";
+        for(var i=0;i<projstages.length;i++) {
+            var op = document.createElement("OPTION");
+            filterselect[0].appendChild(op);
+            op.text = projstages[i].t;
+            op.value = projstages[i].i;
+        }
+        filterselect[0].onchange = function() {searchObj.status = filterselect[0].value;p.change(1);};
+
+        var op = document.createElement("OPTION");
+        filterselect[1].appendChild(op);
+        op.text = "全部类型";
+        op.value = "";
+        for(var i=0;i<projtypes.length;i++) {
+            var op = document.createElement("OPTION");
+            filterselect[1].appendChild(op);
+            op.text = projtypes[i].t;
+            op.value = projtypes[i].i;
+        }
+        filterselect[1].onchange = function() {searchObj.type = filterselect[1].value;p.change(1);};
+
+
+        function search(e) {
+            var inp = getNextElement(e).querySelector("input");
+            searchObj.key = inp.value;
+            p.refresh();
+        }
+        var sdate = document.getElementById("sdate");
+        var edate = document.getElementById("edate");
+        var stempdate = null;
+        laydate.render({elem: '#sdate',done: function(a, date, endDate){
+            var btime = Date.parse(a.replace(/-/g,  "/"));
+            if(searchObj.etime && btime>=searchObj.etime) {
+                layer.msg("选择时间不能大于结束时间");
+                if(stempdate)sdate.value = stempdate;
+                else sdate.value = "";
+                return false;
+            }
+            stempdate = a;
+            searchObj.btime = btime;
+            p.refresh();
+        }});
+        var etempdate = null;
+        laydate.render({elem: '#edate',done: function(a, date, endDate){
+            var etime = Date.parse(a.replace(/-/g,  "/"))+24*3600000;
+            if(searchObj.btime && etime<=searchObj.btime) {
+                layer.msg("选择时间不能小于开始时间");
+                if(etempdate)edate.value = etempdate;
+                else edate.value = "";
+                return false;
+            }
+            etempdate = a;
+            searchObj.etime = etime;
+            p.refresh();
+        }});
+
+
+        var tb = document.getElementById("tb");
+        var tbd = tb.getElementsByTagName('tbody')[0];
+
+        var p = new Pager(document.querySelector(".pager"));
+        var searchObj = {key:'',type:'',status:'',btime:'',etime:'',hide:hide?1:0};
+        var dataDict = {};
+        p.change = function (pageno, cb) {
+            searchObj.pageno = pageno;
+            Http.get("api/project/list",searchObj, function(r) {
+                cb&&cb(pageno, r.pages);
+                var trs = [];
+                for(var i=0;i<r.list.length;i++) {
+                    var d = r.list[i];
+                    var t = projtypes[d.projecttype]?projtypes[d.projecttype].t:"未知";
+                    var s = projstages[d.projectstage]?projstages[d.projectstage].t:"未知";
+                    dataDict[d.projectid] = d;
+                    d.projectnameStr = d.projectname;
+                    var ignore = false;
+                    if(d.projectnameStr.toString().length>10) {
+                        d.projectnameStr = d.projectnameStr.slice(0,10)+"...";
+                        ignore = true;
+                    }
+                    trs.push('<tr><td>\
+                                    <span tid="'+d.projectid+'" class="checkbox"><img src="img/cno.png"></span>\
+                                </td>\
+                                <td>'+((p.cur-1)*10+i+1)+'</td>\
+                                <td class="poif7 '+(ignore?"ignore":"")+'" p="'+d.projectname+'" onclick="window.open(\'projdetail.html?pid='+d.projectid+'\')">'+d.projectnameStr+'</td>\
+                                <td class="moneyc c009">'+toMoney(d.projectmoney)+'</td>\
+                                <td>'+Area.getFullName(d.projectaddress)+'</td>\
+                                <td>'+t+'</td>\
+                                <td>'+s+'</td>\
+                                <td>'+Unit.time(d.subdate)+'</td>\
+                                <td><span onclick="window.open(\'projdetail.html?pid='+d.projectid+'\')" class="btn">查看详情</span></td></tr>');
+                }
+                tbd = setTBodyInnerHTML(tbd, trs.join(""));
+                Check.init();
+                showIgnore();
+            }, null, null, true)
+        };
+        Area.init(function(){
+            p.pageok();
+        });
+
+
+        
+        function newProj() {
+            Prompt.openIfr('newproj.html?reload=0', {w:540,h:415}, function(a) {
+                if(a) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                }
+            })
+        }
+
+        function showIgnore() {
+            var igs = tb.querySelectorAll(".ignore");
+            for(var i=0;i<igs.length;i++) {
+                igs[i].onmouseover = function () {
+                    if(!this.querySelector("DIV")) {
+                        var d = document.createElement("DIV");
+                        d.className = "ignoreText";
+                        var t = this.getAttribute("p");
+                        d.innerHTML = t;
+                        this.appendChild(d)
+                    }
+                };
+                igs[i].onmouseout = function () {
+                    var d = this.querySelector("DIV");
+                    if(d) this.removeChild(d);
+                }
+            }
+        }
+
+        function delProj() {
+            var ids = Check.getCheckIds();
+            if(ids.length>0) {
+                Prompt.confirm({text:"是否删除选中项目?"}, function (a) {
+                    if(parseInt(a)) {
+                        LoadingBox.show();
+                        Http.post("api/project/remove", {pids:ids.join(",")}, function () {
+                            LoadingBox.hide();
+                            location.reload();
+                        })
+                    }
+                });
+            } else top.layer.msg("请勾选项目");
+        }
+
+        function hideData(hide) {
+            var ids = Check.getCheckIds();
+            if(ids.length>0) {
+                LoadingBox.show();
+                Http.post('api/project/hide' , {hide:hide, pids:ids.join(",")}, function (a) {
+                    LoadingBox.hide();
+                    top.layer.msg("项目"+(hide?"隐藏":"恢复显示")+"成功");
+                    setTimeout(function () {
+                        if(hide) location.reload(); else pageback();
+                    }, 1000);
+
+                })
+            } else top.layer.msg("请勾选项目");
+        }
+
+
+        function sendProj() {
+            var ids = Check.getCheckIds();
+            if(ids.length>0) {
+                top.tempProjObj = {};
+                for(var i=0;i<ids.length;i++) {
+                    var o = dataDict[ids[i]];
+                    top.tempProjObj[o.projectid] = o;
+                }
+                Prompt.openIfr('sendbox.html?pids='+ids, {w:600,h:350}, function(a) {
+                    if(a && a.c===1) {
+                        top.layer.msg("发送项目成功");
+                    }
+                })
+            } else top.layer.msg("请勾选项目");
+        }
+
+        function pageback() {
+            top.location.href='xmgl.html';
+        }
+
+    </script>
+</body>
+</html>

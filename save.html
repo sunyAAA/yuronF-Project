@@ -89,7 +89,9 @@
                 top.layer.msg("请选择保存项目位置");
                 return;
             }
-            Prompt.closeIfr(parseInt(sok.getAttribute("data")));
+            var pid = sok.getAttribute("data")
+            Prompt.closeIfr(pid);
+
         }
 
         function newProj() {

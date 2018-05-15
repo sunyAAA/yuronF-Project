@@ -149,7 +149,7 @@
                 for(var i=0;i<r.list.length;i++) {
                     var d = r.list[i];
                     rdict[d.fileshareid] = d;
-                trs.push('<tr class="poi" onclick="window.open(\'casedetail.html?cid='+d.fileshareitemid+'&pid='+pid+'\')"><td>\
+                trs.push('<tr class="poi" onclick="window.open(\'casedetail.html?cid='+d.fileshareitemid+'&pid='+pid+'\')"><td onclick="stopmp(event)">\
                                     <span tid="'+d.fileshareid+'" class="checkbox"><img src="img/cno.png"></span>\
                                 </td>\
                                 <td>'+((p.cur-1)*10+i+1)+'</td>\
@@ -277,7 +277,9 @@
                     top.location.href=(pid==-1?'lswj.html':'projdetail.html?pid='+pid);
             }
         }
-
+        function stopmp(event){
+            event.stopPropagation()
+        }
 
     </script>
 </body>

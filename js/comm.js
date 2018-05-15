@@ -412,7 +412,8 @@ var Check = {
         } else
             Check.cs = cs;
         if(Check.tc) {
-            Check.tc.onclick = function () {
+            Check.tc.onclick = function (event) {
+                event.stopPropagation()
                 var cl = Check.ifCheckAll();
                 Check.tc.className = cl ? "checkbox" : "checkbox ok";
                 Check.setImg(Check.tc);
@@ -420,7 +421,8 @@ var Check = {
             };
         }
         for(var i=0;i<Check.cs.length;i++)
-            Check.cs[i].onclick = function () {
+            Check.cs[i].onclick = function (event) {
+                event.stopPropagation()
                 if(!Check.tc) {
                     var cok = document.querySelector("table .checkbox.ok");
                     if(cok) {

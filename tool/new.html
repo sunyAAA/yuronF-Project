@@ -2,226 +2,34 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<title>测算表</title>
-		<link rel="stylesheet" type="text/css" href="css/css.css"/>
+		<script>
+			(function(){
+				var ver=121,jst='scr'+'ipt';
+				document.write('<link rel="stylesheet" type="text/css" href="css/table.css?v'+ver+'"/>');
+				var jss=['tool','ifr','change','changeEvent','dosolve','table','new'];
+				for(var i=0;i<jss.length;i++)
+					document.write('<'+jst+' src="js/'+jss[i]+'.js?v'+ver+'" type="text/javascript"></'+jst+'>');
+			})();
+		</script>
 		<script src="js/jq.js" type="text/javascript"></script>
-		<script src="js/tool.js" type="text/javascript"></script>
-		<script src="js/ifr.js" type="text/javascript"></script>
-		<script src="js/new.js" type="text/javascript"></script>
-		<script src="js/change.js" type="text/javascript"></script>
-		<script src="js/changeEvent.js" type="text/javascript"></script>
-		<script src="js/dosolve.js" type="text/javascript"></script>
+		<title>测算表</title>
 	</head>
 	<body>
-		<div id="main">
 		<div id="header">
-			<input type="button" id="impbutton" value="导入" class="left" />
+			<input type="button" id="impbutton" onclick="event_import()" value="导入" class="left" />
 			<input type="button" onclick="clsInp(true);" class="left" value="清空" />
 			<input type="button" id="calcButton" class="left" onclick="calc()" value="计算" />	
 			<input type="button" id="restoreButton" class="hide" onclick="HistoryOp.restore()" value="恢复" />	
 			<input type="button" id="solveResult" class="hide" onclick="dosolveResult()" value="单变量求解" />	
 			<input type="button" id="cancelButton" class="hide" onclick="chnage_cancel()" value="取消" />			
-			<input type="button" id="tozero" class="hide" onclick="resetLastG()" value="本金平衡微调" />	
-			<input type="button" class="right" value="制作方案" />
-			<input type="button" class="right" value="保存" />
+			<input type="button" id="tozero" class="hide" onclick="resetLastG()" value="本金微调" />	
+			<input type="button" id="rbutton1" class="right" value="制作方案" />
+			<input type="button" id="rbutton2" class="right" value="保存" />
 		</div>
-		<div id="editer">
-			<table border="1">
-			<tbody>
-				<tr>
-					<td id="A1" class="titlebg">项目总额<b>*</b></td>
-					<td id="B1" hd="1" type="float" contenteditable="true"></td>
-					<td id="C1" class="titlebg">首付款金额</td>
-					<td id="D1" type="float" contenteditable="true"></td>
-					<td id="E1" class="center" type="per" contenteditable="true"></td>
-					<td id="F1" class="titlebg">等额本息</td>
-					<td id="G1" type="float" class="readonly"></td>
-					<td id="H1" class="titlebg">未回收成本末期余额</td>
-					<td id="I1"  type="float" contenteditable="true">0</td>
-				</tr>
-				<tr>
-					<td id="A2" class="titlebg">年利率<b>*</b></td>
-					<td class="relative" style="padding: 0; overflow: auto;">
-						<table style="width: 100%; height: 100%;" border="0">
-							<tr>
-								<td id="B2" hd="1" type="per" class="center" contenteditable="true"></td>
-							</tr>
-						</table>
-						
-						<div id="op_B2" onclick="showlong('B2')" class="icon rightico"></div>
-					</td>
-					<td id="C2" class="titlebg">保证金额</td>
-					<td id="D2" type="float" contenteditable="true"></td>
-					<td id="E2" class="center" type="per" contenteditable="true"></td>
-					<td id="F2" class="titlebg">还款总额</td>
-					<td id="G2" type="float" class="readonly"></td>
-					<td id="H2" class="titlebg">现金流税收调整</td>
-					<td id="I2" class="center">
-						<select id="taxswitch">
-							<option value="1">税前</option>
-							<option value="2">税后</option>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td id="A3" class="titlebg">期限（年）<b>*</b></td>
-					<td id="B3" hd="1" class="center" contenteditable="true"></td>
-					<td id="C3" class="titlebg">服务费收入</td>
-					<td id="D3" type="float" contenteditable="true"></td>
-					<td id="E3" class="center" type="per" contenteditable="true"></td>
-					<td id="F3" class="titlebg">总收益额</td>
-					<td id="G3" type="float" class="readonly"></td>
-					<td id="H3" class="titlebg">税率调整</td>
-					<td id="I3" class="center">
-						<select id="taxType" disabled="disabled"></select>
-					</td>
-				</tr>
-				<tr>
-					<td id="A4" class="titlebg">年还款次数<b>*</b></td>
-					<td id="B4" hd="1" class="center" contenteditable="true"></td>
-					<td id="C4" class="titlebg">咨询费收入</td>
-					<td id="D4" type="float" contenteditable="true"></td>
-					<td id="E4" class="center" type="per" contenteditable="true"></td>
-					<td id="F4" class="titlebg">当年总收益额</td>
-					<td id="G4" type="float" class="readonly"></td>
-					<td id="H4" class="titlebg">调整现金流</td>
-					<td id="I4" class="noinput center">无</td>
-				</tr>
-				<tr>
-					<td id="A5" class="titlebg">总还款次数</td>
-					<td id="B5" hd="1" class="readonly center"></td>
-					<td id="C5" class="titlebg">保险收入</td>
-					<td id="D5" type="float" contenteditable="true"></td>
-					<td id="E5" class="center" type="per" contenteditable="true"></td>
-					<td id="F5" class="titlebg">总负担率（年）</td>
-					<td id="G5" type="float" class="readonly center"></td>
-					<td id="H5" class="titlebg">存续XIRR</td>
-					<td id="I5" class="noinput center">暂未开放</td>
-				</tr>
-				<tr>
-					<td id="A6" class="titlebg">期限（月）</td>
-					<td id="B6" hd="1" class="readonly center"></td>
-					<td id="C6" class="titlebg">其它收入</td>
-					<td id="D6" type="float" contenteditable="true"></td>
-					<td id="E6" class="center" type="per" contenteditable="true"></td>
-					<td id="F6" class="titlebg">平面利率（年）</td>
-					<td id="G6" type="float" class="readonly center"></td>
-					<td id="H6" class="titlebg">IRR（逐月贴现）</td>
-					<td id="I61" class="center relative">
-						<span id="I6" type="per">-</span>
-						<div id="I6_s" v="6" class="icon calc"></div>
-					</td>
-				</tr>
-				<tr>
-					<td id="A7" class="titlebg">资产余值</td>
-					<td id="B7" type="float" contenteditable="true"></td>
-					<td id="C7" class="titlebg">其它支出</td>
-					<td id="D7" type="float" contenteditable="true"></td>
-					<td id="E7" class="center" type="per" contenteditable="true"></td>
-					<td id="F7" class="titlebg">资金占用（月）</td>
-					<td id="G7" type="int" class="readonly center"></td>
-					<td id="H7" class="titlebg">IRR（最大公约月）</td>
-					<td id="I71" class="center relative">
-						<span id="I7" type="per">-</span>
-						<div id="I7_s" v="7" class="icon calc"></div>
-					</td>
-				</tr>
-				<tr>
-					<td id="A8" class="titlebg">残值收入</td>
-					<td id="B8" type="float" contenteditable="true"></td>
-					<td id="C8" class="titlebg">非利息收入合计</td>
-					<td id="D8" type="float" class="readonly"></td>
-					<td id="E8" type="per" class="readonly center"></td>
-					<td id="F8" class="titlebg">IRR</td>
-					<td class="noinput center relative">
-						<span id="G8" type="readonly center"></span>
-						<div id="op_G8" onclick="showlong('G8')" class="icon rightico"></div>
-					</td>
-					<td id="H8" class="titlebg">IRR（实际间隔月）</td>
-					<td id="I81" class="center relative">
-						<span id="I8" type="per">-</span>
-						<div id="I8_s" v="8" class="icon calc"></div>
-					</td>
-				</tr>
-				<tr>
-					<td id="A9" class="titlebg">起租日<b>*</b></td>
-					<td id="B9" class="center" contenteditable="true"></td>
-					<td id="C9" class="titlebg">利息总额</td>
-					<td id="D9" type="float" class="readonly"></td>
-					<td id="E9" type="per" class="readonly center"></td>
-					<td id="F9" class="titlebg">XIRR</td>
-					<td class="noinput center relative">
-						<span id="G9" type="float" class="readonly center"></span>
-						<div id="op_G9" onclick="showlong('G9')" class="icon rightico"></div>
-					</td>
-					<td id="H9" class="titlebg">IRR（实际间隔天）</td>
-					<td id="I91" class="center relative">
-						<span id="I9" type="per">-</span>
-						<div id="I9_s" v="9" class="icon calc"></div>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-			<div id="canteditface"></div>
+		<div id="main">
+			<div id="box">初始化，请稍候...</div>
 		</div>
-		<div id="sheet">
-			<table border="1" style="margin-top: 10px;">
-			<tbody id="workspace">
-				<tr class="titlebar">
-					<td>期次A</td>
-					<td>还款日B</td>
-					<td>还款收入C</td>
-					<td>还款间隔D</td>
-					<td>利息收入E</td>
-					<td>回收成本F</td>
-					<td>未回收成本G</td>
-					<td>现金流量H</td>
-					<td>现金流调整I</td>
-				</tr>
-				<tr>
-					<td class="text">0</td>
-					<td class="readonly center" id="B_0"></td>
-					<td class="center" id="td2.1">
-						<select id="changeTypeButton" cb="change_event(2.1)">
-							<option value="-1"></option>
-							<option value="0">自动调整</option>
-							<option value="1">手动调整</option>
-							<option value="2">等额调整</option>
-							<option value="3">等差调整</option>
-							<option value="4">等比调整</option>
-							<option value="5">纺&nbsp;锤&nbsp;形</option>
-							<option value="6">齿&nbsp;轮&nbsp;形</option>
-						</select>
-					</td>
-					<td class="center">
-						<select id="IntervalUnit">
-							<option value="1">月</option>
-							<option value="2">日</option>
-						</select>
-					</td>
-					<td class="center">
-						<select id="IntervalUnitDs" disabled="disabled">
-							<option value="1">按月</option>
-							<option value="2">按日</option>
-						</select>
-					</td>
-					<td class="center" id="td2.2">
-						<select id="changeCostButton" cb="change_event(2.2)">
-							<option value="-1"></option>
-							<option value="0">自动调整</option>
-							<option value="1">手工调整</option>
-							<option value="100">等额本金</option>
-							<option value="3">等差调整</option>
-							<option value="4">等比调整</option>
-						</select>
-					</td>
-					<td class="readonly" type="float" id="G_0"></td>
-					<td class="readonly" type="float" id="H_0"></td>
-					<td id="I_0" class="readonly" type="float"></td>
-				</tr>
-			</tbody>
-		</table>
-		</div>
+		<!--mbg-->
 		<div id="mbg" class="hide">
 			<input type="text" id="inp_start" class="hide" maxlength="15" value="" onchange="change_inpchange(this)" />
 			<input type="text" id="inp_step" class="hide" maxlength="10" value="" onchange="change_inpchange(this)" />
@@ -239,8 +47,9 @@
 				正在计算，请稍候...
 			</div>
 		</div>
-		<div id="msg" class="hide">
-			<img src="img/close.png" onclick="dosolveResult_close()" id="dosolveResult_close">
+		<!--msg-->
+        <div id="msg" class="hide">
+			<img src="img/close.png" onclick="dosolveResult_close()" id="dosolveResult_close_button">
 			<h3 class="center" id="sovtitle">单变量求解</h3>
 			<ul class="inp">
 				<li>
@@ -260,10 +69,10 @@
 				</li>
 			</ul>
 		</div>
-		<div id="showresult" class="hide">
+		<!--showresult-->
+        <div id="showresult" class="hide">
 			<div id="showresult_close" onselectstart="return false;" onclick="showresultmovevalue(null)"></div>
 			<div id="showresult_out"></div>
-		</div>
 		</div>
 	</body>
 </html>

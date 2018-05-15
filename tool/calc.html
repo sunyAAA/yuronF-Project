@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" type="text/css" href="css/table.css"/>
+		<script type="text/javascript" src="js/table.js" ></script>
+		<script src="js/jq.js" type="text/javascript"></script>
+		<script src="js/tool.js" type="text/javascript"></script>
+		<script src="js/ifr.js" type="text/javascript"></script>
+		<script src="js/new.js" type="text/javascript"></script>
+		<script src="js/change.js" type="text/javascript"></script>
+		<script src="js/changeEvent.js" type="text/javascript"></script>
+		<script src="js/dosolve.js" type="text/javascript"></script>
+		<title>测算表</title>
+	</head>
+	<body>
+		<div id="header">
+			<input type="button" id="impbutton" onclick="event_import()" value="导入" class="left" />
+			<input type="button" onclick="clsInp(true);" class="left" value="清空" />
+			<input type="button" id="calcButton" class="left" onclick="calc()" value="计算" />	
+			<input type="button" id="restoreButton" class="hide" onclick="HistoryOp.restore()" value="恢复" />	
+			<input type="button" id="solveResult" class="hide" onclick="dosolveResult()" value="单变量求解" />	
+			<input type="button" id="cancelButton" class="hide" onclick="chnage_cancel()" value="取消" />			
+			<input type="button" id="tozero" class="hide" onclick="resetLastG()" value="本金微调" />	
+			<input type="button" id="rbutton1" class="right" value="制作方案" />
+			<input type="button" id="rbutton2" class="right" value="保存" />
+		</div>
+		<div id="main">
+			<div id="box">初始化，请稍候...</div>
+		</div>
+		<!--mbg-->
+		<div id="mbg" class="hide">
+			<input type="text" id="inp_start" class="hide" maxlength="15" value="" onchange="change_inpchange(this)" />
+			<input type="text" id="inp_step" class="hide" maxlength="10" value="" onchange="change_inpchange(this)" />
+			<div id="impbox" class="hide">
+				<p class="center"><b>请直接将excel中【还款收入】、【还款间隔.月】粘贴到输入框中</b></p>
+				<div>
+					<textarea id="impinp"></textarea>
+				</div>
+				<p class="center">
+					<input type="button" class="button" onclick="importFromExcelSub()" value="确定" />
+					<input type="button" class="button" onclick="closewindow()" value="取消" />
+				</p>
+			</div>
+			<div id="waiting" class="hide">
+				正在计算，请稍候...
+			</div>
+		</div>
+		<!--msg-->
+        <div id="msg" class="hide">
+			<img src="img/close.png" onclick="dosolveResult_close()" id="dosolveResult_close_button">
+			<h3 class="center" id="sovtitle">单变量求解</h3>
+			<ul class="inp">
+				<li>
+					<span>目标单元格</span>
+					<input id="sov_2" type="text" tag="" placeholder="点击选择列" onclick="dosolveResult_1(1)" readonly="readonly" class="inpitem hand" />
+				</li>
+				<li>
+					<span>设置目标值</span>
+					<input id="sov_value" onchange="dosolveResult_change(this)" val="" type="text" onchange="" placeholder="点击输入" maxlength="8" value="" class="inpitem" />
+				</li>
+				<li>
+					<span>可变单元格</span>
+					<input id="sov_3" type="text" tag="" placeholder="点击选择列" onclick="dosolveResult_1(2)" readonly="readonly" value="" class="inpitem hand" />
+				</li>
+				<li class="center">
+					<input type="button" class="button" onclick="dosolveResult_sub()" value="确定" />
+				</li>
+			</ul>
+		</div>
+		<!--showresult-->
+        <div id="showresult" class="hide">
+			<div id="showresult_close" onselectstart="return false;" onclick="showresultmovevalue(null)"></div>
+			<div id="showresult_out"></div>
+		</div>
+	</body>
+</html>

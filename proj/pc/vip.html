@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>会员中心</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+
+        .box {height: 100%; border-radius: 8px; overflow: hidden}
+        .box .item {overflow: hidden; padding-left: 11px}
+        .box .item>img {width: 24px; height: 24px; margin: 16px}
+        .box .item>span {line-height: 56px}
+
+        .rbox {border-radius: 8px; padding: 62px 25px; position: relative}
+        .rbox .facebox {width: 100px}
+        .rbox .facebox .btn {line-height: 32px; color: #6286FF; background-color: #F3F3F3}
+        .rbox .ct {margin-left: 130px; margin-top: -5px}
+        .rbox .icon {width: 20px ; height: 16px; vertical-align: -10%; display: inline-block}
+
+        .rbbox {border-radius: 8px; padding: 12.5px; margin-top: 12px}
+        .rbbox .icon {width: 16.5px; height: 16.5px; display: inline-block; vertical-align: -16%}
+
+        .plist {height: 225px}
+        .plist .imgbox {width: 115px; height: 65px; margin: 18px 0px}
+        .plist .bct {margin-left: 127px}
+
+        .buyitem {width: 88px; height: 95px; margin-right: 24px; box-sizing: border-box; border: 1px solid #D9D9D9; padding-top: 10px; position: relative}
+        .buyitem .buybtn {position: absolute; bottom: 0px; height: 25px; line-height: 25px; width: 100%; background-color: #D9D9D9}
+        .buyitem:hover {cursor: pointer; border-color: #F7775F}
+        .buyitem:hover .money {color: #F7775F}
+        .buyitem:hover .money>span {color: #F7775F}
+        .buyitem:hover .c73 {color: #F7775F}
+        .buyitem:hover .buybtn {color: white; background-color: #F7775F}
+    </style>
+</head>
+<body>
+<div class="rbox bcw oh">
+    <div class="facebox fleft">
+        <div style="height: 100px">
+            <img id="headImg" src="img/error.png" alt=""/>
+        </div>
+    </div>
+    <div class="buy fright" style="margin-top: -35px">
+        <span class="fpx16">专业会员套餐</span>
+        <div id="buylist" style="margin-top: 17.5px"></div>
+    </div>
+    <div style="margin-right: 300px" class="ct">
+        <div style="margin-bottom: 23px">
+            <span class="fpx16 uname">&nbsp;</span>
+            <span class="icon"><img id="card" src="img/gcard.png" alt=""/></span>
+            <span style="height: 20px;vertical-align: -20%;" class="icon"><img id="vip" src="img/gv.png" alt=""/></span>
+        </div>
+        <div class="viptext">
+            <div style="margin-bottom: 23px">您正享用<span class="cf7">专业会员</span>特权</div>
+            <div class="fpx13"><span class="endtime"></span>到期</div>
+        </div>
+    </div>
+</div>
+<div class="rbbox bcw">
+    <div style="padding-bottom: 15px" class="bline">
+                        <span class="icon">
+                            <img src="img/hyqy.png" alt=""/>
+                        </span>
+        <span class="fpx15" style="font-weight: 500">会员权益</span>
+    </div>
+    <div class="plist" id="viplist"></div>
+</div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript">
+
+        var u = Local.user();
+        document.querySelector(".uname").innerHTML = u.realname;
+        var viptext = document.querySelector(".viptext");
+        var buylist = document.getElementById("buylist");
+
+        var card = document.getElementById("card");
+        var vip = document.getElementById("vip");
+
+        if(u.level===2 && u.vipterm) {
+            if(u.vipterm>new Date().getTime()) {
+                viptext.querySelector(".endtime").innerHTML = Unit.time(u.vipterm, 'yyyy-MM-dd');
+                vip.src = "img/v.png";
+            } else {
+                viptext.innerHTML = "<div class='fpx14 c73'>当前会员已过期，请及时缴费</div>";
+            }
+        } else if (u.level==1) {
+            viptext.innerHTML = "<div class='fpx14'>您已获得专业会员资格<br/>购买套餐即可成为专业会员</div>";
+        } else if(u.level == 0)
+            viptext.innerHTML = "<div class='fpx14 c73'>非常抱歉，您还未取得专业会员资格！</div><br/>获取专业资格方式<br/>1、上传名片可能获得专业资格。<br/>2、获取专业会员推荐或者推荐朋友注册系统并成为专业会员，累计达10个，可获得专业资格。";
+
+        
+        if(u.nickname == u.realname)
+            card.src = "img/ucard.png";
+        if(u.level==0) {
+            vip.parentNode.style.display="none";
+            document.querySelector(".buy").style.display="none";
+        }
+
+        var headImg = document.getElementById("headImg");
+        headImg.src = Unit.getImgUrl(u.head);
+
+
+
+        var viplist = document.getElementById("viplist");
+        Http.get("api/article/list", {articletype:397, pageno:1, pagesize:999999}, function (r) {
+            var as = [];
+            if(r) {
+                r=r.reverse();
+                for(var i=0;i<r.length;i++) {
+                    as.push('<div class="oh '+(i!=r.length-1?'bline':'')+'">\
+                    <div class="imgbox fleft">\
+                    <img onerror="this.src=\'img/error.png\';this.onerror=null"  src="'+Unit.getImgUrl(decodeURIComponent(r[i].face))+'" alt=""/>\
+                    </div>\
+                    <div class="bct" style="padding-top: 15px">\
+                    <span onclick="top.Prompt.openIfr(\'article.html?aid='+r[i].articleid+'\',{w:500,h:600,sc:true})" style="font-weight: 600" class="fpx16 poif7">'+r[i].articlename+'</span><br/>\
+                    <div style="line-height: 30px">'+r[i].summary+'</div>\
+                </div>\
+                </div>')
+                }
+            }
+            viplist.innerHTML = as.join("");
+        });
+
+
+
+        Http.get("api/package/list", {}, function (r) {
+            var es = [];
+            for(var i=0;i<r.length;i++) {
+                es.push('<div onclick="buyVip('+r[i].packageid+',\''+r[i].name+'\','+r[i].viptime+','+r[i].money+')" class="fleft buyitem tc">\
+                    <span class="money"><span class="fpx18">'+r[i].name+'<br/></span>\
+                    <span class="c73">¥'+toMoney(r[i].money)+'</span>\
+                <div class="buybtn c73">立即购买</div>\
+                    </div>');
+            }
+            buylist.innerHTML = es.join("");
+        });
+
+
+        function buyVip(pid, name, time, money) {
+            var u = Local.user();
+            // if(u.level==2 && u.vipterm && u.vipterm - new Date().getTime() > 3600*24*1000*7) {
+            //     top.layer.msg("会员到期7天前不能购买");
+            // } else
+                top.location.href = 'pay.html?pid='+pid+'&name='+name+'&day='+time+'&money='+money;
+        }
+    </script>
+</body>
+</html>

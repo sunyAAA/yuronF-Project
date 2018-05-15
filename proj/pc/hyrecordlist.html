@@ -1,0 +1,277 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>关于语融服</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .leftbox {  width: 220px; padding: 19px 14px; border-radius: 8px}
+        .leftbox .item {padding: 15.5px 0px; border-bottom: 1px solid #D9D9D9}
+        .leftbox .item .icon {width: 18px; height: 18px; display: inline-block; vertical-align: -20%}
+        .flist {height: 315px; overflow-x: hidden; overflow-y: scroll; padding-bottom: 20px}
+        .fitem {margin-top: 13px; overflow: hidden}
+        .fitem>img {width: 38px; height: 38px}
+        .fitem .info {margin-left: 40px; margin-top: 3px}
+        .fitem .info>span {color: #FA6841}
+
+        
+        .topbox {padding: 15.6px 25px; border-radius: 8px}
+        .hsearch {height: 34px; width: 30%}
+        .hsearch .inpbox {width: 100%; height: 100%; border: 1px solid #D9D9D9}
+        .hsearch .inpbox .fright {width: 44px; height: 32px; display: inline-block; line-height: 32px; margin-top: 1px; margin-right: 1px; background-color: #D9D9D9}
+        .hsearch .inpbox .inp {margin-right: 46px; margin-left: 5px; padding-top: 10px}
+        .topbox select {height: 34px; line-height: 34px; margin-top: 1px; width: 12%; margin-left: 20px; border:1px solid #D9D9D9; background-color: white}
+        .topbox .btn {height: 32px; line-height: 35px; width: 10%; border:1px solid #009AD0; border-radius: 5px; margin-top: 1px; position: relative; margin-left: 20px; text-align: center;  color: #009AD0}
+        .topbox .btn:hover{cursor: pointer; background-color: #009AD0; color: white}
+
+        .btmbox {margin-top: 12px; padding: 15.6px 25px; border-radius: 8px; min-height: 243px}
+        .leftbox .icon>img {height: auto}
+
+        .popbox {width: 255px; padding: 32px 62px; margin: auto; min-height: 120px}
+        .popbox .face {width: 63px; height: 63px; border-radius: 31.5px; overflow: hidden}
+        .popbox .ct {margin-left: 70px}
+        .pop2 .inp {border: 1px solid #D9D9D9; height: 23px; padding: 9px 10px 0px 10px}
+        .pop2 .inp>input {width: 100%}
+        .btns>span {width: 91px; height: 29px; line-height: 29px; display: inline-block; border-radius: 5px; margin-top: 10px}
+        .btns>span.gray {box-sizing: border-box; border:1px solid #999999}
+
+    </style>
+</head>
+<body>
+    <div class="topbox bcw oh">
+        <div class="hsearch fleft">
+            <div class="inpbox fleft">
+                <span onclick="searchList()" class="fright tc fpx14 c73 poi">搜索</span>
+                <div class="inp">
+                    <input class="w100" type="text" placeholder="输入文件名称"/>
+                </div>
+            </div>
+        </div>
+        <select onchange="changeSelect(this)" class="fleft c73" title="">
+            <option value="1,2">全部分类</option>
+            <option value="1">发送</option>
+            <option value="2">接收</option>
+        </select>
+        <div onclick="deleteRecord()"  class="btn fright">删除</div>
+        <!--<div onclick="mutiSave()" class="btn fright">保存</div>-->
+    </div>
+    <div class="btmbox bcw">
+        <table class="base" id="tb" border="0" cellspacing="0">
+            <tr style="height: 32px; background-color: #FFEDE7">
+                <th>
+                    <span class="checkbox"><img src="img/cno.png">全选</span>
+                </th>
+                <th>序号</th>
+                <th>文件名称</th>
+                <th>来源分类</th>
+                <th>类型</th>
+                <th>时间</th>
+                <th>接收人</th>
+                <th>发送人</th>
+                <th style="border-right: 0px">操作</th>
+            </tr>
+        </table>
+        <div class="pager"></div>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript">
+
+        var tb = document.getElementById("tb");
+        var tbd = tb.getElementsByTagName('tbody')[0];
+
+        var fcid = Unit.query("fcid");
+        var bbox = document.querySelector(".btmbox");
+        if(fcid) {
+            var tbox = document.querySelector(".topbox");
+            tbox.style.borderBottomLeftRadius='0px';
+            tbox.style.borderBottomRightRadius='0px';
+            bbox.style.borderTopLeftRadius='0px';
+            bbox.style.borderTopRightRadius='0px';
+        } else {
+            bbox.style.minHeight = "423px";
+        }
+        var searchObj = {filesharetarget:'1,2'};
+        var u = Local.user();
+        var p = new Pager(document.querySelector(".pager"));
+        var listDict = {};
+        p.change = function (pageno, cb) {
+            listDict = {};
+            rdict = {};
+            if(fcid) searchObj.friendid = fcid;
+            Http.get("api/case/record/pro", {pageno:pageno, json:JSON.stringify(searchObj)}, function(r) {
+                var trs = [];
+                for(var i=0;i<r.list.length;i++) {
+                    var d = r.list[i];
+                    listDict[d.fileshareid] = d;
+                    var send = d.filesharetarget == 1;
+                    rdict[d.fileshareid] = d;
+                    trs.push('<tr><td>\
+                                    <span tid="'+d.fileshareid+'" class="checkbox"><img src="img/cno.png"></span>\
+                                </td>\
+                                <td>'+(i+1)+'</td>\
+                                <td>'+(d.filesharename?d.filesharename:'')+'</td>\
+                                <td>'+(send?'发送':'接收')+'</td>\
+                                <td>'+(d.filesharetype==1?"方案":"项目")+'</td>\
+                                <td>'+Unit.time(d.subdate)+'</td>\
+                                <td '+(send?'nid='+d.filesharetargetid:'')+'>'+(!send?u.realname:'')+'</td>\
+                                <td '+(!send?'nid='+d.filesharetargetid:'')+'>'+(send?u.realname:'')+'</td>\
+                                <td>'+((!send&&d.filesharetype==2)?'':'<span style="margin-right:5px" onclick="goDetail('+d.fileshareitemid+','+d.filesharetype+','+d.fileshareid+')" class="btn bcf7">查看详情</span>')+(send?'':'<span onclick="saveInfo('+d.fileshareitemid+','+d.filesharetype+','+d.fileshareid+')" class="btn">保存</span></td>') + '</tr>');
+                }
+                tbd = setTBodyInnerHTML(tbd, trs.join(""));
+                configTarget();
+                Check.init();
+                cb&&cb(pageno, r.pages);
+
+                parent.mframe&&parent.setIframeHeight(parent.mframe);
+                top.mframe&&top.setIframeHeight(top.mframe);
+            },null,null,true);
+        };
+        p.pageok();
+
+
+
+        function changeSelect(e) {
+            searchObj.filesharetarget = e.value;
+            p.refresh();
+        }
+        var inp = document.querySelector(".inp .w100");
+        function searchList() {
+            searchObj.key = inp.value;
+            p.refresh();
+        }
+
+
+        function deleteRecord() {
+            var ids = Check.getCheckIds();
+            if(ids.length>0) {
+                LoadingBox.show();
+                Http.post('api/case/record/remove' , {fsids:ids.join(",")}, function (a) {
+                    LoadingBox.hide();
+                    top.layer.msg("记录删除成功");
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+
+                })
+            } else top.layer.msg("请勾选记录");
+        }
+
+        function goDetail(cid, stype) {
+            if(stype==2) {
+                top.location.href = "projdetail.html?pid="+cid;
+            } else {
+                top.location.href = "casedetail.html?cid="+cid+"&friend=1";
+            }
+        }
+
+
+
+        function configTarget() {
+            var ns = document.querySelectorAll("[nid]");
+            var nids = [];
+            for(var i=0;i<ns.length;i++) {
+                nids.push(ns[i].getAttribute("nid"));
+            }
+            if(nids.length>0) {
+                Http.get("api/customer/selectCustomerList", {ids:nids.join(",")}, function (r) {
+                    var udict = {};
+                    for(var i=0;i<r.length;i++) {
+                        udict[r[i].customerid] = r[i];
+                    }
+                    for(var i=0;i<ns.length;i++) {
+                        var nid = ns[i].getAttribute("nid");
+                        var u = udict[nid];
+                        if(u) {
+                            ns[i].innerHTML = u.realname;
+                        }
+                    }
+                })
+            }
+        }
+
+
+        function saveInfo(sid, type) {
+            var u = Local.user();
+            if(type==2) {
+                LoadingBox.show();
+                Http.get("api/project/show", {gid:sid}, function (r1) {
+                    Http.get("api/project/exist", {pname:r1.projectname}, function (aaa) {
+                        if(aaa) {
+                            LoadingBox.hide();
+                            Prompt.openIfr('popinput.html?title=提示&placeholder=请输入项目名称&value='+(r1.pcasename?r1.pcasename:''), {w:350,h:250}, function(name) {
+                                if(!(name===undefined || name===null)) {
+                                    r1.pcasename = name;
+                                    okSaveProj(r1, sid, name);
+                                }
+                            });
+                            top.layer.msg("当前项目名称已存在，请重新命名");
+                        } else
+                            okSaveProj(r1, sid);
+
+                    })
+                })
+            } else if (type==1) {
+                LoadingBox.show();
+                Http.get("api/case/show", {cid:sid}, function (res) {
+                    Http.get("api/calc/show", {crid:res.clacresultid}, function (res1) {
+                        Http.get("api/customer/selectCustomerList", {ids:res.customerid}, function (res2) {
+                            res2 = res2[0];
+                            LoadingBox.hide();
+                            if(res2) {
+                                Prompt.openIfr('save.html', {w:380,h:370}, function(a) {
+                                    if(parseInt(a)) {
+                                        LoadingBox.show();
+                                        Http.get("api/case/exist", {cname:res.pcasename, pid:a}, function (aaa) {
+                                            if(aaa) {
+                                                LoadingBox.hide();
+                                                Prompt.openIfr('popinput.html?title=提示&placeholder=请输入方案名称&value='+(res.pcasename?res.pcasename:''), {w:350,h:250}, function(name) {
+                                                    if(!(name===undefined || name===null)) {
+                                                        res.pcasename = name;
+                                                        oksaveCase(res, res1, res2, sid, a, name);
+                                                    }
+                                                });
+                                                top.layer.msg("当前方案名称已存在，请重新命名");
+                                            } else
+                                                oksaveCase(res, res1, res2, sid, a);
+                                        });
+                                    }
+                                })
+                            }
+                        })
+                    })
+                });
+            }
+        }
+
+
+        function oksaveCase(res, res1, res2, sid, a, name) {
+            Http.post("api/case/saveas", (name?{caseid:sid,projectid:a,name:name}:{caseid:sid,projectid:a}), function (r) {
+                Http.post("api/case/sendn", {json:JSON.stringify([{filesharetarget:4, filesharetargetid:a, customerid:u.customerid, fileshareitemid:r, filesharetype:1, templateid:-1, filesharename:res.pcasename, unitname:(res2.companyname?res2.companyname:''), personname:(res2.realname?res2.realname:''),projectmoney:res1.totalmoney}])}, function (r1) {
+                    LoadingBox.hide();
+                    top.layer.msg("方案保存成功");
+                });
+            })
+        }
+
+
+        function okSaveProj(r1, sid, name) {
+            Http.get("api/customer/selectCustomerList", {ids:r1.customerid}, function (res2) {
+                Http.post("api/project/saveas", (name?{projectId:sid,name:name}:{projectId:sid}), function (a) {
+                    res2 = res2[0];
+                    Http.post("api/case/sendn", {json:JSON.stringify([{filesharetarget:4, filesharetargetid:a, customerid:u.customerid, fileshareitemid:sid, filesharetype:2, filesharename:r1.projectname, unitname:(res2.companyname?res2.companyname:''), personname:(res2.realname?res2.realname:''),projectmoney:r1.projectmoney}])}, function () {
+                        LoadingBox.hide();
+                        top.layer.msg("项目保存成功");
+                    });
+                })
+            })
+        }
+
+
+    </script>
+</body>
+</html>

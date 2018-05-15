@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>组织详情</title>
+    <link href="inc/layer/need/layer.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="inc/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/dom.js"></script>
+    <script type="text/javascript" src="js/zz.js"></script>
+    <!--[if lte IE 8]>     <script src="inc/compatible_ie8.js"></script> <link href="css/compatible_ie8.css" rel="stylesheet">     <![endif]-->
+    <style type="text/css">
+        .box {height: 100%; border-radius: 8px; overflow: hidden}
+        .box .item {overflow: hidden; padding-left: 11px}
+        .box .item>img {width: 24px; height: auto; margin: 16px}
+        .box .item>span {line-height: 56px}
+        .ctbox {overflow-y: scroll; overflow-x: hidden; transition-duration: .3s}
+        .ctbox>div {line-height: 50px; padding-left: 70px; font-size: 13px}
+        .ctbox>div:hover {cursor: pointer; background-color: #F7775F; color: white}
+
+        .topbox {padding: 12px 28px; border-top-left-radius: 8px; border-top-right-radius: 8px}
+        .topbox>span {padding: 4px 16.5px; border-radius: 13px; margin-right: 15px; display: inline-block}
+
+        .zzbox {padding: 32px 28px;border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; margin-top: 12px}
+        .zzbox .face {width: 100px; height: 100px; float: left}
+        .zzbox .ct {margin-left: 132px}
+        .zzbox .ct>div {margin-bottom: 10px}
+        .zzbox .ct>div>.tt {display: inline-block; width: 70px}
+
+        .btmbox {margin-top: 12px; border-radius: 8px; padding-bottom: 20px; overflow: hidden}
+        .btmbox .tb {line-height: 38px; display: inline-block; border-bottom: 2px solid transparent; width: 75px; font-weight: 600}
+        .btmbox .tb.ok {border-color: #F7775F}
+        .btmbox .btns>span {display: inline-block; width: 107px; height: 38px; text-align: center; line-height: 38px; border:1px solid #D9D9D9; border-left:none ; box-sizing: border-box; float: left; background-color: #F5F5F5}
+        .btmbox .btns>span.ok {font-weight: 600; color: white; background-color: #F7775F; border-color: #F7775F; border-right-color: #D9D9D9}
+        .btmbox select {height: 34px; line-height: 34px; margin-top: 1px; width: 10%; margin-right: 20px; border:1px solid #D9D9D9; background-color: white}
+        .btmbox .oh .btn {height: 32px; line-height: 35px; width: 10%; border:1px solid #009AD0; color: #009AD0; border-radius: 5px; margin-top: 1px; position: relative; margin-right: 20px; float: left; text-align: center}
+        .btmbox .oh .btn.right {float: right; margin-right: 0px; margin-left: 20px}
+        .btmbox .oh .btn:hover{cursor: pointer; background-color: #009AD0; color: white}
+        
+    </style>
+</head>
+<body>
+    <script type="text/javascript" >zzInfo(0)</script>
+    <div class="btmbox bcw">
+        <span onclick="selectItem(0)" class="tb tc ok poi">组织方案</span>
+        <span onclick="selectItem(1)" class="tb tc poi">组织成员</span>
+        <div style="height: 12px; background-color: #F5F5F5; border-top: 1px solid #D9D9D9"></div>
+        <iframe frameborder="0" style="height:650px" id="zzctiframe"></iframe>
+    </div>
+    <script type="text/javascript" src="js/comm.js"></script>
+    <script type="text/javascript" src="inc/layer/layer.js"></script>
+    <script type="text/javascript">
+
+        var sps = document.querySelectorAll(".btmbox>span");
+
+        function selectItem(idx) {
+            if(idx===0) {
+                zzctiframe.src='zzmanage.html?gid='+gid+'&pid='+pid;
+                sps[0].className='tb tc ok poi';
+                sps[1].className='tb tc poi';
+            } else if(idx===1) {
+                zzctiframe.src='zzmember.html?gid='+gid;
+                sps[0].className='tb tc poi';
+                sps[1].className='tb tc ok poi';
+            }
+        }
+        
+        var gid = Unit.query("gid");
+        var pid = null;
+        var zzctiframe = document.getElementById("zzctiframe");
+        $(zzctiframe).ready(function () {
+            setIframeHeight(zzctiframe);
+            parent.setIframeHeight(parent.ctframe);
+        });
+
+        function pageload() {
+            orgshow(gid);
+        }
+
+
+        function showedit() {
+            Prompt.openIfr('orgedit.html?gid='+gid, {w:450,h:420}, function (a) {
+                if(parseInt(a)) {
+                    top.layer.msg("组织编辑成功！");
+                    setTimeout(function () {
+                        location.reload();
+                    },1000);
+                }
+            })
+        }
+
+        function orginvite() {
+            Prompt.openIfr('invitebox.html?gid='+gid,{w:680,h:350}, function (a) {
+                if(parseInt(a)) {
+                    id_zzctiframe.contentWindow.location.reload();
+                }
+            });
+        }
+
+        top.fiddict = {};
+        Http.get("api/group/member", {gid:gid,pageno:1,pagesize:999999}, function(r) {
+            if(r.length>0) {
+                var mdict = {};
+                for(var i=0;i<r.length;i++)
+                    mdict[r[i].CustomerID] = r[i];
+                top.fiddict = mdict;
+            }
+        });
+
+
+
+    </script>
+</body>
+</html>

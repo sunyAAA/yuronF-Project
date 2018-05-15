@@ -1,5 +1,5 @@
 var TimeSpanDay=86400000,NumberType=typeof(0);
-var TimeSpanMonth=TimeSpanDay*30,MyHistory=[];
+var TimeSpanMonth=TimeSpanDay*30,MyHistory=[],G_ids;
 var pageData={
 	total:0,//项目总金额
 	start:0,//起租日
@@ -12,6 +12,7 @@ var pageData={
 	residual:0,//残值收入
 	cashflow:0,//现金流量
 	cashAdjustment:0,//现金流调整
+	selfCash:0,//手工现金调整
 	isCFA:0,//是否调整现金流
 	taxExpenditure:0,//税收支出
 	E:[],//其它占比
@@ -64,7 +65,7 @@ window.onload=function(){
 	getTax(function(){
 		clsInp(false);
 		reinitPageData();
-		//showlong();
+		showlong();
 		var act=query('calc');
 		if(act=='1'){
 			ifrInit();
@@ -75,7 +76,6 @@ window.onload=function(){
 		else{
 			//nothing
 		}
-		
 	});
 }
 //重新初始化页面数据
@@ -89,21 +89,21 @@ function closewindow(){
 }
 //数据模板
 function dataTemplate(i){
-	//D1 是否满月,F1:'n'自动计算，如果为数字则为用户手工输入，I1：用户手动输入，spy：间隔月，std：间隔日，tax税收，
+	//D1 是否满月,F1:'n'自动计算，如果为数字则为用户手工输入，J：手工调整现金流，spy：间隔月，std：间隔日，tax税收，
 	//y：所在年份，days:从起租日到还款日的天数，mdays：中间变量
-	var i1=0;
+	/*var i1=0;
 	if(i!=null){
 		i1=g('I_'+i);
 		if(i1)i1=I('I_'+i);else i1=0;
-	}
-	return {B:0,C:0,D:0,D1:1,E:0,F:0,F1:'n',G:0,H:0,I:0,I1:i1,spy:0,spd:0,tax:0,y:0,days:0,mdays:0};
+	}*/
+	return {B:0,C:0,D:0,D1:1,E:0,F:0,F1:'n',G:0,H:0,I:0,J:0,spy:0,spd:0,tax:0,y:0,days:0,mdays:0};
 }
 //根据修改结果显示数据
 function fillChangeForList(impdata){
 	var total=impdata?impdata.length:(pageData.years*pageData.times);
 	var days=0,odays=0,temp=0;
 	if(pageData.inpType!=9)
-		g('B9').innerHTML=g('B_0').innerHTML=cnDate(new Date(pageData.start));
+		g('B9').value=g('B_0').value=cnDate(new Date(pageData.start));
 	calcBspyd(total,null,impdata);
 	//计算扩展数据
 	calcExt();
@@ -178,7 +178,7 @@ function calcExt(loop){
 		temp.tax=F2(temp.E/(1+TaxObj[pageData.taxType][4])*TaxObj[pageData.taxType][4]);
 		//现金流调整
 		//temp.I= F2((temp.I1=='n'?0:temp.I1)-(pageData.haveTax?temp.tax:0));
-		temp.I= (temp.I1=='n'?0:temp.I1)-(pageData.haveTax?temp.tax:0);
+		temp.I= 0-(pageData.haveTax?temp.tax:0);
 		//现金流变化
 		pageData.isCFA+=temp.I;
 		//年利息小计
@@ -217,10 +217,10 @@ function calcExt(loop){
 		temp.G=F2((i==0?pageData.notreclaimed:pageData.data[i-1].G)-temp.F);
 		//现金流量
 		if(i==pageData.data.length-1){
-			temp.H=F2(temp.C-pageData.EV[1]+pageData.residual+temp.I+pageData.remain);
+			temp.H=F2(temp.C-pageData.EV[1]+pageData.residual+temp.I+temp.J+pageData.remain);
 		}
 		else
-			temp.H=F2(temp.C+temp.I);
+			temp.H=F2(temp.C+temp.I+temp.J);
 		cf.push(temp.H);
 		//利息总额
 		pageData.totalInterest=F2(temp.E+pageData.totalInterest);
@@ -263,7 +263,7 @@ function calcExt0(){
 	pageData.taxExpenditure=-pageData.taxExpenditure;
 	//现金流调整
 	pageData.cashAdjustment=(pageData.haveTax?pageData.taxExpenditure:0);
-	pageData.cashflow=pageData.EV[0]+pageData.EV[1]+pageData.noInterestTotal+pageData.cashAdjustment-pageData.total;
+	pageData.cashflow=pageData.EV[0]+pageData.EV[1]+pageData.noInterestTotal+pageData.selfCash+pageData.cashAdjustment-pageData.total;
 	//计算其它费用
 	pageData.totalInterest=pageData.totalRepayment=pageData.isCFA=0;
 }
@@ -325,7 +325,7 @@ function resetLastG(){
 			temp.tax=F2(temp.E/(1+TaxObj[pageData.taxType][4])*TaxObj[pageData.taxType][4]);
 			//现金流调整
 			//temp.I= F2((temp.I1=='n'?0:temp.I1)-(pageData.haveTax?temp.tax:0));
-			temp.I= (temp.I1=='n'?0:temp.I1)-(pageData.haveTax?temp.tax:0);
+			temp.I= (temp.J==0?0:temp.J)-(pageData.haveTax?temp.tax:0);
 			//现金流变化
 			pageData.isCFA+=temp.I;
 			//年利息小计
@@ -379,8 +379,7 @@ function tozerosh(){
 		}
 	}
 	g('tozero').className=css;
-	g('I1').className=(css=='hide'?'':'readonly');
-	g('I1').setAttribute('contenteditable',css=='hide'?'true':'false');
+	g('I1').readOnly=(css!='hide');
 }
 //计算单irr
 function getIrr(v,retry,cur,step,deep,ys,times,last){
@@ -509,8 +508,16 @@ function calcIRR(v,cur,step,deep,gcd,times,last){
 	//计算成功
 	if(temp==0){
 		H('I'+v,toPercent(cur));
-		if(v!=9)
-			g('I'+v).className=pageData.equalInterval?'':'errorResult';
+		if(v!=9){
+			var fi='';
+			for(var i=0;i<pageData.data.length;i++){
+				if (isInt(pageData.data[i].spy))
+					continue;
+				fi='errorResult';
+				break;
+			}
+			g('I'+v).className= fi;
+		}
 		switch(v){
 			case 6:pageData.IRRY=cur;break;
 			case 7:pageData.IRRMAXM=cur;break;
@@ -545,6 +552,13 @@ function calcIRR(v,cur,step,deep,gcd,times,last){
 		calcIRR(v,cur,step,deep,gcd,times,last);
 	}
 }
+function showError(id,show){
+	var o=g(id),cs=' errorResult';
+	if(show&&o.className.indexOf(cs)==-1)
+		o.className+=cs;
+	if(!show&&o.className.indexOf(cs)>-1)
+		o.className=o.className.replace(cs,'')
+}
 //展示最终结果
 function fillResult(addrestore){
 	clsInp(false);
@@ -554,16 +568,15 @@ function fillResult(addrestore){
 	H('B4',pageData.times,true);
 	H('B5',pageData.data.length);
 	H('B6',pageData.months);
-	//H('B2',pageData.rate);
 	fillFormatLong('B2');
 	H('G1',pageData.rent);
-	g('G1').className='readonly'+(pageData.equalRent?'':' errorResult');
-	//H('G4',pageData.yearIncome+pageData.noInterestTotal);
+	showError('G1',!pageData.equalRent);
 	H('B7',pageData.remain);
 	H('B8',pageData.residual);
-	g('B9').innerHTML=g('B_0').innerHTML=cnDate(D(pageData.start));
+	g('B9').value=g('B_0').value=cnDate(D(pageData.start));
 	H('G_0',pageData.notreclaimed);
 	H('I_0',pageData.cashAdjustment);
+	H('J_0',pageData.selfCash);
 	H('H_0', pageData.cashflow);
 	H('D9', pageData.totalInterest);
 	H('E9', toPercent(pageData.totalInterest/pageData.total));
@@ -575,12 +588,10 @@ function fillResult(addrestore){
 	H('G7',pageData.capitalOccupation);
 	fillFormatLong('G8');
 	fillFormatLong('G9');
-	//H('G8',toPercent(pageData.IRR));
-	//H('G9',toPercent(pageData.XIRR));
 	H('I1',pageData.data[pageData.data.length-1].G);
 	H('E8',pageData.noInterestTotalRatio);
 	H('D8',pageData.noInterestTotal);
-	g('G8').className='readonly center '+(pageData.equalInterval?'':' errorResult');
+	showError('G8',!pageData.equalInterval);
 	g('I6').innerHTML='-';
 	g('I7').innerHTML='-';
 	g('I8').innerHTML='-';
@@ -598,6 +609,7 @@ function fillResult(addrestore){
 	var d=pageData.data,id;
 	var dv=pageData.IntervalUnit==1?'spy':'spd';
 	if(d.length>0){
+		otherIrr(true);
 		for (var i=0;i<d.length;i++){
 			id=i+1;
 			H('B_'+id,d[i].B,null,true);
@@ -608,6 +620,7 @@ function fillResult(addrestore){
 			H('G_'+id,d[i].G,null,true);
 			H('H_'+id,d[i].H,null,true);
 			H('I_'+id,d[i].I,null,true);
+			H('J_'+id,d[i].J,null,true);
 		}
 	}
 	//
@@ -616,8 +629,6 @@ function fillResult(addrestore){
 		H('E'+i,pageData.E[i-1]);
 	}
 	g('calcButton').className='hide';
-	//g('I1').className='';
-	//g('I1').setAttribute('contenteditable','true');
 	setChangeState(false);
 	showlong();
 	//历史
@@ -630,10 +641,10 @@ function fillResult(addrestore){
 //清空数据
 function clsInp(conf){
 	if(!conf||confirm('当前数据尚未保存，您确定要清空数据？')){
-		$('[contenteditable="true"]').html('');
-		$('.readonly').html('');
+		for(var i=0;i<G_ids.length;i++)
+			T_val(g(G_ids[i]),'');
 		g('I6').innerHTML=g('I7').innerHTML=g('I8').innerHTML=g('I9').innerHTML='-';
-		g('I1').innerHTML=0;
+		g('I4').innerHTML='否';
 		g('calcButton').className='button';
 		if(conf){
 			tozerosh();
@@ -643,7 +654,7 @@ function clsInp(conf){
 			HistoryOp.add(true);
 		}
 		if(pageData.data.length==0){
-			setEdit('I_,B_,E_,F_',false);
+			setEdit('B_,E_,F_,J_',false);
 			setEdit('C_,D_',true);
 			setIntervalUnit(1);
 			//
@@ -652,14 +663,22 @@ function clsInp(conf){
 			g('taxType').disabled=true;
 			pageData.taxType=1;
 			pageData.haveTax=false;
-			g('B9').innerHTML=getDefaultDate();
+			g('B9').value=getDefaultDate();
 			H('B8',db('residual'));
 		}
-		g('I1').setAttribute('contenteditable','false');
-		g('I1').className='readonly';
+		g('I1').value='';
+		g('I1').readOnly=true;
 		showlong();
+		otherIrr(false);
 		setChangeState(true);
 		setCanEditEditer(true);
+	}
+}
+//显示其它IRR计算
+function otherIrr(show){
+	for(var i=6;i<=9;i++){
+		g('I'+i+'_s').style.display=show?'block':'none';
+		if(show)g('I'+i).className='';
 	}
 }
 
@@ -701,8 +720,10 @@ function pmt(){
 	var b=Math.pow(1+i,n)*i;	
 	var c=Math.pow(1+i,n)-1;
 	var per=F2(a*(b/c)+pn*i);
-	if(pageData.inpType==1)
+	if(pageData.inpType==1){
 		initPageData(B1,B2,B3,B4,per,B7,pageData.inpType,false);
+		setEdit('B_,J_',true);
+	}
 	else{
 		pageData.equalRent=per;
 		pageData.rent=per;
@@ -721,8 +742,9 @@ function initPageData(B1,B2,B3,B4,per,B7,type,initEV){
 	pageData.equalRent=per;
 	pageData.rent=per;
 	pageData.remain=B7;
+	pageData.selfCash=0;
 	if(pageData.inpType==1||pageData.inpType==3){
-		pageData.start=new Date(g('B9').innerHTML).getTime();
+		pageData.start=new Date(g('B9').value).getTime();
 		pageData.residual=I('B8');
 		pageData.E=[];
 		pageData.EV=[];
@@ -730,8 +752,8 @@ function initPageData(B1,B2,B3,B4,per,B7,type,initEV){
 		for (var i=1;i<=7;i++){
 			pageData.E[i-1]=pageData.EV[i-1]=0;
 			if(initEV){
-				g('D'+i).innerHTML='0.00';
-				g('E'+i).innerHTML='0.00%';
+				g('D'+i).value='0.00';
+				g('E'+i).value='0.00%';
 			}
 		}
 		if(pageData.total!=0)
@@ -801,27 +823,17 @@ function calc(retry){
 }
 //禁用列表列
 function setEdit(tag,enable){
-	enable=!!enable;
+	enable=!enable;
 	var cn= 'readonly',a,ts=tag.split(','),j;
 	for (var i=1;i<=pageData.maxLine;i++){
 		for(j=0;j<ts.length;j++){
 			if(a=g(ts[j]+i)){
-				if(enable)
-					$('#'+a.id).removeClass(cn);
-				else
-					$('#'+a.id).addClass(cn);
-				a.setAttribute('contenteditable',enable);
+				a.readOnly=enable;
 			}
 		}
 	}
-	g('I_0').className=cn;
-	/*
-	if(tag.indexOf('I_')!=-1){
-		a=g('I_0');
-		a.className=enable?'':cn;
-		a.setAttribute('contenteditable',enable);
-	}
-	*/
+	if(tag.indexOf('J_')>-1)
+		g('J_0').readOnly=enable;
 }
 //上栏是否可编辑
 function setCanEditEditer(enable){

@@ -44,28 +44,30 @@
         var id = Unit.query('id')
         var pois = document.querySelectorAll(".manage .poi");
         var miframe = document.getElementById("miframe");
+        var pid = -1;
         var frames = ['caselist.html', 'casedata.html', 'transstructure.html', 'caserecord.html', 'projrecord.html'];
         for(var i=0;i<pois.length;i++) {
-            pois[i].onclick = function(p) {
+            pois[i].onclick = function(e,p) {
                 var sok = document.querySelector(".manage .poi.ok");
                 if(sok)
                     sok.className = "poi";
                 this.className = "ok poi";
                 var params=''
-                console.log(p)
                 if(p){
                     params='&id='+p
                 }else{
                     params='&id='+id
                 }
-                console.log(params)
-                miframe.src = frames[parseInt(this.getAttribute("idx"))]+'?pid=-1'+params;
+                miframe.src = frames[parseInt(this.getAttribute("idx"))]+"?pid="+pid+params;
             }
         }
         var idx = parseInt(Unit.query("idx"));
         isNaN(idx)&&(idx=0);
         pois[idx].onclick();
-
+        var pi = Number(Unit.query('pois'));
+        if(id){
+            pois[pi].click()
+        }
     </script>
 </body>
 </html>

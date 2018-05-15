@@ -28,9 +28,18 @@
         var create = Unit.query("create");
         var pid = Unit.query("pid");
         var reT = decodeURIComponent(Unit.query('reT'))
-        console.log(reT)
-
-        function saveData() {
+        var name = ''
+        top.promptEndFunc = function(a){
+            console.log(a)
+            if(a!=null) {
+                name = a
+            }
+            done()
+        }
+        function saveData(){
+            Prompt.openIfr('popinput.html?title=提示&placeholder=请输入数据简称&noclose=0', {w:350,h:250});
+        }
+        function done() {
             if(captureData()) {
                 if(pid) {
                     saveObj.projectid = pid;
@@ -39,9 +48,10 @@
                     Http.post("api/calc/save",obj,function(r) {
                         LoadingBox.hide();
                         layer.msg("测算数据保存成功！");
+                        console.log(r)
                         if(reT){
                             setTimeout(function(){
-                                location.href= (reT+'&id='+r)
+                                location.href= (reT+'&id='+r+'&pois=1')
                             }, 1200);
                         }
                     })
@@ -54,6 +64,13 @@
                             Http.post("api/calc/save",obj,function(r) {
                                 LoadingBox.hide();
                                 layer.msg("测算数据保存成功！");
+                                setTimeout(function(){
+                                    if(a == -1){
+                                        location.href='lswj.html?pid='+a+'&id='+r+'&pois=1'
+                                    }else{
+                                        location.href='projdetail.html?pid='+a+'&id='+r+'&pois=1'
+                                    }
+                                }, 1200);
                             })
                         }
                     })
@@ -73,7 +90,9 @@
 
 
         function transData() {
-            var json = {};
+            var json = {
+                calctitle:name
+            };
             for(var i in saveObj) {
                 if(saveObj.hasOwnProperty(i)) {
                     json[i] = saveObj[i]+"";
@@ -97,10 +116,11 @@
 
         var csbframe = document.getElementById("csbframe");
         userPrivilege(function () {
-            csbframe.src = "tool/new.html";
+            csbframe.src = "tool/new.html?_tsp="+Math.random();
         });
         $(csbframe).load(function () {
             csbframe.contentWindow.setProfessional(privilege);
+            console.log('csb:'+privilege);
             setTimeout(function () {
                 csbframe.style.opacity = 1;
             },200);
@@ -159,62 +179,18 @@
                     		subwin.pageData = temp;
                  	//subwin.calcBspyd(data.length,data);
                  	
-                    subwin.calcTop();
-                    subwin.fillResult();
+                    //subwin.calcTop();
+                    		subwin.fillResult();
+                    		if(temp.haveTax){
+                				subwin.g('taxswitch').value=2;
+							subwin.g('taxType').value=temp.taxType;
+							subwin.g('taxType').disabled=false;
+                			}
                     }
                     else{
                     		alert('数据已破坏');
                     }
-                    return;
-                    
-                    if(r&&r.jsonstr.length>10){
-                    		var temp=JSON.parse(r.jsonstr);
-                    		subwin.pageData = temp;
-                 	//subwin.calcBspyd(data.length,data);
-                 	
-                    subwin.calcTop();
-                    subwin.fillResult();
-                    }
-                    else{
-                    		alert('数据已破坏');
-                    }
-                    return;
-                    
-                    for(var i=0;i<connect.length;i++) {
-                        if(r[connect[i].a]) {
-                            if(connect[i].b.indexOf("-")>-1) {
-                                var as = connect[i].b.split("-");
-                                d[as[0]][as[1]] = parseFloat(r[connect[i].a]);
-                            } else if(connect[i].b==="///") {
-                            } else {
-                                d[connect[i].b] = parseFloat(r[connect[i].a]);
-                            }
-                            if(exp.test(d[connect[i].b]))
-                            		d[connect[i].b]=Number(d[connect[i].b]);
-                            //	console.log(connect[i].b+'--'+r[connect[i].a]+'--'+d[connect[i].b]);
-                        }
-                    }
-                    d.data=[];
-                    var data=[];
-                    var temp,tpstr=typeof(''),dateobj;
-                    for(var i=0;i<r.app.length;i++){
-                    		temp=subwin.dataTemplate();
-                    		for(var att in r.app[i]){
-                    			if(typeof(att)==tpstr)
-                    				temp[att.toUpperCase()]=r.app[i][att];
-                    		}
-                    		if(temp.E1=="undefined")
-                    			temp.E1='n';
-                    		dateobj=new Date(temp.B);
-                    		
-                    		temp.B=dateobj.getFullYear()+'-'+(dateobj.getMonth()+1)+'-'+dateobj.getDate();
-                    		data.push(temp);
-                    }
-                    subwin.pageData = d;
-                 	subwin.calcBspyd(data.length,data);
-                    subwin.fillResult();
-                    subwin.calcTop();
-                })
+                });
             }
         });
 
@@ -298,58 +274,6 @@
                     } else
                         saveObj[connect[i].a] = d[connect[i].b];
                 }
-
-                /*
-                saveObj.totalmoney = d.total;
-                saveObj.yearrate = d.rate;
-                saveObj.backcount = d.times;
-                saveObj.leasedate = d.years;
-                saveObj.marginrate = 0;  //未用
-                saveObj.serverrate = d.E[0];
-                saveObj.yearburdenrate = d.totalBurden;
-                //saveObj.remark = "";
-                saveObj.equaldate = d.equalRent;
-                saveObj.equalmonth = d.equalInterval;
-                saveObj.rentmoney = d.totalRepayment;
-                saveObj.irr = d.IRR;
-                saveObj.xirr = d.XIRR;
-                saveObj.headmoney = d.EV[0];
-                saveObj.headrate = d.E[0];
-                saveObj.dengebenxi = d.rent;   //等额租金
-
-                saveObj.weihuishouchengbenmoqiyue = Math.round(subwin.pageData.data[subwin.pageData.data.length-1].G*100)/100;
-                saveObj.baozhengjin = d.EV[1];
-                saveObj.baozhengjinrate = d.E[1];
-                saveObj.huankuanzonge = d.totalRepayment;
-                saveObj.xianjinliushuishoutiaozheng = d.haveTax;
-                saveObj.qixiannian = d.years;
-                saveObj.qixianyue = d.years * 12;
-                saveObj.fuwufeishouru = d.EV[2];
-                saveObj.zongshouyie = d.totalIncome;
-                saveObj.shuilvtiaozheng = d.taxType;
-                saveObj.nianhuankuancishu = d.times;
-                saveObj.zixunfeishouru = d.EV[3];
-                saveObj.zixunfeishoururate = d.E[3];
-                saveObj.dangnianzongshouyie = d.yearIncome;
-                saveObj.tiaozhengxianjinliu = d.cashAdjustment;
-                saveObj.zonghuankuancishu = d.years * d.times;
-                saveObj.baoxianshouru = d.EV[4];
-                saveObj.baoxianshoururate = d.E[4];
-                saveObj.xuncunxirr = 0;  //不做
-                saveObj.qitashouru = d.EV[5];
-                saveObj.qitashoururate = d.E[5];
-                saveObj.pingmianlilv = d.flatRate;
-                saveObj.zuidagongyueyueirr = d.IRRMAXM;
-                saveObj.canzhishouru = d.residual;
-                saveObj.feilixishouruheji = d.noInterestTotal;
-                saveObj.feilixishouruhejirate = 0; //未用
-                saveObj.shijijiangeyueirr = d.IRRSPY;
-                saveObj.qizuri = d.start;
-                saveObj.lixizonge = d.totalInterest;
-                saveObj.lixizongerate = 0; //未用
-                saveObj.shijijiangetianirr = d.IRRSPD;
-                */
-
                 calcRes = [];
                 for(var i=0;i<d.data.length;i++) {
                     var r = d.data[i];

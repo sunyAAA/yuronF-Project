@@ -86,17 +86,18 @@
                                 <td style="width: 40px" class="th">\
                                     <span class="checkbox"><img src="img/cno.png">全选</span>\
                                 </td>\
-                                <td  style="width: 40px"class="th">序号</td>\
+                                <td  style="width: 40px"class="th">数据简称</td>\
                                 <td style="background-color:white" rowspan="11"><div><div id="innerTbBox" ></div></div></td>\
                                 <td class="th" style="border-right: 0px; width: 120px">操作</td>\
                             </tr>'];
                 for(var i=0;i<r.list.length;i++) {
                     dataDict[r.list[i].calcresultid] = r.list[i];
+                    var title = r.list[i].calctitle || ''
                     tbes.push('<tr>\
                                     <td>\
                                         <span tid="'+r.list[i].calcresultid+'" class="checkbox"><img src="img/cno.png"></span>\
                                     </td>\
-                                    <td style="white-space: nowrap" idx="'+i+'">'+(i+t+1)+'</td>\
+                                    <td style="white-space: nowrap;max-width:100px;overflow:hidden" idx="'+i+'">'+title+'</td>\
                                     <td>\
                                         <span onclick="window.open(\'csb.html?calcid='+r.list[i].calcresultid+'\')" class="btn bcf7">详情</span>\
                                         <span onclick="dataRemark('+r.list[i].calcresultid+')" class="btn">备注</span>\
@@ -177,6 +178,7 @@
                 if(id == d.calcresultid){
                     checkedIndex = i
                 }
+                console.log(id)
                 var taxtype = ['直租赁','回租赁','保理','贷款'][d.shuilvtiaozheng-1];
                 var tps = '<tr>\
                     <td class="moneyc c009">'+toMoney(d.totalmoney)+'</td>\

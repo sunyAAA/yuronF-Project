@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>上传完成</title>
+</head>
+<body>
+<script>
+    window.onload = function () {
+        var jstr = decodeURIComponent(location.href.split("?")[1].split("=")[1]);
+        var obj = null;
+        try {
+            obj = JSON.parse(jstr);
+        } catch (e) {}
+        if(!obj)
+            obj = jstr;
+        parent.upOk(obj);
+    }
+</script>
+</body>
+</html>
